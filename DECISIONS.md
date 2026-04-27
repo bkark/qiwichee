@@ -109,3 +109,32 @@ music metaphor, implies connection between artists and fans.
 - [ ] Talk to 5 artists to validate
 - [ ] Talk to 2-3 venues
 - [ ] Consult entertainment lawyer for intermittent feature
+
+## Updates — Session 1 Extended (2026-04-26)
+
+### New Decisions
+
+- Platform name confirmed: RÉSONANCE
+- Influencer side name confirmed: AMPLIFICATEURS
+- Fifth marketplace side added: Influencers
+- Architecture: Modular monolith first, microservices later
+- 12 modules defined mirroring future service boundaries
+- Modules never access each other's database directly
+- Communication via defined interfaces only
+- Supabase for PostgreSQL database (free tier)
+- Upstash Redis for caching and queues (free tier)
+- YouSign for electronic signatures (French, GDPR)
+- Mailchimp configured: Audience ID c5532d5f66
+- Double opt-in and GDPR fields enabled on Mailchimp
+
+### Résonance Five Sides
+- Artists: pay subscription, get complete platform
+- Fans: free, discover, buy, fund
+- Venues: pay listing, fill empty dates
+- Studios: pay listing, fill empty studio time
+- Amplificateurs: free basic, paid premium, promote artists
+
+### Architecture Phases
+- Phase 1: Modular monolith (now to 10 artists)
+- Phase 2: Extract notification, AI, legal services
+- Phase 3: Full microservices on AWS/GKE when funded

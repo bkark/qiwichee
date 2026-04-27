@@ -54,3 +54,16 @@ Push to GitHub — Vercel auto-deploys automatically
 - Use View > Terminal in VS Code
 - Long pastes via cat > file << ENDOFFILE pattern
 - gh CLI v2.4 — run gh auth setup-git if push fails
+
+## Platform Context
+This site is the proof of concept for RÉSONANCE —
+a five-sided marketplace for independent artists:
+Artists, Fans, Venues, Studios, Amplificateurs (influencers)
+
+Built as modular monolith, designed for future
+microservices extraction.
+
+## Mailchimp
+Audience: Qiwichee Fans (ID: c5532d5f66)
+Double opt-in and GDPR enabled
+API key stored in Vercel environment variables

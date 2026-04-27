@@ -187,3 +187,63 @@ Make every person feel like an insider not a customer:
 - /modules/team — roles, invitations, band management
 - /modules/projects — project cards, tasks, activity feed
 - Total modules: 14
+
+## MVP RESET — Session 1 Final (2026-04-26)
+
+### Decision: Scope Reset After External Review
+A second AI reviewed the full vision and gave
+brutally honest feedback. Key findings accepted:
+
+- We were building 8 startups simultaneously
+- 14 modules is enterprise architecture for a solo dev
+- Network effects don't exist at 1-10 artists
+- Legal automation is high risk — needs lawyer first
+- Non-incorporated artists cannot issue invoices
+- Must ask legal structure before ANY payment workflow
+
+### What We Agreed With
+- Full vision is correct as north star
+- Modular monolith approach is correct
+- GUSO + CDDU + Intermittent = killer feature
+- French legal complexity = unfair advantage
+- Emotional design principle = brilliant
+- Build phases were too ambitious
+
+### What We Partially Disagreed With
+- Sanity overkill: disagree for multi-artist template
+- Full crowdfunding complex: simple presale is fine later
+- Vision being wrong: vision is right, TIMING was wrong
+
+### New MVP Definition
+THREE MODULES ONLY:
+1. /website — bilingual, player, fan signup, CMS
+2. /concerts — events, tickets, attendee list
+3. /legal — GUSO, CDDU, intermittent tracker (KILLER)
+
+### Legal Payment Workflow Decision
+Non-incorporated artist workflow:
+- Cannot issue invoices legally
+- Platform MUST ask legal structure first
+- GUSO (venue employer) → most common for MVP
+- CAE / Association / Company → later phases
+- Consult entertainment lawyer before building /legal
+
+### Out Of Scope Until Phase 4 Validation
+PR tools, influencers, crowdfunding, marketplaces,
+SACEM automation, Redis, queues, event streaming,
+microservices, team roles, analytics, AI suite,
+multi-tenant, notifications engine.
+
+### Validation Gate (Phase 4)
+Show working MVP to 5-10 real artists.
+If they pay → continue building.
+If they don't → pivot one feature.
+Do not expand scope without this validation.
+
+### Business Planning
+Separate track with Copilot AI:
+- Positioning and messaging
+- Pricing strategy
+- Investor narrative
+- Market validation plan
+- Go-to-market strategy

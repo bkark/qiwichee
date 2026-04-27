@@ -281,3 +281,36 @@ Separate track with Copilot AI:
 3. Build real landing page
 4. Connect Mailchimp signup form
 5. Push → live on qiwichee.vercel.app
+
+## Domain Management Decisions (2026-04-26)
+
+### Domain Transparency
+- Visitors never see vercel.app after domain connected
+- SSL certificate automatic and free via Vercel
+- Sanity CMS completely invisible to visitors
+- Every page stays on artist's own domain
+
+### DNS Records For Vercel
+- A record: @ → 76.76.21.21
+- CNAME record: www → cname.vercel-dns.com
+- Propagation: 10 min to 48h (usually under 1h)
+
+### Three Onboarding Scenarios
+1. No domain → use vercel.app temporarily
+2. Has domain, no site → 2 DNS records, done
+3. Has domain + live site → build first, switch after
+
+### Email Warning Decision
+Always warn artist about MX records before DNS change
+A record change does NOT affect email
+Only add/edit A and CNAME records we specify
+
+### Multi-Tenant Domain (Phase 5+)
+One Vercel project serves all artists
+Next.js reads domain from HTTP request
+Each domain added to same Vercel project
+Like virtual hosting in telecom
+
+### Sanity Studio Access
+Phase 1: sanity.io/manage (simple)
+Phase 5+: artist.com/studio (professional, embedded)

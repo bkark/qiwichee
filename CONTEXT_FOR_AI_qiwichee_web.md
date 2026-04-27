@@ -1,10 +1,10 @@
 # Résonance — AI Context File
 > Paste this at the start of any new conversation to resume instantly.
 
-**Last updated:** 2026-04-26 — End of Session 1 (FINAL)
-**Session duration:** ~12 hours
-**Status:** Site is LIVE at qiwichee.vercel.app ✅
-**Next session goal:** Replace default page with real Qiwichee landing page
+**Last updated:** 2026-04-26 — End of Session 1 (ABSOLUTE FINAL)
+**Session duration:** ~13 hours
+**Status:** Site LIVE at qiwichee.vercel.app ✅
+**Next session goal:** Build real Qiwichee landing page
 
 ---
 
@@ -39,7 +39,7 @@ BUILD NOW:   3 modules only
 ├── Bilingual FR/EN (next-i18n)
 ├── Music player (Songlink/Odesli)
 ├── Fan email signup (Mailchimp)
-├── Simple CMS (Sanity — minimal)
+├── Simple CMS (Sanity — minimal schema)
 └── Clean artist presentation
 ```
 
@@ -87,21 +87,120 @@ event streaming, microservices.
    (showing default Next.js page)
    Auto-deploys on every git push
 
-✅ github.com/bkark/qiwichee — code repository
-✅ Mailchimp — Qiwichee Fans audience configured
-✅ Sanity.io — project created (30-day trial, no card)
+✅ github.com/bkark/qiwichee — repository
+✅ Mailchimp — Qiwichee Fans configured
+✅ Sanity.io — project created
 ✅ All environment variables set in Vercel
 ```
 
 ---
 
-## ENVIRONMENT VARIABLES (set in Vercel)
+## ENVIRONMENT VARIABLES (in Vercel)
 
 ```
-NEXT_PUBLIC_SANITY_PROJECT_ID  = bayrhx8r
-NEXT_PUBLIC_SANITY_DATASET     = production
+NEXT_PUBLIC_SANITY_PROJECT_ID     = bayrhx8r
+NEXT_PUBLIC_SANITY_DATASET        = production
 NEXT_PUBLIC_MAILCHIMP_AUDIENCE_ID = c5532d5f66
-MAILCHIMP_API_KEY              = [private — in Vercel only]
+MAILCHIMP_API_KEY                 = [private]
+```
+
+---
+
+## DOMAIN MANAGEMENT — HOW IT WORKS
+
+### Transparency — Visitors Never See Vercel
+```
+Before domain: visitor sees qiwichee.vercel.app
+After domain:  visitor sees qiwichee.com always
+               Vercel is completely invisible
+               Every page stays on qiwichee.com
+               SSL certificate automatic (free)
+```
+
+### Buying qiwichee.com (when ready)
+```
+Buy at OVH (~€7/year)
+Add two DNS records at OVH:
+
+Type: A
+Name: @
+Value: 76.76.21.21
+TTL: 3600
+
+Type: CNAME
+Name: www
+Value: cname.vercel-dns.com
+TTL: 3600
+
+Wait 10-60 minutes → site live on qiwichee.com
+Vercel generates SSL certificate automatically
+```
+
+### New Artist Joins With Existing Domain (3 scenarios)
+
+```
+Scenario 1 — No domain yet
+└── Use artist.vercel.app temporarily
+    Guide them to buy at OVH when ready
+
+Scenario 2 — Has domain, no live site
+└── Add 2 DNS records at their registrar
+    Platform gives exact instructions
+    per registrar (OVH, GoDaddy, Namecheap...)
+    Propagation: 10 min to 48h (usually <1h)
+
+Scenario 3 — Has domain AND live site
+└── Build new site on vercel.app first
+    Artist approves the new site
+    Switch DNS during low-traffic hours
+    Verify everything works
+    Old site goes down, new site comes up
+```
+
+### Email Warning — Critical
+```
+⚠️ Always warn artist before DNS change:
+"Do you use email with this domain?
+ (hello@myartist.com)
+ Do NOT delete MX records.
+ Only add/edit A and CNAME records."
+
+A record → website (Vercel)
+MX record → email (unaffected by our changes)
+```
+
+### CMS Transparency
+```
+Sanity is completely invisible to visitors:
+Qiwi edits bio in Sanity studio
+→ Next.js fetches from Sanity API
+→ Visitor sees updated content on qiwichee.com
+→ No mention of Sanity anywhere
+
+Sanity Studio access:
+Option A (now): sanity.io/manage (simple)
+Option B (later): qiwichee.com/studio (professional)
+```
+
+### Multi-Tenant Domain Management (Phase 5+)
+```
+One Vercel project serves ALL artists:
+├── qiwichee.com → Qiwi Chee
+├── artist2.com  → Artist 2
+└── artist3.com  → Artist 3
+
+Next.js reads domain from HTTP request
+Serves correct artist content automatically
+Like virtual hosting in telecom
+```
+
+### Onboarding Guide (Phase 5+)
+```
+Platform generates personalized PDF per artist:
+├── Their domain name
+├── Their specific registrar instructions
+├── Step by step with screenshots
+└── Warning about email MX records
 ```
 
 ---
@@ -114,8 +213,7 @@ MAILCHIMP_API_KEY              = [private — in Vercel only]
 - **Current page:** msha.ke/qiwichee (keep alive)
 - **Platforms:** Spotify, Deezer, Apple Music, YouTube,
   YouTube Music, Bandcamp, SoundCloud
-- **EP:** "Hybrid Fruit"
-- **Single:** "Une Dernière Chose"
+- **EP:** "Hybrid Fruit" / **Single:** "Une Dernière Chose"
 - **Also does:** Voice acting — DO NOT mix with music site
 - **Domain target:** qiwichee.com (OVH, not yet bought)
 - **Status:** Not yet incorporated
@@ -145,11 +243,11 @@ MAILCHIMP_API_KEY              = [private — in Vercel only]
 | Service | Status | Details |
 |---|---|---|
 | GitHub | ✅ | bkark |
-| Vercel | ✅ | Live, auto-deploys from GitHub |
+| Vercel | ✅ | Live, auto-deploys |
 | Mailchimp | ✅ | Audience ID: c5532d5f66 |
-| Sanity.io | ✅ | Project ID: bayrhx8r, dataset: production |
-| Supabase | ⏳ | Needed for /concerts module |
-| Stripe | ⏳ | Simple ticket links only |
+| Sanity.io | ✅ | Project ID: bayrhx8r |
+| Supabase | ⏳ | Needed for /concerts |
+| Stripe | ⏳ | Simple ticket links |
 | OVH | ⏳ | qiwichee.com ~€7/year |
 
 ---
@@ -158,7 +256,7 @@ MAILCHIMP_API_KEY              = [private — in Vercel only]
 
 - **GitHub:** https://github.com/bkark/qiwichee
 - **Local:** /home/simba/qiwichee
-- **Live URL:** https://qiwichee.vercel.app ✅
+- **Live:** https://qiwichee.vercel.app ✅
 - **Framework:** Next.js 16.2.4, TypeScript, Tailwind
 - **Branch:** main
 
@@ -170,7 +268,7 @@ MAILCHIMP_API_KEY              = [private — in Vercel only]
 |---|---|---|
 | Framework | Next.js | ✅ installed |
 | Hosting | Vercel | ✅ live |
-| CMS | Sanity | ✅ account created |
+| CMS | Sanity | ✅ account ready |
 | Fan emails | Mailchimp | ✅ configured |
 | Database | Supabase | ⏳ later |
 | Payments | Stripe | ⏳ later |
@@ -181,30 +279,12 @@ NO Redis, NO Twilio, NO queues, NO microservices.
 
 ---
 
-## WHAT TO BUILD NEXT SESSION
-
-```
-Priority order:
-1. Install next-i18n for bilingual support
-2. Create src/locales/fr.json and en.json
-3. Replace src/app/page.tsx with real landing page:
-   ├── Qiwi Chee name and photo
-   ├── Short bio (FR + EN toggle)
-   ├── Links to Spotify, YouTube, Instagram,
-   │   Facebook, Bandcamp, SoundCloud
-   └── Fan email signup form → Mailchimp
-4. Connect Sanity for content management
-5. Push → auto-deploys to qiwichee.vercel.app
-```
-
----
-
 ## LEGAL CONTEXT — CRITICAL
 
 ```
 Non-incorporated artist CANNOT issue invoices.
 Must ask legal structure first:
-├── GUSO (venue employer) → most common
+├── GUSO (venue employer) → most common for MVP
 ├── CAE → mission request
 ├── Association → contrat de prestation
 └── Company → standard invoice
@@ -236,11 +316,20 @@ PHASE 5+ — Full Résonance vision
 
 ---
 
-## FULL VISION — NORTH STAR
+## WHAT TO BUILD NEXT SESSION
 
-Complete Résonance vision in DECISIONS.md:
-6-sided ecosystem, 14 features, full roadmap.
-DO NOT BUILD until Phase 4 validates MVP.
+```
+1. Install next-i18n for bilingual support
+2. Create src/locales/fr.json and en.json
+3. Replace src/app/page.tsx with landing page:
+   ├── Qiwi Chee name and photo
+   ├── Short bio (FR + EN toggle)
+   ├── Links to Spotify, YouTube, Instagram,
+   │   Facebook, Bandcamp, SoundCloud
+   └── Fan email signup → Mailchimp
+4. Connect Sanity for content management
+5. Push → auto-deploys to qiwichee.vercel.app
+```
 
 ---
 
@@ -248,13 +337,10 @@ DO NOT BUILD until Phase 4 validates MVP.
 
 ```
 Claude (this AI) → Dev AI
-└── Build the 3 modules step by step
+└── Build 3 modules, step by step
 
 Copilot → Business AI
-└── Positioning, pricing, pitch deck,
-    marketing, go-to-market strategy
-
-Both work from this context file.
+└── Positioning, pricing, GTM, pitch deck
 ```
 
 ---
@@ -305,11 +391,13 @@ git push
 - Apple keyboard — View > Terminal in VS Code
 - DO NOT suggest out-of-scope features
 - DO NOT plan beyond 3 modules
-- Remind user to consult lawyer before /legal
+- Remind to consult lawyer before /legal
 - Keep dependencies minimal
 - Update this file every session
 - Platform: RÉSONANCE
 - Influencer side: AMPLIFICATEURS
-- Full vision exists — north star only
+- Full vision: north star only, see DECISIONS.md
 - MVP first — validate before expanding
 - Site is LIVE — every push deploys automatically
+- Domain: transparent, visitor never sees vercel.app
+- CMS: transparent, visitor never sees Sanity

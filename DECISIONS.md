@@ -247,3 +247,37 @@ Separate track with Copilot AI:
 - Investor narrative
 - Market validation plan
 - Go-to-market strategy
+
+## Session 1 Final Update (2026-04-26)
+
+### Milestones Reached
+- qiwichee.vercel.app is LIVE ✅
+- Vercel connected to GitHub (auto-deploys) ✅
+- Sanity.io account created (Project ID: bayrhx8r) ✅
+- All environment variables set in Vercel ✅
+- Mailchimp fully configured ✅
+
+### Sanity Decision
+- Project ID: bayrhx8r
+- Dataset: production
+- Free tier (30-day trial, no credit card)
+- Minimal schema only for MVP
+
+### Vercel Decision
+- Connected via GitHub App (bkark account)
+- Only qiwichee repository selected (least privilege)
+- Auto-deploys on every git push to main
+- Environment variables stored securely in Vercel
+
+### Two AI Strategy
+- Claude = Dev AI (build, explain, step by step)
+- Copilot = Business AI (positioning, pricing, GTM)
+- Both work from same CONTEXT_FOR_AI file
+- No repetition needed between sessions
+
+### Next Session Priority
+1. Install next-i18n
+2. Create FR/EN content files
+3. Build real landing page
+4. Connect Mailchimp signup form
+5. Push → live on qiwichee.vercel.app

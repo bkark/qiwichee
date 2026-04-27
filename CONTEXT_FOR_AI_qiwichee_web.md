@@ -1,36 +1,22 @@
 # Résonance — AI Context File
 > Paste this at the start of any new conversation to resume instantly.
 
-**Last updated:** 2026-04-26 — Session 1 (MVP Reset)
-**Next session goal:** Connect Vercel, deploy Qiwichee landing page
+**Last updated:** 2026-04-26 — End of Session 1 (FINAL)
+**Session duration:** ~12 hours
+**Status:** Site is LIVE at qiwichee.vercel.app ✅
+**Next session goal:** Replace default page with real Qiwichee landing page
 
 ---
 
-## ⚠️ IMPORTANT — MVP RESET
+## ⚠️ MVP RESET — READ FIRST
 
-After review by a second AI (business/strategy role),
-the project has been refocused. The full Résonance vision
-is preserved as a north star in DECISIONS.md but the
-BUILD scope is now strictly limited to 3 modules.
+After review by a second AI (business/strategy),
+the project was refocused to 3 modules only.
+Full vision preserved in DECISIONS.md as north star.
 
 ```
 FULL VISION: preserved in DECISIONS.md
-BUILD NOW:   3 modules only (see below)
-```
-
----
-
-## TWO PARALLEL TRACKS
-
-```
-Track 1 — BUILD (now)
-└── Qiwichee website + MVP features
-    3 modules, laser focused
-
-Track 2 — VISION (north star, build later)
-└── Full Résonance 6-sided ecosystem
-    Everything designed in session 1
-    Only built after MVP is validated
+BUILD NOW:   3 modules only
 ```
 
 ---
@@ -48,110 +34,75 @@ Track 2 — VISION (north star, build later)
 
 ## MVP = THREE MODULES ONLY
 
-### Module 1 — /website
+### /website (BUILD NEXT)
 ```
 ├── Bilingual FR/EN (next-i18n)
 ├── Music player (Songlink/Odesli)
 ├── Fan email signup (Mailchimp)
-├── Simple CMS (Sanity — minimal schema)
+├── Simple CMS (Sanity — minimal)
 └── Clean artist presentation
 ```
 
-### Module 2 — /concerts
+### /concerts (BUILD AFTER)
 ```
 ├── Create concert (date, venue, pay)
 ├── Public event page
 ├── Ticket link (Stripe — simple)
-├── Attendee export
-└── Data source for legal automation
+└── Attendee export
 ```
 
-### Module 3 — /legal (THE KILLER FEATURE)
+### /legal (KILLER FEATURE — BUILD LAST)
 ```
-├── Legal structure question FIRST:
-│   GUSO / CAE / Association / Company
-├── Pre-filled GUSO form generation
+├── Legal structure question FIRST
+│   (GUSO / CAE / Association / Company)
+├── Pre-filled GUSO generation
 ├── Automatic CDDU generation
-├── Intermittent du spectacle tracker:
+├── Intermittent hours tracker
 │   ├── Hours earned
 │   ├── Hours remaining (of 507)
 │   ├── Deadline countdown
-│   └── Alert when status at risk
+│   └── Alert when at risk
 └── Legal compliance dashboard
+⚠️ Consult entertainment lawyer before building
 ```
 
 ---
 
 ## 🚫 OUT OF SCOPE FOR MVP
 
-DO NOT BUILD OR PLAN:
-- PR tools
-- Influencer marketplace
-- Studio/venue marketplace
-- Crowdfunding
-- Sync licensing
-- Band marketplace
-- Team roles
-- Notifications engine
-- Analytics dashboards
-- AI suite
-- Multi-tenant SaaS
-- Marketplace sides
-- Complex finance tools
-- SACEM automation
-- Redis / queues / event streaming
-- Microservices
-
-These come ONLY after MVP is validated
-by real paying artists.
+Do NOT build or plan:
+PR tools, influencer marketplace, studio/venue
+marketplace, crowdfunding, sync licensing, band
+marketplace, team roles, notifications engine,
+analytics, AI suite, multi-tenant, marketplace
+sides, SACEM automation, Redis, queues, Twilio,
+event streaming, microservices.
 
 ---
 
-## TARGET USER (MVP ONLY)
+## WHAT IS LIVE RIGHT NOW
 
 ```
-Independent French artist who:
-├── Is NOT incorporated
-│   (no company, no auto-entreprise)
-├── Performs small concerts occasionally
-├── Is at risk of losing intermittent status
-├── Is overwhelmed by GUSO/CDDU/URSSAF paperwork
-└── Needs a simple professional online presence
+✅ qiwichee.vercel.app — LIVE
+   (showing default Next.js page)
+   Auto-deploys on every git push
+
+✅ github.com/bkark/qiwichee — code repository
+✅ Mailchimp — Qiwichee Fans audience configured
+✅ Sanity.io — project created (30-day trial, no card)
+✅ All environment variables set in Vercel
 ```
 
 ---
 
-## LEGAL CONTEXT — CRITICAL FOR /legal MODULE
+## ENVIRONMENT VARIABLES (set in Vercel)
 
 ```
-Non-incorporated artist CANNOT issue invoices.
-Payment received only via:
-├── GUSO (venue as employer) — most common
-├── CAE/portage salarial — more complex
-├── Association loi 1901 — requires setup
-└── Company (SASU) — full incorporation
-
-Platform MUST ask legal structure first.
-Each structure triggers different workflow:
-├── Venue employer → GUSO + CDDU
-├── CAE → mission request to CAE
-├── Association → contrat de prestation
-└── Company → standard invoice
-
-⚠️ IMPORTANT: Consult entertainment lawyer
-BEFORE launching /legal module.
-Getting intermittent hours wrong = real harm to artist.
+NEXT_PUBLIC_SANITY_PROJECT_ID  = bayrhx8r
+NEXT_PUBLIC_SANITY_DATASET     = production
+NEXT_PUBLIC_MAILCHIMP_AUDIENCE_ID = c5532d5f66
+MAILCHIMP_API_KEY              = [private — in Vercel only]
 ```
-
----
-
-## ABOUT THE DEVELOPER
-
-- **Background:** Telecom engineer (not software developer)
-- **Learning:** Learning web development while building
-- **Approach:** Explain every command, concept, decision
-- **Analogies:** Telecom analogies very helpful
-- **Location:** Courbevoie, Île-de-France, France
 
 ---
 
@@ -163,16 +114,19 @@ Getting intermittent hours wrong = real harm to artist.
 - **Current page:** msha.ke/qiwichee (keep alive)
 - **Platforms:** Spotify, Deezer, Apple Music, YouTube,
   YouTube Music, Bandcamp, SoundCloud
-- **EP:** "Hybrid Fruit" / **Single:** "Une Dernière Chose"
+- **EP:** "Hybrid Fruit"
+- **Single:** "Une Dernière Chose"
 - **Also does:** Voice acting — DO NOT mix with music site
 - **Domain target:** qiwichee.com (OVH, not yet bought)
 - **Status:** Not yet incorporated
 
 ---
 
-## DEVELOPER MACHINE
+## DEVELOPER
 
-- **OS:** Linux Mint (Ubuntu/Debian)
+- **Background:** Telecom engineer learning web dev
+- **Location:** Courbevoie, Île-de-France, France
+- **OS:** Linux Mint
 - **Keyboard:** Apple aluminum adapted for Linux
   → View > Terminal in VS Code (not Ctrl+`)
   → Long pastes: `cat > file << 'ENDOFFILE'`
@@ -191,11 +145,10 @@ Getting intermittent hours wrong = real harm to artist.
 | Service | Status | Details |
 |---|---|---|
 | GitHub | ✅ | bkark |
-| Vercel | ✅ | Connected to GitHub, not yet linked |
-| Mailchimp | ✅ | Qiwichee Fans, ID: c5532d5f66 |
-| Mailchimp API | ✅ | Generated — store privately |
-| Supabase | ⏳ | Create before /concerts module |
-| Sanity.io | ⏳ | Create before next session |
+| Vercel | ✅ | Live, auto-deploys from GitHub |
+| Mailchimp | ✅ | Audience ID: c5532d5f66 |
+| Sanity.io | ✅ | Project ID: bayrhx8r, dataset: production |
+| Supabase | ⏳ | Needed for /concerts module |
 | Stripe | ⏳ | Simple ticket links only |
 | OVH | ⏳ | qiwichee.com ~€7/year |
 
@@ -205,7 +158,7 @@ Getting intermittent hours wrong = real harm to artist.
 
 - **GitHub:** https://github.com/bkark/qiwichee
 - **Local:** /home/simba/qiwichee
-- **URL:** qiwichee.vercel.app (not yet connected)
+- **Live URL:** https://qiwichee.vercel.app ✅
 - **Framework:** Next.js 16.2.4, TypeScript, Tailwind
 - **Branch:** main
 
@@ -213,123 +166,96 @@ Getting intermittent hours wrong = real harm to artist.
 
 ## TECH STACK — MINIMAL
 
-| Need | Tool | Notes |
+| Need | Tool | Status |
 |---|---|---|
-| Framework | Next.js | Already installed |
-| Hosting | Vercel free | Auto-deploys |
-| Database | Supabase | Free PostgreSQL |
-| CMS | Sanity | Minimal schema only |
-| Fan emails | Mailchimp | Already configured |
-| Payments | Stripe | Simple links only |
-| Bilingual | next-i18n | JSON files |
-| Domain | OVH later | Not yet |
+| Framework | Next.js | ✅ installed |
+| Hosting | Vercel | ✅ live |
+| CMS | Sanity | ✅ account created |
+| Fan emails | Mailchimp | ✅ configured |
+| Database | Supabase | ⏳ later |
+| Payments | Stripe | ⏳ later |
+| Bilingual | next-i18n | ⏳ next session |
+| Domain | OVH | ⏳ later |
 
-NO Redis, NO Twilio, NO YouSign yet,
-NO queues, NO event streaming.
-
----
-
-## ARCHITECTURE
-
-```
-Modular monolith (Next.js)
-Three modules mirroring future services:
-
-/src/modules/website/
-/src/modules/concerts/
-/src/modules/legal/
-
-Rules:
-├── Modules never access each other's DB directly
-├── Communication through defined interfaces only
-├── Keep it simple — no premature abstraction
-└── Build for today, structure for tomorrow
-```
+NO Redis, NO Twilio, NO queues, NO microservices.
 
 ---
 
-## BUILD PHASES — REVISED
+## WHAT TO BUILD NEXT SESSION
 
 ```
-PHASE 1 — Qiwichee website (NOW — 2-3 weeks)
-└── /modules/website live on Vercel
-    Bilingual, music player, fan signup
+Priority order:
+1. Install next-i18n for bilingual support
+2. Create src/locales/fr.json and en.json
+3. Replace src/app/page.tsx with real landing page:
+   ├── Qiwi Chee name and photo
+   ├── Short bio (FR + EN toggle)
+   ├── Links to Spotify, YouTube, Instagram,
+   │   Facebook, Bandcamp, SoundCloud
+   └── Fan email signup form → Mailchimp
+4. Connect Sanity for content management
+5. Push → auto-deploys to qiwichee.vercel.app
+```
+
+---
+
+## LEGAL CONTEXT — CRITICAL
+
+```
+Non-incorporated artist CANNOT issue invoices.
+Must ask legal structure first:
+├── GUSO (venue employer) → most common
+├── CAE → mission request
+├── Association → contrat de prestation
+└── Company → standard invoice
+
+⚠️ Consult entertainment lawyer BEFORE
+   building /legal module.
+```
+
+---
+
+## BUILD PHASES
+
+```
+PHASE 1 — Website (NOW)
+└── Real landing page on qiwichee.vercel.app
 
 PHASE 2 — Concert manager (month 2)
-└── /modules/concerts working
-    Create events, ticket links, attendee list
+└── /modules/concerts
 
 PHASE 3 — Legal killer feature (months 3-4)
-└── /modules/legal working
-    ⚠️ Consult lawyer FIRST
-    GUSO, CDDU, intermittent tracker
+└── /modules/legal — lawyer first
 
 PHASE 4 — Validate (month 5)
-└── Show to 5-10 real artists
-    Do they pay? → continue
-    They don't? → pivot
+└── 5-10 artists, do they pay?
 
-PHASE 5 — Multi-tenant (month 6+)
-└── Only after validation with paying users
-
-PHASE 6+ — Full Résonance vision
-└── Fan pool, amplificateurs, PR tools,
-    marketplaces — only with proven demand
+PHASE 5+ — Full Résonance vision
+└── Only after validation
 ```
 
 ---
 
-## NEXT IMMEDIATE STEPS
+## FULL VISION — NORTH STAR
 
-```
-Before next session:
-└── Create Sanity.io account (free, GitHub login)
-
-Next coding session:
-├── 1. Connect GitHub to Vercel
-├── 2. Deploy qiwichee.vercel.app
-├── 3. Store Mailchimp API key in Vercel env vars
-├── 4. Replace default page with landing page
-├── 5. Add bilingual FR/EN toggle
-└── 6. Add fan email signup → Mailchimp
-
-Business actions (parallel):
-├── Talk to 5 independent artists (validate pain)
-├── Talk to entertainment lawyer (legal module)
-├── Write one-page concept note
-└── Continue business planning with Copilot
-```
+Complete Résonance vision in DECISIONS.md:
+6-sided ecosystem, 14 features, full roadmap.
+DO NOT BUILD until Phase 4 validates MVP.
 
 ---
 
-## FULL VISION — PRESERVED (north star)
-
-The complete Résonance vision designed in session 1
-is preserved in DECISIONS.md. It includes:
+## TWO AI ROLES
 
 ```
-6-sided ecosystem:
-├── Artists
-├── Fans
-├── Venues
-├── Studios
-├── Amplificateurs (influencers)
-└── Talents (art management students)
+Claude (this AI) → Dev AI
+└── Build the 3 modules step by step
 
-Features designed (build later):
-├── Fan pool (cross-artist discovery)
-├── PR and media tools
-├── SACEM/ADAMI automation
-├── Crowdfunding with backer journey
-├── Band building marketplace
-├── Referral and ambassador program
-├── Content import from existing platforms
-├── Project management and notifications
-├── Team roles and permissions
-└── TikTok viral engine
+Copilot → Business AI
+└── Positioning, pricing, pitch deck,
+    marketing, go-to-market strategy
+
+Both work from this context file.
 ```
-
-Build none of this until Phase 4 validation succeeds.
 
 ---
 
@@ -339,8 +265,9 @@ Build none of this until Phase 4 validation succeeds.
 cd ~/qiwichee
 npm run dev
 ```
-Site: http://localhost:3000
+Local: http://localhost:3000
 Mobile: http://192.168.1.5:3000
+Live: https://qiwichee.vercel.app
 
 ---
 
@@ -351,6 +278,7 @@ git add .
 git status
 git commit -m "What and why"
 git push
+# Vercel auto-deploys in ~30 seconds
 ```
 
 ---
@@ -374,13 +302,14 @@ git push
 - Explain WHY not just what — telecom analogies help
 - One step at a time — wait for confirmation
 - French legal context always matters
-- Apple keyboard on Linux — View > Terminal
+- Apple keyboard — View > Terminal in VS Code
 - DO NOT suggest out-of-scope features
-- DO NOT plan beyond 3 modules for now
-- Remind user to consult lawyer before /legal module
+- DO NOT plan beyond 3 modules
+- Remind user to consult lawyer before /legal
 - Keep dependencies minimal
 - Update this file every session
-- Platform name: RÉSONANCE
-- Emotional design: insider not customer
-- Full vision exists — reference DECISIONS.md
+- Platform: RÉSONANCE
+- Influencer side: AMPLIFICATEURS
+- Full vision exists — north star only
 - MVP first — validate before expanding
+- Site is LIVE — every push deploys automatically

@@ -2,8 +2,8 @@
 > Paste this file at the start of any new conversation with Claude or any other AI
 > chatbot to resume work instantly.
 
-**Last updated:** 2026-04-26 — End of Session 1 (extended)
-**Session duration:** ~8 hours
+**Last updated:** 2026-04-26 — End of Session 1 (full)
+**Session duration:** ~10 hours
 **Next session goal:** Connect Vercel, deploy live, build landing page
 
 ---
@@ -30,8 +30,8 @@ Build every Qiwichee feature with Résonance architecture in mind.
 - **Approach:** Explain every command, concept and decision
 - **Analogies:** Telecom analogies very helpful
 - **Location:** Courbevoie, Île-de-France, France
-- **Vision:** Qiwichee site → template → Résonance platform → SaaS business
-- **Architecture preference:** Microservices (start modular monolith, extract later)
+- **Vision:** Qiwichee → template → Résonance SaaS → marketplace
+- **Architecture preference:** Microservices (modular monolith first)
 
 ---
 
@@ -39,7 +39,7 @@ Build every Qiwichee feature with Résonance architecture in mind.
 
 - **Artist name:** Qiwi Chee (previous stage name: Leï Lani 2019-2020)
 - **Style:** Hybrid Pop — Franco-Algerian-American singer-songwriter
-- **Languages:** French and English (website fully bilingual FR/EN)
+- **Languages:** French and English (fully bilingual FR/EN)
 - **Current web presence:** msha.ke/qiwichee (keep alive during transition)
 - **Music platforms:** Spotify, Deezer, Apple Music, YouTube, YouTube Music,
   Bandcamp, SoundCloud
@@ -76,27 +76,28 @@ Build every Qiwichee feature with Résonance architecture in mind.
 |---|---|---|
 | GitHub | ✅ Connected | Username: bkark |
 | Vercel | ✅ Created | Connected to GitHub — not yet linked to project |
-| Mailchimp | ✅ Created | bassim.karkachi@gmail.com |
-| Mailchimp Audience | ✅ Created | Qiwichee Fans, ID: c5532d5f66 |
-| Mailchimp API key | ✅ Generated | Store privately — never in GitHub |
-| Stripe | ⏳ Later | Payments + band splitting |
+| Mailchimp | ✅ Configured | bassim.karkachi@gmail.com |
+| Mailchimp Audience | ✅ Ready | Qiwichee Fans, ID: c5532d5f66 |
+| Mailchimp API key | ✅ Generated | Store privately — NEVER in GitHub |
+| Stripe | ⏳ Later | Payments + band splitting (Stripe Connect) |
 | OVH | ⏳ Later | Domain qiwichee.com (~€7/year) |
-| Sanity.io | ⏳ Later | CMS for content management |
+| Sanity.io | ⏳ Later | CMS — create account before next session |
 | YouSign | ⏳ Later | Electronic signatures for CDDU |
+| Supabase | ⏳ Later | PostgreSQL database (free tier) |
+| Upstash | ⏳ Later | Redis cache and queues (free tier) |
+| Twilio | ⏳ Later | SMS notifications |
 
 ---
 
 ## MAILCHIMP CONFIGURATION
 
-- **Account email:** bassim.karkachi@gmail.com
 - **Audience name:** Qiwichee Fans
 - **Audience ID:** c5532d5f66
 - **Double opt-in:** Enabled ✅
 - **GDPR fields:** Enabled ✅
 - **reCAPTCHA:** Enabled ✅
 - **From name:** Qiwi Chee
-- **API key:** [stored privately — never commit to GitHub]
-- **Free tier:** 250 contacts max
+- **API key:** stored privately — never commit to GitHub
 
 ---
 
@@ -107,26 +108,11 @@ Build every Qiwichee feature with Résonance architecture in mind.
 - **Temporary URL:** qiwichee.vercel.app (not yet connected)
 - **Framework:** Next.js 16.2.4 with TypeScript and Tailwind CSS
 - **Branch:** main
-- **Last commit:** 0f22da2 — "Update README and DECISIONS with full Resonance vision"
-
-### Files In Project
-```
-qiwichee/
-├── README.md                       — project overview
-├── DECISIONS.md                    — all decisions + todo
-├── CONTEXT_FOR_AI_qiwichee_web.md  — this file
-├── src/app/
-│   ├── page.tsx                    — default page (to replace)
-│   ├── layout.tsx                  — page wrapper
-│   └── globals.css                 — global styles
-├── public/                         — images go here
-├── package.json                    — dependencies
-└── next.config.ts                  — Next.js config
-```
+- **Last commit:** 8c04b4a — "Add Amplificateurs, microservices, Mailchimp config"
 
 ---
 
-## TECH STACK — QIWICHEE SITE
+## TECH STACK
 
 | Need | Tool | Reason |
 |---|---|---|
@@ -136,100 +122,79 @@ qiwichee/
 | Fan emails | Mailchimp | Already configured |
 | Payments | Stripe | Per-transaction only |
 | Merch | Printful | Print on demand |
-| Crowdfunding | Ko-fi | Free tier |
+| Crowdfunding | Built-in (Stripe) | Own the experience |
 | CMS | Sanity.io | Visual editor for artist |
 | Bilingual | next-i18n | JSON content files |
 | E-signature | YouSign | French, GDPR, for CDDU |
-| Database | Supabase | Free tier PostgreSQL |
+| Database | Supabase | Free PostgreSQL |
 | Cache/Queue | Upstash Redis | Free tier |
+| SMS | Twilio | Notifications |
 
 ---
 
-## ARCHITECTURE DECISION — MODULAR MONOLITH FIRST
+## ARCHITECTURE — MODULAR MONOLITH FIRST
 
-### Developer's Vision
-Microservices architecture where semi-agnostic services communicate
-via APIs. Independent scaling per service. Fault isolation.
-Reusable services across future projects (musicians, painters, etc.)
-
-### Agreed Approach — Three Phases
-
+### Three Phases
 ```
-PHASE 1 — Modular Monolith (now → first 10 artists)
-└── One Next.js app organized in modules
-    mirroring future service boundaries:
-    ├── /modules/auth
-    ├── /modules/artist
-    ├── /modules/fans
-    ├── /modules/concerts
-    ├── /modules/legal
-    ├── /modules/finance
-    ├── /modules/pr
-    ├── /modules/influencers
-    └── /modules/ai
+PHASE 1 — Modular Monolith (now → 10 artists)
+└── One Next.js app, modules mirror future services
     Each module: own folder, own DB tables,
-    own API routes, communicates via defined interfaces
+    own API routes, interfaces only (no direct DB access)
 
 PHASE 2 — Extract First Services (10-50 artists)
-└── Extract services that need independent scaling:
-    ├── Notification service (email blast spikes)
-    ├── AI service (rate limiting needed)
-    └── Legal document service (CPU intensive)
+└── Notification service, AI service, Legal service
 
 PHASE 3 — Full Microservices (50+ artists, funded)
-└── Full split, Docker containers, Kubernetes
-    AWS ECS or GKE, Redis/Kafka event streaming
-    API gateway, CloudFront CDN
+└── Docker, Kubernetes, AWS/GKE, Kafka/Redis streaming
 ```
 
 ### Communication Patterns
 ```
-REST API — synchronous (service A calls B, waits)
-Message Queue — asynchronous (fire and forget)
-Event Streaming — broadcast (one emits, many listen)
+REST API — synchronous calls between modules
+Message Queue — async fire and forget
+Event Streaming — one emits, many listen (most powerful)
+
+Example: concert.confirmed event triggers:
+├── Legal module → generate GUSO
+├── SACEM module → prepare declaration
+├── Fan module → send email blast
+├── Notification module → alert band members
+├── Influencer module → notify local influencers
+└── Analytics module → update metrics
 ```
 
-### Key Rule
+### 13 Modules
 ```
-Never access another module's database directly
-Always communicate through defined interfaces
-This makes future extraction clean
-```
-
-### Reusability Across Projects
-```
-Future project (painters, restaurants, etc.):
-Reuses: Auth, Website, Fan, Finance,
-        Notification, Analytics, AI services
-Adapts: Domain-specific services only
-Result: New vertical in 4-5 months not 18
+/modules/auth          — login, JWT, roles, permissions
+/modules/artist        — profiles, subscriptions, multi-tenant
+/modules/website       — page rendering, bilingual, CMS
+/modules/fans          — email, SMS, fan pool, consent
+/modules/concerts      — events, tickets, QR codes
+/modules/legal         — GUSO, CDDU, intermittent, SACEM
+/modules/finance       — invoices, splitting, crowdfunding
+/modules/influencers   — profiles, matching, impact tracking
+/modules/pr            — press releases, media DB, submissions
+/modules/ai            — Claude API, generators
+/modules/analytics     — dashboards, ROI, geography
+/modules/notifications — smart routing, escalation, channels
+/modules/team          — roles, invitations, band management
+/modules/projects      — project cards, tasks, activity feed
 ```
 
 ---
 
 ## RÉSONANCE — COMPLETE PLATFORM VISION
 
-### What It Is
-A five-sided SaaS marketplace for independent artists
-in France and the francophone world.
+### Platform Name: RÉSONANCE
+### Influencer Side Name: AMPLIFICATEURS
 
 ### The Five Sides
-
 ```
-1. ARTISTS — the core
-   Pay subscription, get complete platform
-
-2. FANS — the audience
-   Free, discover artists, buy tickets, fund productions
-
-3. VENUES — the spaces
-   Pay listing, receive bookings, fill empty dates
-
-4. STUDIOS — the production
-   Pay listing, fill empty studio time, get bookings
-
-5. INFLUENCERS — the amplifiers (new)
-   Free basic, paid premium, discover + promote artists
+1. ARTISTS — pay subscription, get complete platform
+2. FANS — free, discover, buy tickets, fund productions
+3. VENUES — pay listing, fill empty dates
+4. STUDIOS & REHEARSAL SPACES — pay listing
+5. AMPLIFICATEURS — influencers, free/paid tiers
 ```
 
 ### The Network Effects
@@ -237,201 +202,176 @@ in France and the francophone world.
 More artists → bigger fan pool → more valuable for fans
 More artists → more bookings → venues want listing
 More artists → more recording → studios want listing
-More artists → better content → influencers want access
-More influencers → more reach → more valuable for artists
+More artists → better content → amplificateurs want access
+More amplificateurs → more reach → more valuable for artists
+Crowdfunders share projects → viral loops → more fans
 Each side reinforces all others → compound growth
-```
-
-### The Fan Pool — Core Differentiator
-```
-Fans opt in explicitly (GDPR compliant)
-Platform matches fans to similar artists
-Artists reach beyond their own audience
-Pool grows with every new artist
-Impossible to replicate without scale
-```
-
-### The Influencer Side (Fifth Side)
-
-#### Who Are Influencers On This Platform
-```
-├── Social media music accounts (TikTok, Instagram, YouTube)
-├── Music bloggers and newsletter writers
-├── Spotify/Deezer playlist curators (independent)
-├── Podcast hosts (music discovery, interviews)
-├── Content creators who use music
-└── Local scene influencers (city-level tastemakers)
-```
-
-#### Influencer Profile Contains
-```
-├── Platforms and verified follower counts
-├── Genre specialties (primary + secondary)
-├── Languages and location
-├── Audience demographics
-├── Content types they create
-├── Collaboration preferences and pricing
-└── Past collaborations and impact portfolio
-```
-
-#### How Matching Works
-```
-Artist releases single:
-└── Platform suggests matching influencers by:
-    ├── Genre affinity
-    ├── Audience overlap with artist's fans
-    ├── Location (for concert promotion)
-    ├── Language match
-    └── Past collaboration success rate
-
-Influencer logs in:
-└── Platform shows emerging artists matching their taste
-    before they blow up (tastemaker value)
-```
-
-#### Impact Tracking
-```
-Unique tracking link per influencer per campaign:
-├── Clicks from their post
-├── New fan signups attributed
-├── Streams generated
-├── Tickets sold
-└── Revenue attributed
-
-Artist sees ROI per influencer collaboration
-Influencer sees their impact dashboard
-Platform improves matching with this data
-```
-
-#### Concert Promotion To Influencers
-```
-Concert announced:
-├── Local influencers in city notified automatically
-├── Genre-matching influencers notified
-├── Press passes offered through platform
-└── Playlist curators pitched the single
-```
-
-#### Influencer Tiers
-```
-Nano (1k-10k): High engagement, often free, perfect for emerging artists
-Micro (10k-100k): Sweet spot, €50-500/collaboration
-Mid-tier (100k-500k): Significant reach, €500-2,000
-Macro (500k+): Platform facilitates introduction only
-```
-
-#### Influencer Business Model
-```
-Free tier: Profile, discovery, press copies, press passes
-Premium (€20-30/month):
-├── Priority placement in artist searches
-├── Early access to releases
-├── Verified badge
-├── Impact analytics
-└── Access to emerging artists exclusively
-
-Collaboration facilitation fee: 5-10% on paid deals above €100
-```
-
-### Mutualized Resources (Collective Intelligence)
-```
-All artists share:
-├── Media database (grows with every coverage logged)
-├── Collective radio plugger network
-├── Influencer impact data (anonymized)
-├── Festival deadline calendar
-├── Equipment rental pool
-├── Session musician pool
-├── Transport pooling for regional tours
-└── Photographer/videographer pool
 ```
 
 ---
 
-## COMPLETE FEATURE MAP — RÉSONANCE
+## COMPLETE FEATURE MAP
 
 ### 🌐 PRESENCE
-- Bilingual website FR/EN (Next.js)
-- Smart music player (Songlink/Odesli API — all platforms)
+- Bilingual website FR/EN
+- Smart music player (Songlink/Odesli — all platforms)
 - AI press kit generator
-- Social media card generator (auto-sized per platform)
-- Voice acting portfolio (separate site, same platform)
+- Social media card generator
+- Voice acting portfolio (separate site)
 
 ### 👥 FANS
 - Email list (Mailchimp)
 - SMS list (Twilio)
-- Cross-artist fan pool (explicit GDPR consent)
+- Cross-artist fan pool (GDPR consent)
 - Fan membership/club
 - Concert demand detector
 
 ### 🎪 CONCERTS
-- Event management and self-managed ticketing (Stripe)
-- Venue marketplace (commission on bookings)
-- GUSO declaration auto-generated per concert
-- CDDU contract auto-generated + YouSign
+- Event management and ticketing (Stripe)
+- Venue marketplace
+- GUSO declaration auto-generated
+- CDDU contract + YouSign
 - Intermittent du spectacle hours tracker
 - Band payment splitting (Stripe Connect)
-- QR code tickets generation and validation
+- QR code tickets
 
 ### 🎵 RIGHTS & ROYALTIES
 - SACEM registration assistant
-- Automatic setlist declaration after each concert
+- Automatic setlist declaration
 - Venue SACEM compliance tracker
 - Royalty tracking dashboard
-- ADAMI declaration assistant (neighboring rights)
+- ADAMI declaration assistant
 - Co-writer split management
-- Future: SACEM API partnership
 
 ### 📣 PR & MEDIA
 - AI press release generator (FR + EN)
 - Media database (collective intelligence)
-- Smart targeting by genre and market
-- Automated PR timeline (8 weeks before → post-release)
-- Radio submission assistant (per-station requirements)
-- Collective radio plugger network (mutualized)
+- Smart targeting by genre/market
+- Automated PR timeline
+- Radio submission assistant
+- Collective radio plugger (mutualized)
 - Spotify/Deezer playlist pitching
 - Festival submission tracker with deadline alerts
-- Press coverage tracker and clipping generator
+- Press coverage tracker
 - Sync licensing marketplace (10-15% commission)
 
-### 📱 INFLUENCERS
+### 📱 AMPLIFICATEURS
 - Influencer profiles and discovery
-- Smart artist-influencer matching
+- Smart artist-influencer matching by genre/location
 - Collaboration request management
 - Press copy and press pass distribution
 - Concert promotion to local influencers
-- Impact tracking (streams, fans, revenue per collaboration)
-- ROI measurement dashboard for artists
+- Impact tracking (streams, fans, revenue per collab)
+- ROI measurement per collaboration
 - Mutual promotion pool
 - Verified badge system
+- Nano/micro/mid/macro tier handling
 
 ### 💰 PRODUCTION & FINANCE
-- Production cost calculator (templates: single, EP, album,
-  concert, music video)
-- AI budget advisor (flags unrealistic costs)
-- Crowdfunding campaigns (fans see what their money funds)
+- Production cost calculator (templates per project type)
+- AI budget advisor
+- Crowdfunding campaigns with backer journey
 - Presale system
-- Invoice generation (correct VAT: 2.1% live performance)
+- Invoice generation (2.1% VAT live performance)
 - Band payment splitting (Stripe Connect)
 - Portage salarial via CAE partner
-- Year-end financial report (DGFiP formatted)
+- Year-end financial report (DGFiP format)
 
-### ⚖️ LEGAL & COMPLIANCE (France Specific)
+### ⚖️ LEGAL & COMPLIANCE
 - Intermittent du spectacle 507h tracker
-- Hours counting rules (performance vs rehearsal vs recording)
+- Hours counting rules applied automatically
 - GUSO submission before each concert
-- CDDU per performance (YouSign)
-- France Travail file preparation at 507h
+- CDDU per performance + YouSign
+- France Travail file at 507h
 - AUDIENS integration
 - URSSAF social charge calculations
 
-### 🎙️ RESOURCES MARKETPLACE
-- Recording studio listings
-- Session musician pool
-- Equipment rental between artists
-- Photographer/videographer pool
-- Graphic designer pool
-- Transport pooling
+### 🎸 BAND BUILDING
+- Open position listings (bassist, drummer, etc.)
+- Musician profiles with audio samples
+- Availability calendars
+- Rehearsal space marketplace
+- Band management dashboard
+- Shared calendar and setlist manager
+- Rehearsal cost splitting (automatic)
+- Band expense tracking
+- Map view of local musicians
+- Multi-band support (musician in multiple bands)
+
+### 👥 TEAM & ROLES
+- Role-based access control
+- Invitation system with role assignment
+- Permission matrix (owner/manager/band member/
+  editor/accountant/collaborator/read-only)
+- Each person sees only what their role allows
+- Band member sees own payments, contracts, hours
+- Accountant sees financials only
+- Access revocation anytime
+- Temporary access with expiry (collaborators)
+
+### 📊 PROJECT MANAGEMENT
+- Project cards (concerts, recordings, campaigns)
+- Visual progress tracking per project
+- Task assignment per team member
+- Overdue task alerts with escalation
+- Team availability confirmation
+- Activity feed (shared timeline)
+- Overview timeline (all projects in one view)
+- Smart escalation (push → email → SMS → manager alert)
+
+### 🔔 NOTIFICATIONS
+- Channels: in-platform, email, push, SMS
+- Per-user notification preferences
+- Smart routing by role and relevance
+- Escalation for no-response (1 day → 3 days → 5 days)
+- Notification matrix:
+  - Owner: everything
+  - Manager: everything except billing
+  - Band member: their concerts, rehearsals, payments, docs
+  - Accountant: financial only
+  - Backer: milestones, exclusive content, rewards
+  - Fan: concerts, releases, campaigns
+  - Amplificateur: matching artists, press, city concerts
+  - Venue: booking requests, confirmations
+  - Studio: booking requests, confirmations
+
+### 🎗️ CROWDFUNDER JOURNEY
+- Backer number assigned (#23 feels special)
+- Personal welcome from artist
+- Backer dashboard (progress, exclusive content, rewards)
+- Milestone notifications (25%, 50%, 75%, 100%)
+- Exclusive behind-the-scenes updates (studio photos, previews)
+- Early listening access (48h before public)
+- Reward delivery tracking
+- Post-project relationship maintenance
+- Backers → highest quality leads for fan pool
+- Viral loop: backers share → friends back → campaign grows
+
+### Backer Tiers Example
+```
+€5   — Digital supporter (download + updates)
+€15  — Credited (name in credits + behind scenes)
+€30  — Inner circle (early access + private message)
+€100 — Founding supporter (signed copy + listening session)
+€500 — Executive producer (studio visit + lifetime membership)
+```
+
+### 🤝 REFERRAL & GROWTH
+- Unique referral link per artist
+- Warm introduction emails (personalized, from artist)
+- Reward tiers:
+  - Profile completed: 1 month free
+  - Stays 3 months: 3 months free
+  - Upgrades to paid: 10% lifetime discount
+  - 5+ referrals: Founding Artist badge + 6 months free
+- Ambassador program (10+ referrals):
+  - Free Complete tier
+  - 10% commission on referred artist revenue
+  - Early feature access
+  - Annual Résonance gathering invitation
+- Referral leaderboard (opt-in)
+- One-click sharing (WhatsApp, Instagram, Email)
+- Referral analytics
 
 ### 🤖 AI TOOLS (Claude API)
 - Bio writer (FR + EN)
@@ -441,38 +381,39 @@ All artists share:
 - PR timeline generator
 - Royalty gap detector
 - Influencer pitch writer
+- Backer update writer (milestone messages)
+- Setlist suggestion based on venue/audience
 
 ---
 
-## REVENUE MODEL — RÉSONANCE
+## REVENUE MODEL
 
 ### Artist Subscriptions
 ```
-Starter: €60/month — website + fans + basic invoicing
-Pro: €100/month — + pool + SACEM + PR + influencer DB
-Complete: €150/month — + intermittent + GUSO + finance
-Managed: €300/month — + dedicated manager + accountant
+Starter:   €60/month  — website + fans + basic invoicing
+Pro:       €100/month — + pool + SACEM + PR + amplificateurs
+Complete:  €150/month — + intermittent + GUSO + finance + team
+Managed:   €300/month — + dedicated manager + accountant review
 ```
 
-### Venue & Studio
+### Other Recurring
 ```
-Venue listing: €30-80/month
-Studio listing: €30-80/month
-```
-
-### Influencer
-```
-Premium influencer: €20-30/month
-Collaboration facilitation: 5-10% on paid deals
+Venue listing:          €30-80/month
+Studio listing:         €30-80/month
+Amplificateur premium:  €20-30/month
+Rehearsal space listing: €20-50/month
 ```
 
 ### Transactions
 ```
-Ticket commission: 3-5%
-Venue booking: 5-8%
-Studio booking: 5-8%
-Sync licensing: 10-15%
-Crowdfunding: 3%
+Ticket commission:           3-5%
+Venue booking:               5-8%
+Studio/rehearsal booking:    5-8%
+Sync licensing:              10-15%
+Crowdfunding:                3%
+Influencer collaboration:    5-10% (on paid deals >€100)
+Equipment rental:            10%
+Session musician booking:    5%
 ```
 
 ### Setup
@@ -485,15 +426,16 @@ Artist onboarding: €500-2,500
 ## COMPETITIVE MOATS
 
 ```
-1. Fan pool — impossible to replicate without scale
-2. Influencer impact data — grows and improves over time
-3. Collective media intelligence — smarter with every artist
-4. Intermittent du spectacle system — deep French law knowledge
-5. SACEM/ADAMI integration — French music industry relationships
-6. Artist switching cost — everything in one place
-7. French/GDPR compliance — US competitors cannot replicate
-8. Francophone market — 300M people, France + Belgium +
-   Switzerland + Quebec + West Africa + North Africa
+1. Fan pool — impossible without scale
+2. Crowdfunder viral loops — organic growth engine
+3. Referral network — artists recruit artists
+4. Amplificateur impact data — improves matching over time
+5. Collective media intelligence — smarter with every artist
+6. Intermittent du spectacle system — deep French law
+7. SACEM/ADAMI integration — French music industry
+8. Artist switching cost — everything in one place
+9. French/GDPR compliance — US competitors can't replicate
+10. Francophone market — 300M people, no equivalent exists
 ```
 
 ---
@@ -504,68 +446,56 @@ Artist onboarding: €500-2,500
 PHASE 1 — Qiwichee proof of concept (NOW)
 ├── Website live on Vercel
 ├── Bilingual FR/EN
-├── Fan email signup (Mailchimp connected)
-├── Music player with Songlink
+├── Fan email signup (Mailchimp)
+├── Music player (Songlink)
 ├── Concert/events page
 └── Sanity CMS
 
-PHASE 2 — Legal & compliance tools (months 2-3)
-├── GUSO declaration generator
-├── CDDU + YouSign
+PHASE 2 — Legal & compliance (months 2-3)
+├── GUSO + CDDU + YouSign
 ├── Intermittent hours tracker
-├── SACEM setlist declaration
+├── SACEM declaration
 └── Basic financial reporting
 
-PHASE 3 — Multi-tenant + influencers (months 3-4)
+PHASE 3 — Team & projects (months 3-4)
+├── Role-based access control
+├── Band member invitations
+├── Project cards and task management
+├── Notification system
+└── Crowdfunder journey
+
+PHASE 4 — Multi-tenant + amplificateurs (months 4-5)
 ├── Modular architecture refactored
 ├── 2-3 more artists onboarded free
-├── Influencer profiles and matching
+├── Amplificateur profiles and matching
 ├── Fan pool foundation
 └── Impact tracking
 
-PHASE 4 — PR & media tools (months 4-5)
+PHASE 5 — PR & media tools (months 5-6)
 ├── Press release AI generator
 ├── Media database
 ├── Radio submission assistant
 └── Festival deadline tracker
 
-PHASE 5 — Marketplace (months 5-7)
+PHASE 6 — Marketplace (months 6-8)
 ├── Venue listings
-├── Studio listings
+├── Studio + rehearsal space listings
+├── Band building marketplace
 ├── Fan pool activated
-└── First commissions
+└── First commissions earned
 
-PHASE 6 — Partner conversations (month 6+)
+PHASE 7 — Partner conversations (month 6+)
 ├── 5+ artists on platform with working demo
 ├── CAE for portage salarial
 ├── Expert-comptable partnership
 ├── CNM funding application
 └── SACEM API partnership
 
-PHASE 7 — Scale (year 2)
+PHASE 8 — Scale (year 2)
 ├── Self-serve onboarding
 ├── Sync licensing marketplace
-├── Francophone expansion
+├── Francophone expansion (Belgium, Quebec, Africa)
 └── Consider investment
-```
-
----
-
-## MICROSERVICES MODULES (Build Order)
-
-```
-/modules/auth          — login, JWT, roles
-/modules/artist        — profiles, subscriptions, multi-tenant
-/modules/website       — page rendering, bilingual, CMS
-/modules/fans          — email list, SMS, fan pool, consent
-/modules/concerts      — events, tickets, QR codes
-/modules/legal         — GUSO, CDDU, intermittent, SACEM
-/modules/finance       — invoices, splitting, crowdfunding
-/modules/influencers   — profiles, matching, impact tracking
-/modules/pr            — press releases, media DB, submissions
-/modules/ai            — Claude API calls, generators
-/modules/analytics     — dashboards, ROI, geography
-/modules/notifications — email, SMS, webhooks, alerts
 ```
 
 ---
@@ -573,6 +503,9 @@ PHASE 7 — Scale (year 2)
 ## IMMEDIATE NEXT STEPS
 
 ```
+Before next session:
+└── Create Sanity.io account (free, use GitHub login)
+
 Next coding session:
 ├── 1. Connect GitHub to Vercel
 ├── 2. Deploy qiwichee.vercel.app
@@ -583,18 +516,16 @@ Next coding session:
 
 Questions to ask Qiwichee:
 ├── Are you intermittent du spectacle?
-├── How do you track your hours currently?
 ├── Are your songs registered with SACEM?
-├── How painful is CDDU/GUSO for you?
-├── Would you pay €100/month for this tool?
+├── How painful is CDDU/GUSO currently?
+├── Would you pay €100/month for this?
 └── Do you know 3-5 other artists with same problems?
 
-Business actions (when ready):
+Business actions:
 ├── Write one-page concept note for Résonance
 ├── Talk to 5 independent artists (validate)
 ├── Talk to 2-3 venues (validate)
-├── Consult entertainment lawyer (intermittent feature)
-└── Research CNM funding for music tech innovation
+└── Consult entertainment lawyer (intermittent feature)
 ```
 
 ---
@@ -606,7 +537,7 @@ cd ~/qiwichee
 npm run dev
 ```
 Site: http://localhost:3000
-Mobile: http://192.168.1.5:3000
+Mobile test: http://192.168.1.5:3000
 
 ---
 
@@ -624,8 +555,8 @@ If push fails: `gh auth setup-git` then retry.
 
 ## HOW TO UPDATE THIS FILE
 
-End of session: "please update the context file"
-Then:
+End of session say: "please update the context file"
+Then download and run:
 ```bash
 cp ~/Downloads/CONTEXT_FOR_AI_qiwichee_web.md \
    ~/qiwichee/CONTEXT_FOR_AI_qiwichee_web.md
@@ -651,4 +582,6 @@ git push
 - Modules never access each other's database directly
 - Update this file every session with new timestamp
 - Platform name: RÉSONANCE
-- Influencer side name: TBD (considering Amplificateurs, Voix)
+- Influencer side name: AMPLIFICATEURS
+- Emotional design principle: make everyone feel like
+  an insider not a customer

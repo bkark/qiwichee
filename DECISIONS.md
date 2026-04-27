@@ -138,3 +138,52 @@ music metaphor, implies connection between artists and fans.
 - Phase 1: Modular monolith (now to 10 artists)
 - Phase 2: Extract notification, AI, legal services
 - Phase 3: Full microservices on AWS/GKE when funded
+
+
+## Updates — Session 1 Part 2 (2026-04-26)
+
+### New Features Designed
+
+- Band building marketplace (open positions, musician profiles)
+- Rehearsal space marketplace (extends studio marketplace)
+- Band management dashboard (schedule, payments, documents)
+- Multi-band support (musician belongs to multiple bands)
+- Rehearsal cost splitting (automatic via Stripe)
+- Role-based access control (owner/manager/band member/
+  editor/accountant/collaborator/read-only)
+- Team invitation system with role assignment
+- Permission matrix (each role sees only what they need)
+- Project management (project cards, tasks, activity feed)
+- Smart notification system (13 notification types,
+  per-user preferences, smart escalation)
+- Crowdfunder journey (backer number, exclusive content,
+  milestone updates, behind the scenes access)
+- Crowdfunder viral loop (backers share → friends back)
+- Referral system (unique links, warm introductions)
+- Ambassador program (10+ referrals = free Complete tier)
+- Founding Artist badge (permanent recognition)
+
+### Emotional Design Principle
+Make every person feel like an insider not a customer:
+- Crowdfunders: backer number, studio photos, early access
+- Band members: their own dashboard, their own data
+- Fans: concert demand detector, presale access
+- Amplificateurs: early artist discovery, tastemaker value
+
+### Notification Escalation Rules
+- Day 1: push notification
+- Day 3: email sent
+- Day 5: SMS sent
+- Day 6: manager alerted
+
+### Backer Tiers
+- €5: digital supporter
+- €15: credited supporter
+- €30: inner circle (early access)
+- €100: founding supporter (signed copy + session)
+- €500: executive producer (studio visit + lifetime)
+
+### Modules Added
+- /modules/team — roles, invitations, band management
+- /modules/projects — project cards, tasks, activity feed
+- Total modules: 14

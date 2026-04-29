@@ -314,3 +314,68 @@ Like virtual hosting in telecom
 ### Sanity Studio Access
 Phase 1: sanity.io/manage (simple)
 Phase 5+: artist.com/studio (professional, embedded)
+
+## Artist Validation + Concert Module Update (2026-04-26)
+
+### Artist Validation — Confirmed Pain Points
+Real artists confirmed these needs in conversation:
+- GUSO + CDDU paperwork is a nightmare ✅
+- Intermittent du spectacle tracking is critical ✅
+- Concert organization needed even for FREE concerts ✅
+- Free concerts build fans → leads to paid concerts ✅
+- Feuille de route essential for production ✅
+- Rehearsal management and organization needed ✅
+- Equipment/backline management needed ✅
+- Team coordination before/during concert needed ✅
+
+### Free Concert Decision
+Free concerts need full legal treatment:
+- GUSO still required (venue declares even if free)
+- CDDU still required per band member
+- Intermittent hours still count
+- Public event page still generated
+- QR code fan signup critical (no ticket = no email)
+- Platform supports paid AND free equally
+
+### Feuille De Route — New Feature
+Standard French music industry production document.
+Platform auto-generates from concert data.
+Contains: timing schedule, technical rider,
+backline requirements, catering, contacts,
+parking, guest list.
+Sent to correct person automatically:
+- Band member → their schedule + CDDU
+- Sound engineer → technical rider + stage plot
+- Venue → full document
+- Fans → public event page
+
+### Concert Module Expanded
+Now includes:
+- Full day schedule (heure par heure)
+- Technical rider template (saved per artist)
+- Equipment list (artist brings vs venue provides)
+- Stage plot auto-generation
+- Catering rider
+- Guest list
+- Rehearsal management linked to concert
+- QR code for fan signup at free concerts
+- Feuille de route PDF generation
+- Distribution to all parties automatically
+
+### Beta Testers Identified
+Artists confirmed interest during validation conversations.
+Contact when MVP /concerts module is ready.
+Their feedback shapes Phase 5+.
+
+### Rehearsal Management Added To /concerts
+- Create rehearsal linked to concert
+- Set list for rehearsal session
+- Member availability and confirmation
+- Equipment needs per rehearsal
+- Cost split between members
+- 24h reminder to all members
+
+### Stage Plot Feature
+Auto-generated diagram showing musician positions
+and equipment layout on stage.
+Exported as PDF for venue and sound engineer.

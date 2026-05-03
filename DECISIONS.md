@@ -625,3 +625,26 @@ concert management, bilingual website, feuille de route.
 Crowdfunding is a bonus, not the reason to join.
 Do not lead with crowdfunding in artist conversations.
 Lead with: "We automate your GUSO and CDDU."
+
+## Schema Delta Update (2026-05-04)
+
+### professionals table — is_visible field added
+professionals (
+  ...
+  is_visible boolean default false,
+  ...
+)
+Purpose: professionals must explicitly opt-in to public listing.
+GDPR-safe: no one is listed without their choice.
+Default false: joining platform does not mean being listed publicly.
+Marketplace remains opt-in at individual level.
+
+### concerts table — budget_notes field added
+concerts (
+  ...
+  budget_notes text,
+  ...
+)
+Purpose: artists annotate costs, negotiations, venue conditions.
+Hidden during MVP — visible in Phase 2A+.
+Free text field — no structure required, flexible.

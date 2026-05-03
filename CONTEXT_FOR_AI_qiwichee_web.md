@@ -288,6 +288,7 @@ concerts (
   funding_raised (numeric),
   funding_deadline (timestamp),
   funding_status: 'draft'|'active'|'successful'|'failed',
+  budget_notes text, -- artist annotations, hidden during MVP
 
   created_at
 )
@@ -336,6 +337,7 @@ professionals (
   completed_concerts (integer),
   hourly_rate (numeric),
   availability (jsonb),
+  is_visible boolean default false, -- must opt-in to be listed
   created_at
 )
 

@@ -1,21 +1,26 @@
 # Résonance — AI Context File
 > Paste this at the start of any new conversation to resume instantly.
 
-**Last updated:** 2026-04-26 — Session 1 ABSOLUTE FINAL
+**Last updated:** 2026-04-26 — Session 1 + V4 + Strategic Review
 **Status:** qiwichee.vercel.app LIVE ✅
-**Next session goal:** Build real Qiwichee landing page
+**Next session goal:** Supabase schema setup + bilingual foundation
 
 ---
 
-## ⚠️ MVP RESET — READ FIRST
-
-After review by a second AI (business/strategy),
-project refocused to 3 modules only.
-Full vision preserved in DECISIONS.md as north star.
+## STRATEGIC OVERVIEW
 
 ```
-FULL VISION: DECISIONS.md (north star)
-BUILD NOW:   3 modules only
+Three AI perspectives synthesized:
+├── Claude (dev AI) — architecture and build
+├── Copilot (business AI) — strategy and positioning
+└── Third AI (strategic review) — RBAC, schema, features
+
+Key decisions from strategic review:
+├── Interactive Feuille de Route (live checklist, not PDF)
+├── RBAC via Supabase RLS (three roles)
+├── AI Data Importer with bilingual translation
+├── Transfer Ownership (not delete account)
+└── WhatsApp links (not Telegram — artist feedback)
 ```
 
 ---
@@ -31,155 +36,350 @@ BUILD NOW:   3 modules only
 
 ---
 
-## ARTIST VALIDATION — CONFIRMED PAIN POINTS
-
-Real artists confirmed these specific needs:
+## THREE USER ROLES (RBAC via Supabase RLS)
 
 ```
-✅ GUSO + CDDU paperwork is a nightmare
-✅ Intermittent du spectacle tracking critical
-✅ Concert organization needed even for FREE concerts
-   "Free concerts build fans which leads to paid concerts"
-✅ Feuille de route essential for production coordination
-✅ Rehearsal management and organization needed
-✅ Equipment/backline management (guitars, amps...)
-✅ Team coordination before and during concert
+OWNER (Artist)
+└── Full access: legal, finance, team, content
+    GUSO/CDDU, fan list, financial reports
+    Intermittent hours, all settings
+
+COLLABORATOR (Staff/Band member)
+└── Interactive Feuille de Route (live checklist)
+    Check off production milestones
+    Technical rider, schedule
+    Their own CDDU and payments
+    Cannot see GUSO or financial data
+
+MEMBER (Fan — "Atelier" access)
+└── Their own guest list status only
+    Exclusive "Atelier" fan content
+    Cannot see ANY legal or financial data
+    Cannot see other fans' data
+```
+
+### The "Shared Lens" Architecture
+```
+Same concert, three different views:
+
+Fan sees:        "Concert June 15 — You're on guest list ✅"
+Collaborator sees: "☐ Load-in 10h  ☑ Setup done  ☐ Sound check"
+Owner sees:      "45/100 tickets, GUSO submitted, CDDU 2/4 signed"
+
+One database record, three RLS policies, three views.
 ```
 
 ---
 
-## MVP = THREE MODULES ONLY
+## MVP = THREE MODULES + ONBOARDING
 
-### /website (BUILD NEXT SESSION)
+### /onboarding (BUILD FIRST)
+```
+AI-guided self-setup wizard (Claude API):
+├── Step 1: Artist basic info (name, genre, languages)
+├── Step 2: AI Data Importer
+│   ├── Artist pastes legacy URLs
+│   │   (Milkshake, Spotify, YouTube, SoundCloud...)
+│   ├── AI scrapes: bio, discography, photos, videos
+│   ├── Bilingual translation offered automatically
+│   │   (FR→EN or EN→FR via Claude API)
+│   ├── Maps directly to Sanity CMS schemas
+│   └── Artist reviews: "Does this look right?"
+├── Step 3: Style (colors, mood)
+├── Step 4: Domain choice
+├── Step 5: Invite collaborators
+├── Step 6: First concert setup
+└── Step 7: LIVE
+
+Goal: artist live in under 15 minutes
+Qiwi Chee self-onboards to test the flow
+You observe and note friction points
+```
+
+### /website (BUILD NEXT)
 ```
 ├── Bilingual FR/EN (next-i18n)
 ├── Music player (Songlink/Odesli)
 ├── Fan email signup (Mailchimp)
-├── Simple CMS (Sanity — minimal schema)
-└── Clean artist presentation
+├── Sanity CMS (auto-populated by importer)
+├── Atelier — gated fan exclusive area
+└── PWA manifest (installable on phone)
 ```
 
-### /concerts (BUILD AFTER — RICHER THAN ORIGINALLY PLANNED)
+### /concerts (BUILD AFTER)
 ```
-CONCERT CREATION:
-├── Basic info (date, venue, paid OR free)
-├── Full day schedule (heure par heure)
-├── Technical rider (saved template per artist)
-├── Equipment list (what artist brings vs venue)
-├── Backline requirements
-├── Catering rider
-├── Guest list
-└── Stage plot (auto-generated diagram)
-
-DOCUMENTS AUTO-GENERATED:
-├── Public event page (for fans)
-├── Feuille de route PDF (full production doc)
-├── Stage plot PDF (for venue/sound engineer)
-├── CDDU per band member
-├── GUSO declaration (paid AND free concerts)
-└── QR code → fan signup (critical for free concerts)
-
-REHEARSAL MANAGEMENT:
-├── Create rehearsal linked to concert
-├── Set list for rehearsal
-├── Member availability and confirmation
-├── Equipment list per rehearsal
-├── Cost split between members
-└── Reminder 24h before
-
-DISTRIBUTION (right doc to right person):
-├── Band member → schedule + CDDU
-├── Sound engineer → technical rider + stage plot
-├── Venue → full feuille de route
-└── Fans → public event page + QR signup
-
-FREE CONCERT FLOW:
-├── No ticket revenue
-├── BUT GUSO still generated ✅
-├── BUT CDDU still generated ✅
-├── BUT intermittent hours tracked ✅
-├── BUT public event page created ✅
-└── QR code for fan signup at venue ✅
-    (prints on card, shown on phone)
+├── Create concert (paid OR free)
+├── Public event page + QR fan signup
+├── Ticket link (Stripe — simple)
+├── Interactive Feuille de Route (live checklist):
+│   ├── ☐ Load-in [time] [assign to]
+│   ├── ☐ Stage setup [time]
+│   ├── ☐ Sound check [time]
+│   ├── ☐ Doors open [time]
+│   ├── ☐ Show starts [time]
+│   └── Each item checkable by collaborator
+│       Owner sees completion in real time
+├── Stage plot (auto-generated)
+├── Technical rider template
+├── GUSO declaration (paid AND free)
+├── CDDU per band member + YouSign
+├── Rehearsal management
+├── Guest list management (fan member sees own status)
+└── WhatsApp link notifications (not Telegram)
 ```
 
 ### /legal (KILLER FEATURE — BUILD LAST)
 ```
 ⚠️ Consult entertainment lawyer BEFORE building
 
-├── Legal structure question FIRST:
-│   GUSO / CAE / Association / Company
-├── Pre-filled GUSO form generation
-├── Automatic CDDU generation
-├── Intermittent du spectacle tracker:
-│   ├── Hours earned
-│   ├── Hours remaining (of 507)
-│   ├── Deadline countdown
-│   └── Alert when at risk
-└── Legal compliance dashboard
+├── Legal structure question first
+│   (GUSO / CAE / Association / Company)
+├── GUSO pre-filled generation
+├── CDDU auto-generation
+├── Intermittent hours tracker (507h dashboard)
+├── Legal compliance dashboard
+└── Year-end financial export (DGFiP format)
 ```
 
 ---
 
-## WHAT IS FEUILLE DE ROUTE
+## SUPABASE SCHEMA (Full)
 
-Critical French music industry document.
-Auto-generated by platform from concert data.
+```sql
+-- USERS & ROLES
+profiles (id, email, full_name, avatar_url, created_at)
+
+artist_members (
+  id, artist_id, user_id,
+  role: 'owner'|'collaborator'|'member',
+  invited_by, joined_at, is_active
+)
+
+-- ARTISTS
+artists (
+  id, stage_name, bio_fr, bio_en,
+  photo_url, genre, owner_id,
+  sanity_project_id, mailchimp_audience_id,
+  legal_structure: 'guso'|'cae'|'association'|'company',
+  created_at
+)
+
+-- CONCERTS
+concerts (
+  id, artist_id, title, date, venue_id,
+  is_paid, ticket_price, ticket_link,
+  capacity, description_fr, description_en,
+  status: 'draft'|'published'|'completed',
+  created_at
+)
+
+-- FEUILLE DE ROUTE (live checklist)
+feuille_de_route_items (
+  id, concert_id, label, scheduled_time,
+  is_complete, completed_by, completed_at,
+  sort_order
+)
+
+-- LEGAL (owner only via RLS)
+guso_declarations (
+  id, concert_id, artist_id,
+  status: 'draft'|'submitted'|'confirmed',
+  declaration_data (jsonb), created_at
+)
+
+cddu_contracts (
+  id, concert_id, band_member_id,
+  role_on_stage, fee_amount,
+  signed_at, document_url, created_at
+)
+
+-- GUEST LIST (member sees own row only)
+guest_list (
+  id, concert_id, fan_id,
+  status: 'pending'|'confirmed'|'denied',
+  plus_one, added_by
+)
+
+-- VENUES (from open data + manual)
+venues (
+  id, name, address, city, postal_code,
+  latitude, longitude, email, phone, website,
+  capacity, venue_type, source,
+  claimed, last_updated
+)
+```
+
+### Key RLS Policies
+```sql
+-- Fan sees only own guest list row
+fan_id = auth.uid() on guest_list
+
+-- Fan sees published concerts only
+status = 'published' on concerts
+
+-- Collaborator can update feuille de route
+role IN ('owner','collaborator') on fdr_items
+
+-- Owner only for legal tables
+role = 'owner' on guso_declarations, cddu_contracts
+```
+
+---
+
+## OPEN DATA INTEGRATION — VENUE DATABASE
 
 ```
-Contains:
-├── General info (venue, date, contacts)
-├── Timing schedule (minute by minute):
-│   10h00 Load-in
-│   11h00 Stage setup
-│   13h00 Sound check
-│   14h30 Break
-│   16h00 Doors open
-│   20h00 Show
-│   21h30 End
-│   23h00 Venue cleared
-├── Technical rider:
-│   ├── PA requirements
-│   ├── Monitors
-│   ├── Microphones
-│   ├── DI boxes
-│   └── Lighting
-├── Backline (what artist brings vs venue):
-│   ├── Artist brings: guitar, pedalboard...
-│   └── Venue provides: kick drum, stands...
-├── Catering rider
-├── Parking and load-in access
-├── Guest list
-├── Band members with contacts
-└── Emergency numbers
+French open data sources for venue pre-loading:
 
-Sent automatically to all parties
-Each person gets relevant section only
+1. Lieux de diffusion du spectacle vivant — Paris
+   URL: data.iledefrance.fr
+   Contains: name, address, email, phone, geolocation
+   Covers: concert halls, libraries, cultural centers
+
+2. Que Faire à Paris — Events API
+   URL: opendata.paris.fr
+   Contains: active venues hosting events
+   Use: identify which venues are actually active
+
+3. Ministère de la Culture — Équipements culturels
+   URL: data.culture.gouv.fr
+   Contains: all cultural venues in France
+   Use: national expansion beyond Paris
+
+4. data.gouv.fr — Salles de spectacles
+   URL: data.gouv.fr
+   Contains: geolocation of all French performance venues
+
+Licence: ODbL — free to use, must attribute source
+
+Strategy: import hundreds of venues automatically
+          Platform launches with rich venue database
+          Solves chicken-and-egg problem immediately
+          Libraries and mairies included automatically
+```
+
+---
+
+## NOTIFICATION STRATEGY (Final)
+
+```
+⚠️ Qiwi Chee confirmed: artists use WhatsApp/SMS
+   not Telegram — never force tools artists won't use
+
+PRIMARY: Email (Mailchimp) — formal docs, campaigns
+SECONDARY: WhatsApp link generation — free, no API
+  Platform generates: wa.me/+33X?text=pre-filled+message
+  Artist clicks → opens WhatsApp → sends to team
+TERTIARY: In-platform dashboard notifications
+FUTURE: WhatsApp Business API when platform has budget
+NOT NOW: Telegram, Twilio SMS (has cost)
+```
+
+---
+
+## QIWI CHEE STRATEGY
+
+```
+Role: First client AND first beta tester
+
+Build process:
+├── Build under dev account (your GitHub/Vercel)
+├── Qiwi self-onboards via wizard (you observe)
+├── Note every friction point
+├── Fix top 3 problems
+└── Transfer ownership when ready:
+    ├── Supabase: transfer project to her email
+    ├── Vercel: add her as owner
+    └── Connect qiwichee.com (OVH DNS)
+
+Shadow Build = build first, observe her setup,
+               improve before next artist
+```
+
+---
+
+## MONITORING STACK (All Free)
+
+```
+Microsoft Clarity → session recordings, heatmaps
+Vercel Analytics → page views, performance
+Supabase dashboard → database activity
+Mailchimp reports → email open rates
+Custom admin → concerts created, GUSO generated
+
+Emoji feedback on key actions:
+"How was that? 😊 😐 😟"
+If 😟 → optional text field appears
+```
+
+---
+
+## BETA STRATEGY
+
+```
+Week 1-2: Platform ready for first user
+Week 3: Qiwi Chee self-onboards (observed)
+Week 4: Fix top friction points
+Week 4: Invite 2 more artists
+Week 5-6: Invite 2 more artists
+Week 7-8: First venue conversation
+          (show them active artists as proof)
+Month 3: Assessment — do they pay? → continue/pivot
+```
+
+---
+
+## ARTIST VALIDATION — CONFIRMED
+
+```
+✅ GUSO + CDDU paperwork = nightmare
+✅ Intermittent tracking = critical
+✅ Free concerts matter (build fans → paid concerts)
+✅ Feuille de route = essential (now live checklist)
+✅ Rehearsal management needed
+✅ Equipment/backline management needed
+```
+
+---
+
+## WHAT IS FEUILLE DE ROUTE (Updated)
+
+```
+No longer a static PDF.
+Now a LIVE CHECKLIST in /concerts module.
+
+Team members check off milestones in real time:
+☐ Load-in [10h00] — assigned to: Jean-Marc
+☐ Stage setup [11h00]
+☐ Sound check [13h00] — assigned to: all
+☐ Break [14h30]
+☐ Doors open [16h00]
+☐ Show [20h00]
+
+Owner sees live completion status
+Collaborator checks items on their phone
+Fan member sees NOTHING of this
 ```
 
 ---
 
 ## 🚫 OUT OF SCOPE FOR MVP
 
-Do NOT build or plan:
 PR tools, influencer marketplace, studio/venue
-marketplace, crowdfunding, sync licensing, band
-marketplace, team roles, notifications engine,
-analytics, AI suite, multi-tenant, marketplace
-sides, SACEM automation, Redis, queues, Twilio,
-event streaming, microservices.
+marketplace, full crowdfunding, sync licensing,
+band marketplace, Redis, queues, Twilio,
+event streaming, microservices, Telegram.
 
 ---
 
 ## WHAT IS LIVE RIGHT NOW
 
 ```
-✅ qiwichee.vercel.app — LIVE
-   Auto-deploys on every git push
+✅ qiwichee.vercel.app — LIVE (default page)
 ✅ github.com/bkark/qiwichee
-✅ Mailchimp — Qiwichee Fans (ID: c5532d5f66)
-✅ Sanity.io — Project ID: bayrhx8r
-✅ Environment variables set in Vercel
+✅ Mailchimp — ID: c5532d5f66
+✅ Sanity — Project ID: bayrhx8r
+✅ Vercel environment variables set
 ```
 
 ---
@@ -195,55 +395,15 @@ MAILCHIMP_API_KEY                 = [private]
 
 ---
 
-## DOMAIN MANAGEMENT
-
-```
-Visitors never see vercel.app after domain connected
-SSL certificate automatic and free via Vercel
-Sanity CMS completely invisible to visitors
-
-DNS records for Vercel (when ready):
-Type: A     Name: @   Value: 76.76.21.21
-Type: CNAME Name: www Value: cname.vercel-dns.com
-
-Three onboarding scenarios for new artists:
-1. No domain → use vercel.app temporarily
-2. Has domain, no site → 2 DNS records, done
-3. Has domain + live site → build first, switch after
-
-⚠️ Always warn about MX records (email unaffected)
-```
-
----
-
-## ABOUT THE ARTIST — QIWI CHEE
-
-- **Name:** Qiwi Chee (ex Leï Lani 2019-2020)
-- **Style:** Hybrid Pop — Franco-Algerian-American
-- **Languages:** French and English
-- **Current page:** msha.ke/qiwichee (keep alive)
-- **Platforms:** Spotify, Deezer, Apple Music, YouTube,
-  YouTube Music, Bandcamp, SoundCloud
-- **EP:** "Hybrid Fruit" / **Single:** "Une Dernière Chose"
-- **Also does:** Voice acting — DO NOT mix with music site
-- **Domain:** qiwichee.com (OVH, not yet bought)
-- **Status:** Not yet incorporated
-
----
-
 ## DEVELOPER
 
 - **Background:** Telecom engineer learning web dev
 - **Location:** Courbevoie, Île-de-France, France
-- **OS:** Linux Mint
-- **Keyboard:** Apple aluminum adapted for Linux
-  → View > Terminal in VS Code (not Ctrl+`)
+- **OS:** Linux Mint, Apple keyboard adapted
+  → View > Terminal in VS Code
   → Long pastes: `cat > file << 'ENDOFFILE'`
-- **Browser:** Chrome
-- **Node.js:** v22.22.2
-- **npm:** 10.9.7 (~/.npm-global)
-- **Git:** 2.34.1
-- **VS Code:** 1.117.0
+- **Node.js:** v22.22.2 / **npm:** 10.9.7
+- **Git:** 2.34.1 / **VS Code:** 1.117.0
 - **Vercel CLI:** 52.0.0
 - **GitHub CLI:** 2.4.0 (gh auth setup-git if push fails)
 
@@ -257,111 +417,61 @@ Three onboarding scenarios for new artists:
 | Vercel | ✅ | Live, auto-deploys |
 | Mailchimp | ✅ | Audience ID: c5532d5f66 |
 | Sanity.io | ✅ | Project ID: bayrhx8r |
-| Supabase | ⏳ | Needed for /concerts |
+| Supabase | ⏳ | Create next session |
 | Stripe | ⏳ | Simple ticket links |
 | OVH | ⏳ | qiwichee.com ~€7/year |
 
 ---
 
-## REPOSITORY
+## TECH STACK
 
-- **GitHub:** https://github.com/bkark/qiwichee
-- **Local:** /home/simba/qiwichee
-- **Live:** https://qiwichee.vercel.app ✅
-- **Framework:** Next.js 16.2.4, TypeScript, Tailwind
-- **Branch:** main
-
----
-
-## TECH STACK — MINIMAL
-
-| Need | Tool | Status |
+| Need | Tool | Notes |
 |---|---|---|
 | Framework | Next.js | ✅ installed |
 | Hosting | Vercel | ✅ live |
+| Database | Supabase | ⏳ + RLS policies |
 | CMS | Sanity | ✅ account ready |
+| Auth | Supabase Auth | ⏳ built-in |
 | Fan emails | Mailchimp | ✅ configured |
-| Database | Supabase | ⏳ later |
 | Payments | Stripe | ⏳ later |
 | Bilingual | next-i18n | ⏳ next session |
-| Domain | OVH | ⏳ later |
-
-NO Redis, NO Twilio, NO queues, NO microservices.
-
----
-
-## LEGAL CONTEXT — CRITICAL
-
-```
-Non-incorporated artist CANNOT issue invoices.
-Must ask legal structure first:
-├── GUSO (venue employer) → most common for MVP
-├── CAE → mission request
-├── Association → contrat de prestation
-└── Company → standard invoice
-
-GUSO applies to FREE concerts too —
-venue still declares even if no ticket revenue.
-
-⚠️ Consult entertainment lawyer BEFORE
-   building /legal module.
-```
+| AI onboarding | Claude API | ⏳ next session |
+| Notifications | WhatsApp links | ⏳ free |
+| Monitoring | MS Clarity | ⏳ one script |
+| Mobile | PWA | ⏳ after /website |
+| E-signature | YouSign | ⏳ later |
 
 ---
 
-## BUILD PHASES
+## SPRINT PLAN
 
 ```
-PHASE 1 — Website (NOW — next session)
-└── Real landing page on qiwichee.vercel.app
+SPRINT 1 (next sessions):
+├── Supabase setup with full schema
+├── RLS policies for all three roles
+├── next-i18n bilingual setup
+└── Basic landing page (replace default)
 
-PHASE 2 — Concert manager (month 2)
-└── Full /concerts module including:
-    Feuille de route, rehearsals, equipment,
-    free concerts, QR fan signup
+SPRINT 2:
+├── AI Data Importer (scrape → Sanity)
+├── Bilingual translation on import (Claude API)
+└── Onboarding wizard UI
 
-PHASE 3 — Legal killer feature (months 3-4)
-└── /legal module — lawyer consultation first
+SPRINT 3:
+├── /concerts module
+├── Interactive Feuille de Route (live checklist)
+├── WhatsApp link notifications
+└── GUSO/CDDU generation
 
-PHASE 4 — Validate (month 5)
-└── 5-10 artists — do they pay?
-    Beta testers already identified from
-    artist conversations
+SPRINT 4:
+├── /legal module (lawyer consultation first)
+├── Intermittent tracker
+└── Transfer ownership function
 
-PHASE 5+ — Full Résonance vision
-└── Only after validation
-```
-
----
-
-## BETA TESTERS IDENTIFIED
-
-```
-Artists confirmed pain points and interest:
-├── Qiwi Chee ✅ (first client)
-├── Artists from validation conversations ✅
-    (add names when confirmed)
-
-When MVP ready — contact these first
-Their feedback shapes Phase 5+
-```
-
----
-
-## WHAT TO BUILD NEXT SESSION
-
-```
-Priority order:
-1. Install next-i18n
-2. Create src/locales/fr.json + en.json
-3. Replace default page with real landing:
-   ├── Qiwi Chee name + photo
-   ├── Short bio (FR/EN toggle)
-   ├── All platform links (Spotify, YouTube,
-   │   Instagram, Facebook, Bandcamp, SoundCloud)
-   └── Fan email signup → Mailchimp
-4. Connect Sanity CMS
-5. Push → live on qiwichee.vercel.app
+SPRINT 5:
+├── Beta with Qiwi Chee (self-onboard)
+├── Microsoft Clarity monitoring
+└── Fix friction points
 ```
 
 ---
@@ -369,24 +479,17 @@ Priority order:
 ## TWO AI ROLES
 
 ```
-Claude (this AI) → Dev AI
-└── Build 3 modules, step by step,
-    explained clearly, telecom analogies
-
-Copilot → Business AI
-└── Positioning, pricing, GTM,
-    pitch deck, market validation
+Claude → Dev AI (build, explain, step by step)
+Copilot → Business AI (positioning, GTM, pitch)
+Both work from this context file.
 ```
 
 ---
 
 ## FULL VISION — NORTH STAR
 
-Complete Résonance vision in DECISIONS.md:
-6-sided ecosystem (Artists, Fans, Venues,
-Studios, Amplificateurs, Talents)
-Full feature map, revenue model, build phases.
-DO NOT BUILD until Phase 4 validates MVP.
+Complete 6-sided ecosystem in DECISIONS.md.
+DO NOT BUILD until beta validation succeeds.
 
 ---
 
@@ -397,7 +500,6 @@ cd ~/qiwichee
 npm run dev
 ```
 Local: http://localhost:3000
-Mobile: http://192.168.1.5:3000
 Live: https://qiwichee.vercel.app
 
 ---
@@ -409,14 +511,13 @@ git add .
 git status
 git commit -m "What and why"
 git push
-# Vercel auto-deploys in ~30 seconds
 ```
 
 ---
 
 ## UPDATE THIS FILE
 
-End of session say: "update the context file"
+End of session: "please update the context file"
 ```bash
 cp ~/Downloads/CONTEXT_FOR_AI_qiwichee_web.md \
    ~/qiwichee/CONTEXT_FOR_AI_qiwichee_web.md
@@ -430,20 +531,20 @@ git push
 ## INSTRUCTIONS FOR THIS AI
 
 - Explain every command — user learns while building
-- Explain WHY not just what — telecom analogies help
+- Explain WHY — telecom analogies help
 - One step at a time — wait for confirmation
 - French legal context always matters
 - Apple keyboard — View > Terminal in VS Code
 - DO NOT suggest out-of-scope features
-- DO NOT plan beyond 3 modules
-- Remind to consult lawyer before /legal
-- Keep dependencies minimal
+- DO NOT suggest Telegram (artist said no)
+- Use WhatsApp links not Twilio/Telegram
+- Feuille de route = live checklist not PDF
 - Free concerts need GUSO+CDDU too
-- Feuille de route is a real French music doc
-- Update this file every session
+- Three roles: Owner/Collaborator/Member
+- Supabase RLS enforces role separation
+- Qiwi Chee = client AND beta tester
+- Shadow build → transfer ownership
+- Remind to consult lawyer before /legal
 - Platform: RÉSONANCE
-- Influencer side: AMPLIFICATEURS
-- Full vision: north star, see DECISIONS.md
-- Site is LIVE — every push deploys automatically
-- Domain transparent — visitor never sees vercel.app
-- CMS transparent — visitor never sees Sanity
+- Fan exclusive area: ATELIER
+- Full vision: DECISIONS.md north star only

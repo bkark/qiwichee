@@ -379,3 +379,69 @@ Their feedback shapes Phase 5+.
 Auto-generated diagram showing musician positions
 and equipment layout on stage.
 Exported as PDF for venue and sound engineer.
+
+## Strategic Review Integration (2026-04-26)
+
+### Interactive Feuille de Route Decision
+Changed from static PDF to live checklist.
+Team members check off milestones in real time.
+Owner sees live completion status on dashboard.
+Collaborator checks items on phone at venue.
+Fan member sees nothing of this (RLS enforced).
+
+### RBAC Decision (Supabase RLS)
+Three roles enforced at database level:
+- Owner: full access including legal/finance
+- Collaborator: feuille de route + own CDDU/payment
+- Member (Fan): own guest list status + Atelier only
+RLS policies prevent ANY cross-role data access.
+Even direct API calls return nothing for wrong role.
+
+### Supabase Schema Finalized
+Tables: profiles, artist_members, artists, concerts,
+feuille_de_route_items, guso_declarations,
+cddu_contracts, guest_list, venues
+Full schema documented in context file.
+
+### Notification Decision (Final)
+Telegram rejected — Qiwi Chee confirmed artists
+in her network use WhatsApp/SMS not Telegram.
+Decision: WhatsApp pre-filled link generation (free)
+No Twilio (has cost), No Telegram (wrong platform).
+Future: WhatsApp Business API when budget available.
+
+### AI Data Importer Decision
+Scrapes legacy URLs on onboarding.
+Extracts bio, discography, photos, videos.
+Maps directly to Sanity CMS schemas.
+Offers automatic FR/EN bilingual translation.
+Uses Claude API for both scraping and translation.
+
+### Transfer Ownership Decision
+No account deletion for Qiwi Chee.
+Shadow build: develop under dev account.
+When ready: transfer Supabase project to her email.
+Add her as Vercel owner.
+Connect qiwichee.com via OVH DNS.
+
+### Open Data Decision
+French government open data pre-populates venue DB.
+Sources: data.iledefrance.fr, opendata.paris.fr,
+         data.culture.gouv.fr, data.gouv.fr
+Licence: ODbL (free, must attribute)
+Hundreds of venues imported before first artist joins.
+Solves chicken-and-egg problem for venue side.
+Libraries and mairies included automatically.
+
+### Monitoring Decision
+Microsoft Clarity (free) for session recordings.
+Emoji feedback (😊😐😟) on key actions.
+Custom Supabase queries for platform metrics.
+No paid analytics tools needed for MVP.
+
+### Sprint Plan Finalized
+Sprint 1: Supabase schema + RLS + bilingual + landing
+Sprint 2: AI importer + bilingual translation + wizard
+Sprint 3: /concerts + live checklist + WhatsApp + GUSO
+Sprint 4: /legal + intermittent + transfer ownership
+Sprint 5: Beta + Clarity monitoring + fix friction

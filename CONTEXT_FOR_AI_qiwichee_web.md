@@ -1,25 +1,28 @@
 # Résonance — AI Context File
 > Paste this at the start of any new conversation to resume instantly.
 
-**Last updated:** 2026-04-26 — Session 1 Complete + All Reviews
+**Last updated:** 2026-05-04 — Business Planning Update
 **Status:** qiwichee.vercel.app LIVE ✅
 **Next session goal:** Supabase setup + RLS + bilingual foundation
 
 ---
 
-## STRATEGIC OVERVIEW
+## VISION STATEMENT (Updated)
 
 ```
-Three AI perspectives synthesized:
-├── Claude (dev AI) — architecture and build
-├── Copilot (business AI) — strategy and positioning
-└── Third AI (strategic review) — RBAC, schema, features
+RÉSONANCE is not just a tool.
+It is a cooperative cultural infrastructure
+connecting artists, fans, venues, collaborators,
+professionals and institutions.
 
-Key principle: build like a telecom engineer
-├── No single point of failure
-├── Graceful degradation when services down
-├── Full observability (know what's happening)
-└── Right alert to right person at right time
+The platform grows through:
+├── Shared fanbase graph
+├── Shared venue network
+├── Shared professional marketplace
+├── Shared data and AI automation
+└── Collective intelligence over time
+
+This is the long-term North Star.
 ```
 
 ---
@@ -27,32 +30,35 @@ Key principle: build like a telecom engineer
 ## NAMING CONVENTION
 
 ```
-RÉSONANCE = the platform (your product/business)
-└── SaaS that artists subscribe to
-
-QIWICHEE = one artist's instance
-└── qiwichee.com powered by Résonance
-    Like a Shopify store powered by Shopify
+RÉSONANCE = the platform (your SaaS product)
+QIWICHEE = one artist's instance of Résonance
 
 GitHub repos:
 ├── bkark/qiwichee — current (proof of concept)
 └── bkark/resonance-platform — future (the product)
-    qiwichee becomes a tenant/config of Résonance
-    Not a separate repo — just a deployment
-
-Keep qiwichee repo for now.
-Extract resonance-platform after beta validation.
+    After beta validation
 ```
 
 ---
 
-## RÉSONANCE — MVP POSITIONING
+## MVP POSITIONING
 
 ```
 "The first platform that automates GUSO, CDDU
  and intermittent du spectacle for independent
  French artists — while giving them a professional
  bilingual website and simple concert management."
+
+Beta hook (what artists join for):
+├── GUSO automation ✅
+├── CDDU automation ✅
+├── Intermittent tracking ✅
+├── Concert management ✅
+├── Bilingual website ✅
+├── WhatsApp notifications ✅
+└── Feuille de route ✅
+
+Crowdfunding is a bonus — NOT the hook.
 ```
 
 ---
@@ -62,30 +68,17 @@ Extract resonance-platform after beta validation.
 ```
 OWNER (Artist)
 └── Full access: legal, finance, team, content
-    GUSO/CDDU, fan list, financial reports
-    Intermittent hours, all settings
+    GUSO/CDDU, fan list, all settings
 
-COLLABORATOR (Staff/Band member)
+COLLABORATOR (Staff/Band/Professional)
 └── Interactive Feuille de Route (live checklist)
-    Check off production milestones
-    Technical rider, schedule
     Their own CDDU and payments
     Cannot see GUSO or financial data
 
 MEMBER (Fan — "Atelier" access)
 └── Their own guest list status ONLY
-    Exclusive "Atelier" fan content
+    Exclusive Atelier fan content
     Cannot see ANY legal or financial data
-```
-
-### The Shared Lens Architecture
-```
-Same concert, three different views:
-Fan:          "Concert June 15 — You're on guest list ✅"
-Collaborator: "☐ Load-in 10h  ☑ Setup done  ☐ Sound check"
-Owner:        "45/100 tickets, GUSO submitted, CDDU 2/4 signed"
-
-One DB record → three RLS policies → three views
 ```
 
 ---
@@ -97,72 +90,168 @@ One DB record → three RLS policies → three views
 AI-guided self-setup wizard (Claude API):
 ├── Step 1: Artist basic info
 ├── Step 2: AI Data Importer
-│   ├── Paste legacy URLs (Milkshake, Spotify,
-│   │   YouTube, SoundCloud, Facebook...)
-│   ├── AI scrapes: bio, discography, photos, videos
-│   ├── Bilingual translation (FR↔EN via Claude API)
-│   ├── Maps to Sanity CMS schemas automatically
-│   └── Artist reviews: "Does this look right?"
+│   ├── Paste legacy URLs
+│   ├── Scrape: bio, discography, photos, videos
+│   ├── Bilingual translation (Claude API FR↔EN)
+│   └── Auto-populate Sanity CMS
 ├── Step 3: Style selection
 ├── Step 4: Domain choice
 ├── Step 5: Invite collaborators
 ├── Step 6: First concert setup
-└── Step 7: LIVE
+└── Step 7: LIVE (under 15 minutes)
 
-Goal: artist live in under 15 minutes
-Qiwi Chee self-onboards to test flow
+Qiwi Chee self-onboards as first beta test
 You observe via Clarity session recordings
-Note every friction point
 ```
 
-### /website (BUILD NEXT)
+### /website
 ```
 ├── Bilingual FR/EN (next-i18n)
 ├── Music player (Songlink/Odesli)
 ├── Fan email signup (Mailchimp)
-├── Sanity CMS (auto-populated by importer)
+├── Sanity CMS (auto-populated)
 ├── Atelier — gated fan exclusive area
-└── PWA manifest (installable on phone)
+└── PWA manifest
 ```
 
-### /concerts (BUILD AFTER)
+### /concerts
 ```
 ├── Create concert (paid OR free)
 ├── Public event page + QR fan signup
 ├── Ticket link (Stripe — simple)
-├── Interactive Feuille de Route (LIVE CHECKLIST):
-│   ├── ☐ Load-in [time] [assigned to]
-│   ├── ☐ Stage setup [time]
-│   ├── ☐ Sound check [time]
-│   ├── ☐ Doors open [time]
-│   └── ☐ Show starts [time]
-│   Each item checkable by collaborator on phone
-│   Owner sees live completion in real time
+├── Support button (Phase 2A crowdfunding)
+│   └── External links: PayPal.me, Lydia,
+│       Ko-fi, Tipeee, Stripe Payment Link
+├── Interactive Feuille de Route (LIVE CHECKLIST)
+│   ☐ Load-in  ☐ Setup  ☐ Sound check
+│   ☐ Doors   ☐ Show starts
 ├── Stage plot (auto-generated)
-├── Technical rider template per artist
+├── Technical rider template
 ├── GUSO declaration (paid AND free concerts)
 ├── CDDU per band member + YouSign
 ├── Rehearsal management
-├── Guest list (fan sees own status only via RLS)
-└── WhatsApp link notifications (free, no API)
+└── Guest list (fan sees own status via RLS)
 ```
 
 ### /legal (KILLER FEATURE — BUILD LAST)
 ```
 ⚠️ Consult entertainment lawyer BEFORE building
 
-├── Legal structure question FIRST
-│   (GUSO / CAE / Association / Company)
+├── Legal structure: GUSO/CAE/Association/Company
 ├── GUSO pre-filled generation
 ├── CDDU auto-generation
 ├── Intermittent hours tracker (507h dashboard)
-├── Legal compliance dashboard
-└── Year-end financial export (DGFiP format)
+└── Legal compliance dashboard
 ```
 
 ---
 
-## SUPABASE SCHEMA (Complete)
+## CROWDFUNDING STRATEGY (Phased)
+
+### Phase 2A — Light Crowdfunding (early, safe)
+```
+What it is:
+├── Support button on concert/project pages
+├── Progress bar (goal, raised, deadline)
+├── External payment links:
+│   ├── PayPal.me
+│   ├── Lydia
+│   ├── Stripe Payment Link
+│   ├── Ko-fi
+│   └── Tipeee
+└── Perks: Atelier access, early content,
+          supporter wall, name in credits
+
+What it is NOT:
+├── Résonance does NOT handle money
+├── No refunds handled by platform
+├── No KYC required
+├── No Stripe Connect
+└── No escrow logic
+
+Build complexity: LOW (button + progress bar + links)
+Legal risk: ZERO (money goes directly to artist)
+When: After core MVP is stable
+```
+
+### Phase 2B — Full Crowdfunding (later, advanced)
+```
+What it adds:
+├── Stripe Connect onboarding
+├── KYC verification
+├── Escrow logic (hold until goal reached)
+├── Automatic refunds if goal not reached
+├── Automatic payouts to artist + collaborators
+├── Résonance commission (5-10%)
+├── Accounting logs and VAT handling
+└── Full financial compliance
+
+When: After platform stability + trust + real fanbase
+Build complexity: HIGH (fintech product)
+Legal risk: SIGNIFICANT (needs lawyer + accountant)
+```
+
+---
+
+## MARKETPLACE VISION (Phase 2+, not MVP)
+
+```
+RÉSONANCE becomes marketplace for professionals:
+├── Musicians (session players)
+├── Sound engineers
+├── Photographers
+├── Videographers
+├── Lighting technicians
+├── Stage managers
+├── Graphic designers
+└── Community managers
+
+How professionals work:
+├── Join platform with profile
+├── Added by artists during concert creation
+├── Offer services to multiple artists
+└── Build reputation inside Résonance
+
+Ranking system:
+├── Concerts completed on platform
+├── Artist ratings
+├── Reliability (no-shows, delays)
+└── Skills and specialization
+
+Revenue: marketplace commission on bookings
+When: Phase 2+, after beta validation
+```
+
+---
+
+## FANBASE GRAPH (Long-term Data Asset)
+
+```
+Résonance builds collective fan graph from:
+├── QR code check-ins at concerts
+├── Atelier logins and engagement
+├── Guest list confirmations
+├── Fan signups per artist
+├── Crowdfunding support patterns
+└── City and genre preferences
+
+Graph enables:
+├── Extended fanbase recommendations
+│   "Fans of Qiwi Chee also like..."
+├── Crowdfunding predictions
+│   "Based on your fanbase, expect €X"
+├── Venue suggestions
+│   "Your fans are concentrated in Lyon"
+├── Artist-to-artist discovery
+└── Cross-artist concert promotion
+
+This graph is the moat that grows automatically.
+No competitor can replicate without the same scale.
+```
+
+---
+
+## SUPABASE SCHEMA (Complete + Updated)
 
 ```sql
 -- USERS & ROLES
@@ -180,15 +269,26 @@ artists (
   photo_url, genre, owner_id,
   sanity_project_id, mailchimp_audience_id,
   legal_structure: 'guso'|'cae'|'association'|'company',
-  created_at
+  subscription_tier, created_at
 )
 
--- CONCERTS
+-- CONCERTS (with hidden Phase 2 fields)
 concerts (
   id, artist_id, title, date, venue_id,
   is_paid, ticket_price, ticket_link,
   capacity, description_fr, description_en,
   status: 'draft'|'published'|'completed',
+
+  -- Phase 2A crowdfunding (hidden for now)
+  estimated_costs (jsonb),
+  musician_fees (jsonb),
+  venue_cost (numeric),
+  equipment_cost (numeric),
+  funding_goal (numeric),
+  funding_raised (numeric),
+  funding_deadline (timestamp),
+  funding_status: 'draft'|'active'|'successful'|'failed',
+
   created_at
 )
 
@@ -227,6 +327,18 @@ venues (
   claimed, last_updated
 )
 
+-- PROFESSIONALS (hidden Phase 2 table)
+professionals (
+  id, user_id,
+  role, -- musician/photographer/sound_engineer/etc.
+  skills (jsonb),
+  rating (numeric),
+  completed_concerts (integer),
+  hourly_rate (numeric),
+  availability (jsonb),
+  created_at
+)
+
 -- MONITORING
 events (
   id, artist_id, event_name,
@@ -239,101 +351,80 @@ service_status (
   last_checked, last_down_at,
   error_message, consecutive_failures
 )
+
+feedback (
+  id, user_id, action,
+  rating, comment, created_at
+)
 ```
 
-### Key RLS Policies
-```sql
--- Fan sees only own guest list row
-fan_id = auth.uid() on guest_list
+---
 
--- Fan sees published concerts only
-status = 'published' on concerts
+## PRICING MODEL (Revised — Lower Entry Barrier)
 
--- Collaborator can update feuille de route
-role IN ('owner','collaborator') on fdr_items
+```
+FREE TIER
+├── Limited concerts (2-3/month)
+├── Basic website
+├── Fan email signup
+└── Manual GUSO guidance
 
--- Owner only for legal tables
-role = 'owner' on guso_declarations, cddu_contracts
+STARTER (€9-15/month)
+├── Unlimited concerts
+├── Full bilingual website
+├── GUSO + CDDU automation
+└── Basic intermittent tracking
 
--- Admin sees everything
-role = 'admin' on all tables
+PRO (€29-49/month)
+├── Everything in Starter
+├── Interactive feuille de route
+├── Full intermittent dashboard
+├── Rehearsal management
+├── Phase 2A crowdfunding (support button)
+└── WhatsApp notifications
+
+PREMIUM (€79+/month)
+├── Everything in Pro
+├── Advanced analytics
+├── Priority support
+├── Early access to new features
+└── Marketplace access (Phase 2+)
+
+USAGE-BASED (add-ons)
+├── Extra CDDU beyond tier limit
+├── Extra GUSO declarations
+└── Extra concerts
+
+PHASE 2+ REVENUE
+├── Marketplace commissions
+├── Phase 2B crowdfunding commission (5-10%)
+└── Venue booking commission
+
+Goal: low entry barrier → fast adoption
+      Scale revenue with usage → sustainable growth
 ```
 
 ---
 
 ## RESILIENCE ARCHITECTURE
 
-### Three Layers
+### Health Checks (Vercel Cron — free, every 5 min)
 ```
-Layer 1 — Health checks (technical)
-Layer 2 — Graceful degradation (per feature)
-Layer 3 — Status communication (users + admin)
-```
-
-### Health Check System
-```
-Every 5 minutes (Vercel Cron — free):
-/api/health-check tests each service:
-├── Supabase: simple query
-├── Sanity: fetch one record
-├── Mailchimp: ping API
-├── Stripe: check connection
-├── Claude API: minimal call
-└── Spotify/YouTube: fetch one item
-
-Results stored in service_status table
-Alert sent after 3 consecutive failures
+Tests: Supabase, Sanity, Mailchimp, Stripe, Claude API
+Results → service_status table
+Alert after 3 consecutive failures
 ```
 
-### Graceful Degradation Matrix
+### Graceful Degradation
 ```
-SERVICE DOWN  → LOST              → KEPT
-────────────────────────────────────────────
-Supabase      → Most dynamic      → Static cached pages
-Sanity        → Content editing   → Cached site loads
-Mailchimp     → Email campaigns   → Signups saved locally
-                                    synced when recovered
-Stripe        → Ticket payments   → Everything else
-                                    Artist alerted urgently
-Claude API    → AI features       → Manual fallback shown
-Spotify API   → Auto-import       → Manual entry option
-Vercel        → Entire site       → Nothing (hosting)
+Mailchimp down → save signups locally, sync later
+Stripe down → friendly message + alert artist
+Sanity down → serve cached content
+Claude API down → show manual fallback
 ```
 
-### Status Communication
-```
-Admin (you):
-├── Email alert: any service down > 5 min
-├── Admin dashboard: red indicators
-└── Weekly report every Monday 8h
-
-Artist (owner):
-└── Only if THEIR features affected
-    "Ticket sales temporarily paused due to
-     payment processor issue"
-
-Fans (public):
-└── Friendly, minimal, specific
-    "Ticket sales temporarily unavailable ⏱️"
-    Never show technical error messages
-
-Public status page: resonance.fr/status
-├── 🟢 Website — operational
-├── 🔴 Ticket sales — disrupted since 14h32
-└── 🟢 Fan signups — operational
-```
-
-### Caching Strategy
-```
-Vercel Edge Cache as fallback:
-├── Artist bio/photos: 1 hour TTL
-├── Concert listings: 5 minutes TTL
-├── Venue data: 24 hours TTL
-└── Legal documents: never cached (sensitive)
-
-If Sanity down → cached content serves visitors
-Content slightly stale but site still works
-```
+### Status Page: resonance.fr/status
+### Caching: Vercel Edge Cache (1h bio, 5min concerts)
 
 ---
 
@@ -341,150 +432,29 @@ Content slightly stale but site still works
 
 ### Three Levels
 ```
-Level 1 — Technical: is it working?
-Level 2 — Business: is it growing?
-Level 3 — Behavioral: how do people use it?
+Level 1 — Technical (health checks, uptime)
+Level 2 — Business (growth, MRR, concerts)
+Level 3 — Behavioral (Clarity, funnel, features)
 ```
 
-### Admin Dashboard (/admin — owner only)
+### Tools (All Free)
 ```
-resonance.fr/admin
-├── /admin — NOC overview
-├── /admin/artists — all artists, MRR, status
-├── /admin/concerts — platform-wide activity
-├── /admin/legal — GUSO/CDDU activity
-├── /admin/onboarding — funnel analysis
-├── /admin/health — all API statuses
-├── /admin/events — raw event stream
-└── /admin/revenue — MRR, growth, churn
-
-Protected: admin Supabase role only
-Other roles → /admin returns 404
-```
-
-### Key Metrics Tracked
-```
-GROWTH (weekly):
-├── New artists (MoM %)
-├── New fans across all artists
-├── Concerts created
-└── MRR (Monthly Recurring Revenue)
-
-ENGAGEMENT (daily):
-├── Daily Active Artists
-├── Features used per session
-├── Documents generated
-└── Average session duration
-
-HEALTH (monthly):
-├── Churn rate
-├── Feature adoption % per module
-├── NPS score
-└── Support requests by category
-
-LEGAL (monthly):
-├── GUSO declarations generated
-├── CDDU contracts created/signed
-├── Intermittent hours tracked
-└── Artists at risk of losing status
-```
-
-### Event Tracking System
-```typescript
-// Every meaningful action fires an event
-trackEvent({
-  event: 'concert_created',
-  artist_id: artist.id,
-  properties: { is_paid, has_ticket_link }
-})
-
-trackEvent({
-  event: 'guso_generated',
-  artist_id: artist.id,
-  properties: { concert_id, is_free_concert }
-})
-
-trackEvent({
-  event: 'onboarding_step_completed',
-  properties: { step, step_name, time_spent_seconds }
-})
-
-trackEvent({
-  event: 'feature_abandoned',
-  properties: { feature, step, time_before_abandon }
-})
-
-// Stored in Supabase events table
-// Queryable for any metric
-// No personal data — artist_id not name
-```
-
-### Onboarding Funnel Tracking
-```
-Step 1 Enter name:        15 started   100%
-Step 2 Paste URLs:        13 reached    87%
-Step 3 Review data:       11 reached    73%
-Step 4 Choose style:      10 reached    67%
-Step 5 Domain choice:      9 reached    60%
-Step 6 Invite team:        8 reached    53%
-Step 7 First concert:      7 reached    47%
-Published live:            6 completed  40%
-
-Drop at step 6 → investigate in Clarity
-```
-
-### Weekly Automated Report
-```
-Every Monday 8h (Vercel Cron):
-├── New artists this week
-├── New fans this week
-├── Concerts created
-├── GUSO declarations
-├── MRR and growth
-├── Concerns (churn risk, drop-off spikes)
-└── Top performing artist
-
-Sent via email to admin (you)
-```
-
-### Alert Routing
-```
-YOU get alerted:
-├── Any API down > 5 minutes
-├── New artist signs up
-├── Artist cancels subscription
-├── Error rate spike
-├── Onboarding completion drops
-└── Revenue milestone reached
-
-ARTIST gets alerted:
-├── New fan signup
-├── Ticket sold
-├── CDDU awaiting signature
-├── Intermittent status warning
-├── Concert tomorrow reminder
-└── GUSO deadline approaching
-
-COLLABORATOR gets alerted:
-├── Concert schedule change
-├── Feuille de route item overdue
-└── CDDU ready to sign
-
-FAN gets alerted:
-├── New concert announced
-├── Guest list confirmed
-└── New Atelier content
-```
-
-### Monitoring Tools Stack (All Free)
-```
-Microsoft Clarity → session recordings, heatmaps
-Better Uptime → external uptime, status page
-Vercel Analytics → page views, performance
-Supabase dashboard → database activity
-Custom /admin → business metrics dashboard
+Microsoft Clarity → session recordings
+Better Uptime → external uptime monitoring
+Vercel Analytics → page views
+Custom /admin → business dashboard
 Weekly email → automated Monday report
 Emoji feedback → 😊😐😟 on key actions
+```
+
+### Admin Dashboard (/admin — your NOC view)
+```
+├── Platform health (all API statuses)
+├── Artists (count, MRR, active, churned)
+├── Concerts (created, GUSO generated)
+├── Onboarding funnel (step-by-step drop-off)
+├── Revenue (MRR, growth, tier breakdown)
+└── Fanbase graph preview
 ```
 
 ---
@@ -492,38 +462,26 @@ Emoji feedback → 😊😐😟 on key actions
 ## OPEN DATA — VENUE DATABASE
 
 ```
-French government open data (ODbL licence):
+Sources (ODbL licence — free):
+├── data.iledefrance.fr — Paris venues
+├── opendata.paris.fr — active event venues
+├── data.culture.gouv.fr — national cultural venues
+└── data.gouv.fr — national performance venues
 
-1. Lieux de diffusion spectacle vivant Paris
-   data.iledefrance.fr — name, address, email, geo
-
-2. Que Faire à Paris (events agenda)
-   opendata.paris.fr — active venues hosting events
-
-3. Ministère de la Culture
-   data.culture.gouv.fr — all French cultural venues
-
-4. data.gouv.fr salles de spectacles
-   National venue geolocation database
-
-Strategy: import hundreds of venues automatically
-Solves chicken-and-egg before first artist joins
+Hundreds of venues pre-loaded before first artist joins
 Libraries and mairies included automatically
+Solves chicken-and-egg problem
 ```
 
 ---
 
-## NOTIFICATION STRATEGY (Final)
+## NOTIFICATION STRATEGY
 
 ```
-⚠️ Artist feedback: WhatsApp/SMS not Telegram
-
-PRIMARY: Email (Mailchimp) — formal, campaigns
-SECONDARY: WhatsApp pre-filled links (free, no API)
-  wa.me/+33X?text=pre-filled+message
-TERTIARY: In-platform dashboard notifications
-NOT USED: Telegram, Twilio (has cost)
-FUTURE: WhatsApp Business API when budget allows
+PRIMARY: Email (Mailchimp)
+SECONDARY: WhatsApp pre-filled links (free)
+TERTIARY: In-platform dashboard
+NOT USED: Telegram (artist said no), Twilio (cost)
 ```
 
 ---
@@ -535,14 +493,12 @@ Role: First client AND first beta tester
 
 Process:
 ├── Build under dev account
-├── She self-onboards via wizard (you observe)
-├── Clarity records her session
-├── Note every friction point
-├── Fix top 3 problems per week
+├── She self-onboards via wizard (observed)
+├── Fix friction points
 └── Transfer when ready:
-    ├── Supabase project → her email
-    ├── Vercel → add her as owner
-    └── Connect qiwichee.com (OVH DNS)
+    Supabase → her email
+    Vercel → add her as owner
+    Connect qiwichee.com (OVH DNS)
 ```
 
 ---
@@ -550,12 +506,43 @@ Process:
 ## BETA STRATEGY
 
 ```
+Beta hook: GUSO + CDDU + intermittent + website
+NOT: crowdfunding (that comes later)
+
 Week 1-2: Platform ready, venues pre-loaded
-Week 3: Qiwi Chee self-onboards (observed)
-Week 4: Fix friction + invite 2 more artists
+Week 3: Qiwi Chee self-onboards
+Week 4: Fix friction, invite 2 more artists
 Week 5-6: Invite 2 more artists
-Week 7-8: Approach venues (show active artists)
+Week 7-8: Approach venues
 Month 3: Do they pay? → continue or pivot
+```
+
+---
+
+## BUILD PHASES (Complete Roadmap)
+
+```
+MVP (NOW):
+├── /onboarding wizard
+├── /website module
+├── /concerts module
+└── /legal module (lawyer first)
+
+PHASE 2A (after stable MVP):
+├── Light crowdfunding (support button)
+├── Professional profiles (visible)
+└── Basic fanbase graph
+
+PHASE 2B (after trust + fanbase):
+├── Full crowdfunding (Stripe Connect)
+├── KYC + escrow + refunds
+└── Résonance commission
+
+PHASE 3+:
+├── Full marketplace (professionals)
+├── Advanced fanbase graph
+├── Venue marketplace
+└── Francophone expansion
 ```
 
 ---
@@ -563,29 +550,20 @@ Month 3: Do they pay? → continue or pivot
 ## ARTIST VALIDATION — CONFIRMED
 
 ```
-✅ GUSO + CDDU paperwork = nightmare
+✅ GUSO + CDDU = nightmare
 ✅ Intermittent tracking = critical
-✅ Free concerts matter → build fans → paid concerts
-✅ Feuille de route = essential (now LIVE checklist)
+✅ Free concerts matter → build fans
+✅ Feuille de route = live checklist
 ✅ Rehearsal management needed
-✅ Equipment/backline management needed
+✅ Equipment management needed
 ```
 
 ---
 
-## 🚫 OUT OF SCOPE FOR MVP
-
-PR tools, influencer marketplace, studio/venue
-marketplace, full crowdfunding, sync licensing,
-band marketplace, Telegram, Twilio, Redis,
-queues, event streaming, microservices.
-
----
-
-## WHAT IS LIVE RIGHT NOW
+## WHAT IS LIVE
 
 ```
-✅ qiwichee.vercel.app — LIVE (default page)
+✅ qiwichee.vercel.app — LIVE
 ✅ github.com/bkark/qiwichee
 ✅ Mailchimp — ID: c5532d5f66
 ✅ Sanity — Project ID: bayrhx8r
@@ -594,7 +572,7 @@ queues, event streaming, microservices.
 
 ---
 
-## ENVIRONMENT VARIABLES (Vercel)
+## ENVIRONMENT VARIABLES
 
 ```
 NEXT_PUBLIC_SANITY_PROJECT_ID     = bayrhx8r
@@ -607,11 +585,10 @@ MAILCHIMP_API_KEY                 = [private]
 
 ## DEVELOPER
 
-- **Background:** Telecom engineer learning web dev
-- **Location:** Courbevoie, Île-de-France, France
 - **OS:** Linux Mint, Apple keyboard adapted
-  → View > Terminal in VS Code (not Ctrl+`)
+  → View > Terminal in VS Code
   → Long pastes: `cat > file << 'ENDOFFILE'`
+- **Location:** Courbevoie, Île-de-France, France
 - **Node.js:** v22.22.2 / **npm:** 10.9.7
 - **Git:** 2.34.1 / **VS Code:** 1.117.0
 - **Vercel CLI:** 52.0.0
@@ -629,7 +606,7 @@ MAILCHIMP_API_KEY                 = [private]
 | Sanity.io | ✅ | Project ID: bayrhx8r |
 | Supabase | ⏳ | Create next session |
 | Stripe | ⏳ | Simple ticket links |
-| Better Uptime | ⏳ | Free uptime monitoring |
+| Better Uptime | ⏳ | Free monitoring |
 | MS Clarity | ⏳ | Free session recording |
 | OVH | ⏳ | qiwichee.com ~€7/year |
 
@@ -639,31 +616,31 @@ MAILCHIMP_API_KEY                 = [private]
 
 | Need | Tool | Notes |
 |---|---|---|
-| Framework | Next.js | ✅ installed |
+| Framework | Next.js | ✅ |
 | Hosting | Vercel | ✅ live |
 | Database | Supabase | ⏳ + RLS |
-| Auth | Supabase Auth | ⏳ built-in |
-| CMS | Sanity | ✅ account ready |
-| Fan emails | Mailchimp | ✅ configured |
-| Payments | Stripe | ⏳ later |
-| Bilingual | next-i18n | ⏳ next session |
-| AI features | Claude API | ⏳ onboarding |
+| Auth | Supabase Auth | ⏳ |
+| CMS | Sanity | ✅ account |
+| Fan emails | Mailchimp | ✅ |
+| Payments | Stripe | ⏳ simple |
+| Bilingual | next-i18n | ⏳ |
+| AI features | Claude API | ⏳ |
 | Notifications | WhatsApp links | ⏳ free |
-| Monitoring | MS Clarity | ⏳ one script |
-| Uptime | Better Uptime | ⏳ free |
-| Mobile | PWA | ⏳ after /website |
-| E-signature | YouSign | ⏳ later |
-| Health checks | Vercel Cron | ⏳ free |
+| Monitoring | MS Clarity | ⏳ |
+| Uptime | Better Uptime | ⏳ |
+| Mobile | PWA | ⏳ |
+| E-signature | YouSign | ⏳ |
+| Health checks | Vercel Cron | ⏳ |
 
 ---
 
 ## SPRINT PLAN
 
 ```
-SPRINT 1 (next sessions):
-├── Supabase setup with full schema + RLS
+SPRINT 1:
+├── Supabase setup + schema + RLS policies
 ├── next-i18n bilingual setup
-├── Better Uptime + MS Clarity setup
+├── MS Clarity + Better Uptime setup
 └── Replace default page with real landing
 
 SPRINT 2:
@@ -673,8 +650,8 @@ SPRINT 2:
 
 SPRINT 3:
 ├── /concerts module
-├── Interactive live checklist (feuille de route)
-├── WhatsApp link notifications
+├── Interactive live checklist
+├── Phase 2A support button (simple)
 └── GUSO/CDDU generation
 
 SPRINT 4:
@@ -684,41 +661,10 @@ SPRINT 4:
 └── Transfer ownership function
 
 SPRINT 5:
-├── Beta with Qiwi Chee (self-onboard)
-├── Watch Clarity recordings daily
-└── Fix friction points weekly
+├── Beta with Qiwi Chee
+├── Watch Clarity recordings
+└── Fix friction weekly
 ```
-
----
-
-## DOMAIN MANAGEMENT
-
-```
-DNS records for Vercel (when ready):
-Type: A     Name: @   Value: 76.76.21.21
-Type: CNAME Name: www Value: cname.vercel-dns.com
-
-⚠️ Always warn about MX records before DNS changes
-SSL automatic and free via Vercel
-Visitors never see vercel.app after domain connected
-```
-
----
-
-## TWO AI ROLES
-
-```
-Claude → Dev AI (build, explain, step by step)
-Copilot → Business AI (positioning, GTM, pitch)
-Both work from this context file.
-```
-
----
-
-## FULL VISION — NORTH STAR
-
-Complete 6-sided ecosystem in DECISIONS.md.
-DO NOT BUILD until beta validation succeeds.
 
 ---
 
@@ -740,14 +686,12 @@ git add .
 git status
 git commit -m "What and why"
 git push
-# Vercel auto-deploys in ~30 seconds
 ```
 
 ---
 
 ## UPDATE THIS FILE
 
-End of session: "please update the context file"
 ```bash
 cp ~/Downloads/CONTEXT_FOR_AI_qiwichee_web.md \
    ~/qiwichee/CONTEXT_FOR_AI_qiwichee_web.md
@@ -767,20 +711,16 @@ git push
 - Apple keyboard — View > Terminal in VS Code
 - DO NOT suggest out-of-scope features
 - DO NOT suggest Telegram (artist said no)
-- Use WhatsApp links not Twilio/Telegram
 - Feuille de route = LIVE CHECKLIST not PDF
 - Free concerts need GUSO+CDDU too
-- Three roles: Owner/Collaborator/Member (RLS)
-- Supabase RLS enforces role separation at DB level
-- Qiwi Chee = client AND beta tester
-- Shadow build → observe → fix → transfer ownership
-- Naming: Résonance = platform, Qiwichee = instance
-- Monitor at 3 levels: technical, business, behavioral
-- Graceful degradation — never let one API kill all features
-- Right alert to right person at right time
-- Admin dashboard at /admin (your NOC view)
-- Remind to consult lawyer before /legal module
+- Three roles enforced by Supabase RLS
+- Crowdfunding = Phase 2A only (no money handling now)
+- Professionals table exists but hidden for now
+- Pricing: free → €9-15 → €29-49 → €79+
+- Beta hook = legal automation not crowdfunding
+- Monitor at 3 levels: technical/business/behavioral
+- Graceful degradation — one API down ≠ all broken
 - Platform: RÉSONANCE
-- Fan exclusive area: ATELIER
+- Fan exclusive: ATELIER
+- Vision: cooperative cultural infrastructure
 - Full vision: DECISIONS.md north star only
-- Site is LIVE — every push deploys automatically

@@ -549,3 +549,79 @@ service_status table: id, service_name, is_up,
                       error_message, consecutive_failures
 feedback table: id, user_id, action, rating,
                 comment, created_at
+
+## Business Planning Update (2026-05-04)
+
+### Crowdfunding Decision — Two Phases
+Phase 2A (light, safe, early):
+- Support button + progress bar + external links
+- PayPal.me, Lydia, Ko-fi, Tipeee, Stripe Payment Link
+- Résonance does NOT handle money
+- No KYC, no Stripe Connect, no escrow
+- Build complexity: LOW, legal risk: ZERO
+- Perks: Atelier access, supporter wall, early content
+
+Phase 2B (full, advanced, later):
+- Stripe Connect + KYC + escrow + auto-refunds
+- Auto-payouts to artist and collaborators
+- Résonance commission 5-10%
+- VAT handling and accounting logs
+- Only after platform stability and real fanbase
+- Needs lawyer + accountant before building
+
+Crowdfunding is NOT part of MVP.
+Beta hook is legal automation, NOT crowdfunding.
+
+### Marketplace Decision (Phase 2+)
+Professionals marketplace deferred to Phase 2+:
+Roles: musicians, sound engineers, photographers,
+videographers, lighting technicians, stage managers,
+graphic designers, community managers.
+Ranking: concerts completed, artist ratings, reliability.
+professionals table added to schema NOW (hidden).
+Build later when platform has enough artists.
+
+### Fanbase Graph Decision
+Long-term data asset built automatically from:
+QR check-ins, Atelier logins, guest lists,
+fan signups, crowdfunding support, city/genre data.
+Enables: cross-artist discovery, venue suggestions,
+         crowdfunding predictions, fanbase recommendations.
+This graph is the platform's primary defensive moat.
+Grows automatically — no manual intervention needed.
+
+### Concert Budget Fields Decision
+Hidden fields added to concerts table now:
+estimated_costs, musician_fees, venue_cost,
+equipment_cost, funding_goal, funding_raised,
+funding_deadline, funding_status.
+Not shown to users yet — prepares for Phase 2A.
+Zero cost to add now, avoids painful migration later.
+
+### Pricing Model Decision (Revised)
+Previous pricing (€60-150) was too high for indie artists.
+New model with lower entry barrier:
+Free: limited concerts, basic website
+Starter: €9-15/month — full GUSO/CDDU/website
+Pro: €29-49/month — feuille de route, intermittent, Phase 2A
+Premium: €79+/month — analytics, marketplace, priority support
+Usage-based add-ons: extra CDDU, GUSO, concerts
+Phase 2+ commissions: marketplace, crowdfunding, venue booking
+Goal: low barrier → fast adoption → scale with usage
+
+### Vision Statement Updated
+RÉSONANCE is a cooperative cultural infrastructure.
+Not just a tool — a living ecosystem connecting:
+artists, fans, venues, collaborators, professionals,
+and institutions.
+Growth through: shared fanbase, shared venues,
+shared professionals, shared data, AI automation.
+This language resonates with French cultural values
+and CNM funding applications.
+
+### Beta Strategy Clarified
+Beta testers join for: GUSO, CDDU, intermittent,
+concert management, bilingual website, feuille de route.
+Crowdfunding is a bonus, not the reason to join.
+Do not lead with crowdfunding in artist conversations.
+Lead with: "We automate your GUSO and CDDU."

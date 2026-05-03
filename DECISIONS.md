@@ -445,3 +445,107 @@ Sprint 2: AI importer + bilingual translation + wizard
 Sprint 3: /concerts + live checklist + WhatsApp + GUSO
 Sprint 4: /legal + intermittent + transfer ownership
 Sprint 5: Beta + Clarity monitoring + fix friction
+
+## Monitoring & Resilience Architecture (2026-04-26)
+
+### Naming Convention Decision
+RÉSONANCE = the platform (your SaaS product)
+QIWICHEE = one artist's instance of Résonance
+Like Shopify (platform) vs individual Shopify stores
+Keep bkark/qiwichee repo for proof of concept
+Create bkark/resonance-platform after beta validation
+qiwichee becomes a tenant/config not a separate repo
+
+### Three-Level Monitoring Decision
+Level 1: Technical — is it working? (health checks)
+Level 2: Business — is it growing? (metrics dashboard)
+Level 3: Behavioral — how do people use it? (Clarity)
+
+### Health Check System
+Vercel Cron job every 5 minutes (free)
+Tests: Supabase, Sanity, Mailchimp, Stripe, Claude API
+Results stored in service_status Supabase table
+Alert after 3 consecutive failures
+Tool: Better Uptime (free) for external monitoring
+
+### Graceful Degradation Decision
+Each feature knows which APIs it needs
+If dependency down → feature degrades gracefully
+Never let one API failure break entire platform
+Examples:
+- Mailchimp down → save signups locally, sync later
+- Stripe down → show friendly message, alert artist
+- Sanity down → serve cached content to visitors
+- Claude API down → show manual fallback option
+
+### Status Page Decision
+resonance.fr/status (public)
+Shows per-service status in plain language
+Updated automatically from health checks
+Artists and fans can check here during issues
+
+### Alert Routing Decision
+Admin (you): all technical alerts + business milestones
+Artist: only if THEIR features are affected
+Collaborator: schedule changes, their CDDU
+Fan: new concerts, guest list status, Atelier content
+Never show technical error messages to end users
+Always show friendly, specific, actionable messages
+
+### Event Tracking Decision
+Every meaningful platform action fires an event
+Stored in Supabase events table
+No personal data in events (artist_id not name)
+GDPR compliant — no selling, EU storage
+Powers all business metrics and funnel analysis
+
+### Onboarding Funnel Tracking
+Track completion % per step
+Drop-off point = what to fix first
+Target: 70%+ full completion rate
+Anything below 50% = critical problem
+
+### Admin Dashboard Decision
+/admin route in Next.js (protected by Supabase admin role)
+Other roles: /admin returns 404
+Contains: NOC overview, artists, concerts, legal,
+          onboarding funnel, health, events, revenue
+Weekly automated report every Monday 8h via Vercel Cron
+
+### Microsoft Clarity Decision
+Free, GDPR compliant, one script tag
+Session recordings, heatmaps, rage clicks, dead clicks
+Used during beta to watch where artists get stuck
+Never watch sessions of fans (only artists during beta)
+
+### Emoji Feedback Decision
+After key actions: 😊 😐 😟 (one click)
+If 😟 clicked → optional text field appears
+Frictionless, honest, real-time UX feedback
+Stored in Supabase feedback table
+
+### Caching Strategy
+Vercel Edge Cache as resilience fallback
+Bio/photos: 1 hour TTL
+Concert listings: 5 minutes TTL
+Venue data: 24 hours TTL
+Legal documents: never cached (sensitive data)
+
+### Monitoring Tools Stack (All Free)
+Microsoft Clarity → behavioral (session recordings)
+Better Uptime → technical (external uptime checks)
+Vercel Analytics → technical (page views, performance)
+Supabase dashboard → technical (database activity)
+Custom /admin → business (metrics, growth, revenue)
+Weekly email → business (automated Monday report)
+Emoji feedback → behavioral (in-app UX signals)
+Total cost: €0
+
+### Supabase Schema Additions
+events table: id, artist_id, event_name,
+              properties(jsonb), session_id, created_at
+service_status table: id, service_name, is_up,
+                      last_checked, last_down_at,
+                      error_message, consecutive_failures
+feedback table: id, user_id, action, rating,
+                comment, created_at

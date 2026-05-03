@@ -626,13 +626,112 @@ MAILCHIMP_API_KEY                 = [private]
 | Fan emails | Mailchimp | ✅ |
 | Payments | Stripe | ⏳ simple |
 | Bilingual | next-i18n | ⏳ |
-| AI features | Claude API | ⏳ |
+| AI features | Claude API + tool use | ⏳ agent routes |
 | Notifications | WhatsApp links | ⏳ free |
 | Monitoring | MS Clarity | ⏳ |
 | Uptime | Better Uptime | ⏳ |
 | Mobile | PWA | ⏳ |
 | E-signature | YouSign | ⏳ |
 | Health checks | Vercel Cron | ⏳ |
+
+---
+
+## AGENT ARCHITECTURE
+
+### Role Of Agents
+```
+Claude API + tool use = the orchestration brain
+Next.js + Supabase = frontend + data layer
+Sanity = CMS layer
+
+Agents replace:
+├── Custom Python scrapers
+├── Custom PDF generation backend
+├── Rules engine for GUSO logic
+├── Translation service
+├── Multi-step workflow orchestration
+└── Custom microservices
+
+Agents do NOT replace:
+├── Supabase (data still lives there)
+├── Sanity (content still lives there)
+├── Next.js (routing still lives there)
+└── RLS policies (security still in Supabase)
+```
+
+### Agent API Routes (Next.js)
+```
+/api/agent/onboarding
+└── Scrape legacy URLs → extract bio/discography/photos
+    Translate FR↔EN → map to Sanity schemas
+    Validate with artist → generate missing content
+
+/api/agent/concert
+└── Generate descriptions (FR/EN)
+    Propose feuille de route schedule items
+    Generate technical rider template
+    Detect missing information
+    Pre-fill GUSO/CDDU fields
+
+/api/agent/legal
+└── Assemble GUSO data + validate fields
+    Generate CDDU contracts
+    Fill CERFA forms → produce PDFs
+    Check intermittent hours logic
+
+/api/agent/marketplace (Phase 2+)
+└── Match artists with professionals
+    Rank by reliability + skills
+    Suggest replacements on cancellation
+    Predict costs from past concerts
+
+/api/agent/fanbase (Phase 2+)
+└── Analyze fan engagement
+    Predict crowdfunding potential
+    Suggest venues by fan geography
+    Identify cross-artist clusters
+```
+
+### Agent Principles
+```
+1. Agents are STATELESS per task
+   Each call is self-contained
+   State lives in Supabase not in agent
+
+2. Agents do NOT store data
+   Results saved to Supabase or Sanity
+   Agent has no memory between calls
+
+3. Cost management
+   Cache results in Supabase
+   Batch tasks when possible
+   Avoid long-running sessions
+   Use Claude claude-sonnet-4-20250514 for most tasks
+
+4. No extra infrastructure needed
+   No backend server beyond Next.js API routes
+   No custom scrapers to maintain
+   No microservices to deploy
+
+5. Correct terminology
+   "Claude API with tool use" not "Managed Agents"
+   Same behavior — correct API naming
+```
+
+### Agent Phasing
+```
+MVP NOW:
+├── /api/agent/onboarding (scrape + translate + map)
+├── /api/agent/concert (descriptions + FDR + rider)
+└── /api/agent/legal (GUSO + CDDU + PDF)
+
+PHASE 2A:
+├── /api/agent/marketplace (matching)
+└── /api/agent/fanbase (insights)
+
+PHASE 2B:
+└── /api/agent/crowdfunding (payouts + refunds)
+```
 
 ---
 
@@ -725,4 +824,8 @@ git push
 - Platform: RÉSONANCE
 - Fan exclusive: ATELIER
 - Vision: cooperative cultural infrastructure
+- Agents: Claude API with tool use (not "Managed Agents")
+- Agent routes: /api/agent/onboarding, /concert, /legal
+- Agents are stateless — state lives in Supabase
+- Cache agent results — control costs
 - Full vision: DECISIONS.md north star only

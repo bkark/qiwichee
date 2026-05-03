@@ -648,3 +648,48 @@ concerts (
 Purpose: artists annotate costs, negotiations, venue conditions.
 Hidden during MVP — visible in Phase 2A+.
 Free text field — no structure required, flexible.
+
+## Agent Architecture Decision (2026-05-04)
+
+### Core Decision
+Claude API with tool use = orchestration brain of Résonance.
+Replaces: custom scrapers, PDF backend, rules engine,
+          translation service, microservices.
+Does NOT replace: Supabase, Sanity, Next.js, RLS policies.
+
+### Terminology Clarification
+Use "Claude API with tool use" not "Managed Agents".
+Managed Agents is an emerging Anthropic product not yet
+fully available. Claude API + tool use achieves same result.
+Agent behavior: multi-step reasoning, web scraping,
+                code execution, API calls, file generation.
+
+### Agent Routes Defined
+/api/agent/onboarding — scrape, translate, map to Sanity
+/api/agent/concert — descriptions, FDR, rider, GUSO prefill
+/api/agent/legal — GUSO assembly, CDDU, CERFA, PDF, hours
+/api/agent/marketplace — matching, ranking (Phase 2+)
+/api/agent/fanbase — engagement, predictions (Phase 2+)
+/api/agent/crowdfunding — payouts, refunds (Phase 2B)
+
+### Agent Principles
+Stateless per task — state lives in Supabase not agent.
+No data storage in agent — results saved externally.
+Cost management — cache results, batch tasks.
+No extra infrastructure — Next.js API routes only.
+One model: claude-sonnet-4-20250514 for most agent tasks.
+
+### What This Eliminates
+No custom Python scraper to build or maintain.
+No PDF generation server to deploy.
+No translation microservice.
+No rules engine for GUSO validation.
+No orchestration server.
+Significant reduction in build complexity and maintenance.
+
+### Cost Control Strategy
+Cache agent results in Supabase after first call.
+Batch multiple tasks in one agent call when possible.
+Use cheaper model for simple tasks (summaries, short text).
+Reserve full agent calls for complex multi-step workflows.
+Monitor token usage in Supabase events table.

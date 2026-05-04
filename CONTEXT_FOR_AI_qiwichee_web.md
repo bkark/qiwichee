@@ -1,9 +1,10 @@
 # Résonance — AI Context File
 > Paste this at the start of any new conversation to resume instantly.
 
-**Last updated:** 2026-05-04 — Business Planning Update
+**Last updated:** 2026-05-04 — Full Strategic Update
 **Status:** qiwichee.vercel.app LIVE ✅
-**Next session goal:** Supabase setup + RLS + bilingual foundation
+**Domains purchased:** qiwichee.com + qiwichee.fr (OVH) ✅
+**Next session goal:** Configure DNS + Supabase setup + landing page
 
 ---
 
@@ -142,6 +143,148 @@ You observe via Clarity session recordings
 ├── CDDU auto-generation
 ├── Intermittent hours tracker (507h dashboard)
 └── Legal compliance dashboard
+```
+
+---
+
+## CONCERT PLANNER & WHAT-IF ENGINE
+
+### The Problem (Confirmed by Qiwi Chee)
+```
+"How much will this concert cost to produce?"
+"Which venue fits my budget and audience size?"
+"What if I charge €15 vs €20 per ticket?"
+"Will I lose money if only 40 people show up?"
+
+Current reality:
+├── Call 5 venues → wait days for callbacks
+├── Build manual spreadsheet to compare
+├── Guess attendance → stressful decisions
+└── No visibility on break-even point
+```
+
+### The What-If Simulator
+```
+Artist sets parameters:
+├── Target city, month
+├── Expected audience range
+├── Budget limit
+└── Ticket price idea
+
+Platform shows matching venues with scenarios:
+
+VENUE A — Le Café de la Danse
+Capacity: 100 │ Rental: €600 │ PA included ✅
+├── If 50 tickets at €15: Profit €150 ✅
+├── If 80 tickets at €15: Profit €600 ✅
+└── Break even: 40 tickets (40% capacity) ✅
+
+VENUE B — La Maroquinerie
+Capacity: 250 │ Rental: €1,200 │ PA included ✅
+├── If 50 tickets at €15: Loss -€450 ❌
+├── If 125 tickets at €15: Profit €675 ✅
+└── Break even: 80 tickets (32% capacity) ⚠️
+```
+
+### What-If Sliders (live calculation)
+```
+Artist adjusts in real time:
+🎟️ Ticket price slider
+👥 Expected attendance slider
+🎸 Band fees slider
+📣 Promotion budget slider
+
+→ Revenue, costs, profit/loss update instantly
+→ Break-even point shown clearly
+→ AI suggestions when in deficit
+```
+
+### AI Concert Planner Agent
+```
+/api/agent/concert-planner
+
+Artist types goal in plain language:
+"Concert in Paris, June, 3-piece band,
+ budget €1,500, want to break even"
+
+Agent returns:
+├── SCENARIO A — Safe (library/mairie, free venue)
+│   Cost: €650, Break even: 44 tickets ✅
+├── SCENARIO B — Balanced (small venue €400)
+│   Cost: €1,050, Break even: 70 tickets ⚠️
+└── SCENARIO C — Ambitious (exceeds budget) ❌
+
+With recommendation and reasoning.
+```
+
+### Venue Contact Workflow
+```
+For unclaimed venues (most at start):
+Artist clicks "Contact this venue"
+→ Platform generates pre-filled inquiry email (FR)
+→ Artist sends with one click
+→ Platform tracks: sent → response → quoted price
+→ Response data saved to venue profile
+→ Future artists benefit from this data
+```
+
+### Post-Concert Learning Loop
+```
+After each concert artist fills review:
+├── Actual attendance vs projected
+├── Actual revenue vs projected
+├── Venue rating (1-5)
+├── Would you return? (yes/no)
+└── Notes for other artists
+
+Platform learns:
+├── Artist's attendance estimation accuracy
+├── Which venues work for which genres
+├── Seasonal patterns
+└── Genre-specific price sensitivity
+```
+
+### New Database Tables
+```sql
+concert_scenarios (
+  id, artist_id, venue_id, scenario_name,
+  expected_attendance, ticket_price,
+  venue_cost, band_fees, promotion_cost,
+  other_costs (jsonb), projected_revenue,
+  projected_profit, break_even_tickets,
+  status: 'planning'|'selected'|'rejected',
+  created_at
+)
+
+venue_inquiries (
+  id, artist_id, venue_id, sent_at,
+  response_received_at, quoted_price,
+  availability_dates (jsonb), notes,
+  status: 'sent'|'responded'|'booked'|'rejected'
+)
+
+concert_reviews (
+  id, concert_id, venue_id,
+  actual_attendance, actual_revenue,
+  actual_total_cost, venue_rating,
+  venue_notes, would_return, created_at
+)
+```
+
+### Venue Table Additions
+```sql
+venues (
+  ...existing fields...
+  rental_cost_min (numeric),
+  rental_cost_max (numeric),
+  pa_included (boolean),
+  lighting_included (boolean),
+  capacity_seated (integer),
+  capacity_standing (integer),
+  typical_genres (jsonb),
+  artist_rating (numeric),
+  last_cost_reported (timestamp)
+)
 ```
 
 ---
@@ -610,7 +753,8 @@ MAILCHIMP_API_KEY                 = [private]
 | Stripe | ⏳ | Simple ticket links |
 | Better Uptime | ⏳ | Free monitoring |
 | MS Clarity | ⏳ | Free session recording |
-| OVH | ⏳ | qiwichee.com ~€7/year |
+| OVH | ✅ | qiwichee.com + qiwichee.fr purchased |
+| Zimbra email | ⏳ | Set up booking@qiwichee.com |
 
 ---
 
@@ -886,7 +1030,10 @@ Examples:
 ## SPRINT PLAN
 
 ```
-SPRINT 1:
+SPRINT 1 (next sessions):
+├── Configure DNS at OVH (qiwichee.com + .fr → Vercel)
+├── Set up booking@qiwichee.com (Zimbra)
+├── Add domains to Vercel project
 ├── Supabase setup + schema + RLS policies
 ├── next-i18n bilingual setup
 ├── MS Clarity + Better Uptime setup

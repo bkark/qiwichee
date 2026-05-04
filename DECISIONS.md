@@ -755,3 +755,64 @@ Build after Qiwi Chee landing page is live.
 "Qiwichee Fans" — fans of Qiwi Chee the artist
 "Résonance Artists" — artists interested in joining platform
 Never mix these two audiences.
+
+## Concert Planner & Domain Decisions (2026-05-04)
+
+### Domain Purchase Decision
+Purchased at OVH:
+- qiwichee.com: €7.99 first year, €13.49/year after
+- qiwichee.fr: €4.99 first year, €7.79/year after
+Both .com and .fr purchased: international + French audiences.
+DNSSEC enabled on both (included free, security best practice).
+Zimbra Starter email included: activate booking@qiwichee.com
+Next step: configure DNS at OVH to point to Vercel.
+Both domains point to same site, zero extra build work.
+
+### Email Strategy
+Activate booking@qiwichee.com via OVH Zimbra.
+Use for venue inquiries and professional contacts.
+More professional than Gmail for artist communications.
+Forward to personal email for convenience.
+
+### Concert Planner Feature Decision
+Direct feedback from Qiwi Chee confirmed this need:
+- Comparing venue options is difficult and time-consuming
+- Budget planning for concerts is stressful
+- What-if thinking (if I charge X, what happens?) is missing
+- Need to know break-even point before committing to venue
+
+Feature design:
+- What-if simulator with live sliders (ticket price, attendance, costs)
+- Side-by-side venue comparison with scenarios per venue
+- Break-even calculation shown clearly
+- AI agent generates 3 scenarios: safe/balanced/ambitious
+- Venue contact workflow (pre-filled inquiry emails)
+- Response tracking per venue inquiry
+- Post-concert review enriches venue database
+
+New agent route: /api/agent/concert-planner
+
+New database tables:
+- concert_scenarios: what-if planning records
+- venue_inquiries: contact tracking and responses
+- concert_reviews: post-concert actual vs projected
+
+Venue table additions:
+rental_cost_min/max, pa_included, lighting_included,
+capacity_seated/standing, typical_genres, artist_rating,
+last_cost_reported
+
+### Learning Loop Decision
+Platform learns from every concert:
+- Artist's attendance estimation accuracy over time
+- Which venues work for which genres
+- Seasonal attendance patterns
+- Price sensitivity by city and genre
+This collective intelligence improves recommendations for all artists.
+
+### Crowdsourced Venue Data Decision
+After each concert: artist rates venue and reports actual costs.
+This builds real pricing data no open data source provides.
+Gets richer with every concert on platform.
+Future artists benefit from data contributed by past artists.
+Classic cooperative intelligence model.

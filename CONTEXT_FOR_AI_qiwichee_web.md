@@ -735,6 +735,154 @@ PHASE 2B:
 
 ---
 
+## LEGAL & CORPORATE STRUCTURE
+
+### SASU + Cooperative Architecture
+```
+SASU (yours — France)
+├── Owns ALL IP, algorithms, brand, platform code
+├── Controls product direction
+├── Central technical provider
+└── Licenses platform to local cooperatives
+
+Local cooperatives per country:
+├── France: SCIC (Société Coopérative d'Intérêt Collectif)
+├── Belgium: cooperative or ASBL
+├── Quebec: coopérative de solidarité
+├── Algeria/Morocco/Tunisia: partner institutions
+└── Each accesses LOCAL cultural funding
+
+Why this structure:
+├── SASU protects IP completely
+├── Cooperatives unlock local subsidies
+│   (CNM France, SODEC Quebec, etc.)
+├── Each country complies with local law
+└── You control product, cooperatives operate locally
+```
+
+### International Expansion Priority
+```
+Phase 1: France (current)
+Phase 2: Belgium, Switzerland (French-speaking)
+Phase 3: Quebec (Canada)
+Phase 4: Algeria, Morocco, Tunisia (MENA francophone)
+Phase 5: Other francophone regions
+
+Each expansion:
+├── New local cooperative or partner
+├── Local cultural funding applications
+├── Local artist employment law compliance
+└── Platform license from SASU
+```
+
+### Résonance Public Face (Planned)
+```
+resonance.fr (check availability at OVH)
+└── Platform marketing site
+    "Join the beta" → Mailchimp "Résonance Artists" list
+    Separate from qiwichee.com (artist instance)
+
+Two Mailchimp audiences:
+├── "Qiwichee Fans" — fans of Qiwi Chee
+└── "Résonance Artists" — artists interested in platform
+```
+
+---
+
+## BILLING PROVIDERS SYSTEM
+
+### The Problem
+```
+Non-incorporated artist cannot issue invoices.
+Platform must detect this and offer a solution.
+```
+
+### Billing Providers
+```
+Validated entities that can invoice on behalf of artists:
+├── CAE (Coopérative d'Activité et d'Emploi)
+├── Partner SCIC/cooperative
+├── Local institution on platform
+└── Association already registered
+
+Billing Provider can:
+├── Invoice venue/organizer on artist's behalf
+├── Act as intermediary for payment
+├── Appear as selectable resource in Feuille de Route
+└── Track administrative responsibility per concert
+
+RÉSONANCE commission:
+└── Apporteur d'affaire when connecting artist
+    with Billing Provider (% of transaction)
+```
+
+### Agent Detection Logic
+```
+When artist creates concert:
+Agent detects:
+├── Does artist have legal structure? (from profile)
+├── Is concert paid?
+└── Is GUSO/CDDU required?
+
+If artist cannot bill + concert is paid:
+└── Platform suggests Billing Provider:
+    "You don't have a billing structure.
+     Would you like to connect with a
+     Billing Provider to handle invoicing?"
+    [Select from validated providers list]
+```
+
+### Feuille de Route Integration
+```
+Feuille de Route now tracks:
+├── Billing Provider (who invoices)
+├── Local institutions involved
+├── Professionals (musicians, engineers...)
+└── Who is responsible for each admin step
+
+Each person/entity has a role and a task:
+├── Artist → perform
+├── Billing Provider → invoice venue
+├── Sound engineer → technical setup
+└── Stage manager → production coordination
+```
+
+---
+
+## ETHICAL RISK MANAGEMENT LAYER
+
+### Standing Rule For This AI
+```
+When designing features, alert if they touch:
+├── Internationally disputed territories
+│   → Flag: "geographic validation needed"
+├── Institutions tied to state-sponsored
+│   cultural diplomacy
+│   → Flag: "institutional due-diligence recommended"
+├── Partners with known human-rights controversies
+│   → Flag: "partner metadata may require filtering"
+└── Venues in militarily occupied zones
+    → Flag: "geographic validation needed"
+
+Alerts are:
+├── Neutral and technical (never political)
+├── Non-prescriptive (you decide, not the AI)
+└── Based on universal rules not specific movements
+
+Examples:
+├── Open data venue import from certain regions
+│   → "geographic validation recommended
+│      before auto-importing venue data"
+├── International touring feature
+│   → "cross-border routing should include
+│      geographic metadata validation layer"
+└── Institutional partner integration
+    → "due-diligence on institutional affiliation
+       recommended before platform listing"
+```
+
+---
+
 ## SPRINT PLAN
 
 ```
@@ -824,8 +972,14 @@ git push
 - Platform: RÉSONANCE
 - Fan exclusive: ATELIER
 - Vision: cooperative cultural infrastructure
+- Corporate: SASU owns IP, cooperatives operate locally
 - Agents: Claude API with tool use (not "Managed Agents")
 - Agent routes: /api/agent/onboarding, /concert, /legal
 - Agents are stateless — state lives in Supabase
 - Cache agent results — control costs
+- Billing Providers: detect when artist cannot bill
+- Suggest Billing Provider in concert workflow
+- Ethical layer: flag geographic/institutional risks
+  using neutral technical language only
+- Never political framing — always technical flags
 - Full vision: DECISIONS.md north star only

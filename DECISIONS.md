@@ -693,3 +693,65 @@ Batch multiple tasks in one agent call when possible.
 Use cheaper model for simple tasks (summaries, short text).
 Reserve full agent calls for complex multi-step workflows.
 Monitor token usage in Supabase events table.
+
+## Strategic Update (2026-05-04)
+
+### Corporate Structure Decision — SASU + Cooperatives
+SASU (France) owns all IP, algorithms, brand, platform code.
+SASU controls product direction and technical updates.
+SASU licenses platform to local cooperatives per country.
+Local cooperatives: access local funding, comply local law,
+                    manage local governance and onboarding.
+This structure: protects IP, unlocks local subsidies,
+                scales internationally without losing control.
+
+### International Expansion Order
+Phase 1: France (current)
+Phase 2: Belgium, Switzerland
+Phase 3: Quebec (Canada)
+Phase 4: Algeria, Morocco, Tunisia
+Phase 5: Other francophone regions
+Each expansion requires local cooperative or partner entity.
+
+### Billing Providers Decision
+New validated entity type on platform.
+Billing Providers can invoice on behalf of artists.
+Types: CAE, partner SCIC, local institution, association.
+Platform detects when artist cannot bill (no legal structure).
+Agent suggests Billing Provider when needed.
+RÉSONANCE takes commission as apporteur d'affaire.
+Billing Provider appears in Feuille de Route.
+Each entity has clearly assigned administrative responsibility.
+
+### Feuille de Route Extended
+Now tracks: Billing Provider, local institutions,
+            professionals, and administrative responsibility.
+Each person/entity has role + specific task assignment.
+Replaces chaotic WhatsApp coordination with structured workflow.
+
+### Ethical Risk Management Layer (Standing Rule)
+AI must flag when features touch:
+- Internationally disputed territories
+- State-sponsored cultural diplomacy institutions
+- Partners with human-rights controversies
+- Venues in militarily occupied zones
+
+Flag language (neutral, technical, never political):
+- "geographic validation needed"
+- "institutional due-diligence recommended"
+- "partner metadata may require filtering"
+
+This applies to: venue data imports, touring features,
+                 institutional partnerships, API integrations.
+
+### Résonance Public Face Decision
+resonance.fr target domain (check at OVH).
+Separate Vercel project: resonance-platform.
+Simple one-page beta site: tagline + 3 features + signup.
+New Mailchimp audience: "Résonance Artists" (separate from fans).
+Build after Qiwi Chee landing page is live.
+
+### Two Mailchimp Audiences
+"Qiwichee Fans" — fans of Qiwi Chee the artist
+"Résonance Artists" — artists interested in joining platform
+Never mix these two audiences.

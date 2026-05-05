@@ -816,3 +816,77 @@ This builds real pricing data no open data source provides.
 Gets richer with every concert on platform.
 Future artists benefit from data contributed by past artists.
 Classic cooperative intelligence model.
+
+## Subdomain Strategy & Agent Engineering (2026-05-04)
+
+### Subdomain Strategy Decision
+New entry mode: concerts.artistname.com
+Target: artists with existing website who only want
+        legal automation and concert management.
+DNS: artist adds one CNAME record at their registrar.
+Next.js middleware reads subdomain → loads concerts mode only.
+Artist's existing site stays completely untouched.
+This is the "wedge strategy" — enter through smallest door,
+expand when artist trusts the platform.
+
+### New Pricing Tier: CONCERTS ONLY (€9/month)
+Lowest friction entry point.
+Includes: subdomain, tickets, GUSO, CDDU, feuille de route,
+          fan QR signup, budget/what-if planner.
+No website builder required.
+Converts to higher tiers when artist sees value.
+
+### Three Routing Modes Decision
+One Next.js codebase handles three distinct modes:
+1. concerts.artistname.com → concerts module only
+2. artistname.com → full Résonance site (all modules)
+3. resonance.fr → platform marketing site
+Routing determined by Next.js middleware reading subdomain.
+No extra repos or deployments needed.
+
+### Agent Architect Principles — What We Adopted
+From the Seven Skills Framework review:
+
+ADOPT NOW:
+- Zod validation on ALL agent inputs and outputs
+- Strict TypeScript types for all agent contracts
+- Retry with exponential backoff (1s, 2s, 4s) on all external APIs
+- 10 second timeout on all external API calls
+- Circuit breaker: 5 failures/minute → stop + alert + degrade
+- artist_id ALWAYS from auth session, NEVER from request body
+- Validate ownership via artist_members table before any write
+- RED metrics (Rate, Errors, Duration) in events table
+- Token usage logged per agent call
+
+ADOPT IN PHASE 2:
+- Full circuit breaker library implementation
+- Progressive context loading (grep/tail)
+- Semantic firewalls for multi-tenant isolation
+
+DO NOT ADOPT:
+- Formal semantic handshake protocol (Zod achieves same)
+- Full distributed system framing (solo dev MVP)
+- Red Team every single proposal (creates paralysis)
+
+### Layered Memory Validation
+Review confirmed our existing structure is correct:
+Procedural → CLAUDE.md in repo ✅
+Episodic → Supabase events table ✅
+Semantic → CONTEXT_FOR_AI + DECISIONS.md ✅
+No changes needed — already well structured.
+
+### Security Rule Formalized
+NEVER accept artist_id from request body.
+ALWAYS get from Supabase auth session.
+ALWAYS verify membership in artist_members before writes.
+Log ALL write operations to events table.
+This applies to every agent route and API endpoint.
+
+### Observability Addition
+Add to events table per agent call:
+- rate (count = 1 per call)
+- error (0 or 1)
+- duration_ms (response time)
+- tokens_used (Claude API usage)
+- agent_name (which route)
+This enables RED monitoring per agent type.

@@ -505,48 +505,50 @@ feedback (
 
 ---
 
-## PRICING MODEL (Revised — Lower Entry Barrier)
+## PRICING MODEL (Updated)
 
 ```
-FREE TIER
-├── Limited concerts (2-3/month)
-├── Basic website
-├── Fan email signup
-└── Manual GUSO guidance
+CONCERTS ONLY (€9/month) — NEW ENTRY TIER
+├── concerts.artistname.com subdomain
+├── Ticket sales + GUSO + CDDU
+├── Feuille de route live checklist
+├── Fan QR signup at concerts
+└── Budget/what-if planner
 
-STARTER (€9-15/month)
+FREE TIER
+├── Limited (2 concerts/month)
+├── Basic website
+└── Fan email signup
+
+STARTER (€15/month)
 ├── Unlimited concerts
 ├── Full bilingual website
 ├── GUSO + CDDU automation
-└── Basic intermittent tracking
+└── Intermittent tracking basic
 
 PRO (€29-49/month)
 ├── Everything in Starter
 ├── Interactive feuille de route
 ├── Full intermittent dashboard
 ├── Rehearsal management
-├── Phase 2A crowdfunding (support button)
+├── Phase 2A crowdfunding
 └── WhatsApp notifications
 
 PREMIUM (€79+/month)
 ├── Everything in Pro
 ├── Advanced analytics
 ├── Priority support
-├── Early access to new features
 └── Marketplace access (Phase 2+)
 
-USAGE-BASED (add-ons)
+USAGE-BASED ADD-ONS
 ├── Extra CDDU beyond tier limit
 ├── Extra GUSO declarations
 └── Extra concerts
 
-PHASE 2+ REVENUE
-├── Marketplace commissions
-├── Phase 2B crowdfunding commission (5-10%)
-└── Venue booking commission
-
-Goal: low entry barrier → fast adoption
-      Scale revenue with usage → sustainable growth
+PHASE 2+ COMMISSIONS
+├── Marketplace bookings
+├── Crowdfunding (Phase 2B): 5-10%
+└── Billing Provider connections
 ```
 
 ---
@@ -777,6 +779,215 @@ MAILCHIMP_API_KEY                 = [private]
 | Mobile | PWA | ⏳ |
 | E-signature | YouSign | ⏳ |
 | Health checks | Vercel Cron | ⏳ |
+
+---
+
+## SUBDOMAIN STRATEGY — CONCERTS ONLY MODE
+
+### The Problem It Solves
+```
+Some artists already have a good website
+and don't want to replace it.
+They only want the concert management tools.
+
+Solution: concerts.artistname.com
+└── Résonance module embedded as subdomain
+    Artist keeps existing site
+    Links to concerts subdomain for tickets/GUSO
+    Low friction → high adoption
+```
+
+### How It Works Technically
+```
+Artist adds ONE DNS record at their registrar:
+Type: CNAME
+Name: concerts
+Target: cname.vercel-dns.com
+
+Result:
+concerts.qiwichee.com → runs Résonance /concerts
+qiwichee.com → their existing site (untouched)
+```
+
+### Next.js Middleware Routing
+```
+Request comes in:
+├── concerts.qiwichee.com → concerts-only mode
+│   └── Load /concerts module only
+│       Apply artist branding
+│       No /website module
+│
+├── qiwichee.com → full Résonance site
+│   └── Load all modules
+│
+└── resonance.fr → platform marketing site
+    └── Load marketing page
+
+One codebase, three modes, clean routing.
+```
+
+### New Pricing Tier
+```
+CONCERTS ONLY (€9/month) — new entry tier
+├── concerts.artistname.com subdomain
+├── Concert listings and ticket sales
+├── GUSO + CDDU automation
+├── Feuille de route (live checklist)
+├── Fan signup at concerts (QR code)
+├── Budget/what-if planner
+└── No website builder needed
+
+Target: artists with existing good websites
+        who just want legal automation
+        Lowest friction entry point
+        "Wedge strategy" into full platform
+```
+
+### The Wedge Strategy
+```
+Entry: CONCERTS ONLY (€9/month)
+       Artist keeps existing site
+       Adds only what they need
+
+Growth: Artist sees value in legal tools
+        Asks "can you also handle my website?"
+        Upgrades to STARTER (€15/month)
+
+Full: Artist on full platform
+      Upgrades to PRO (€29-49/month)
+      Refers other artists → referral rewards
+```
+
+---
+
+## AGENT ENGINEERING PRINCIPLES
+
+### Adopted From Agent Architect Review
+```
+Seven Skills Framework (mental checklist):
+├── System Design — orchestration via agent routes ✅
+├── Tool Contracts — Zod schemas on all inputs ✅
+├── Retrieval — RAG for venue/legal data (Phase 2)
+├── Reliability — retry + circuit breakers ✅
+├── Security — artist_id always from auth session ✅
+├── Observability — RED metrics in events table ✅
+└── Product Thinking — artist feedback drives all ✅
+```
+
+### Layered Memory (Already Built)
+```
+Procedural memory → CLAUDE.md (in repo) ✅
+Episodic memory → Supabase events table ✅
+Semantic memory → CONTEXT_FOR_AI + DECISIONS.md ✅
+```
+
+### Airtight Tool Contracts (Implement Now)
+```typescript
+// Every agent route must have:
+
+// 1. Strict Zod input schema
+const ConcertPlannerInput = z.object({
+  artist_id: z.string().uuid(),
+  city: z.string().min(2),
+  month: z.string().regex(/^\d{4}-\d{2}$/),
+  expected_audience_min: z.number().int().positive(),
+  expected_audience_max: z.number().int().positive(),
+  budget_limit: z.number().positive(),
+  ticket_price: z.number().positive()
+})
+
+// 2. Strict output type
+type ConcertPlannerOutput = {
+  scenarios: Scenario[]
+  recommended: 'safe' | 'balanced' | 'ambitious'
+  reasoning: string
+  venue_emails: VenueEmail[]
+}
+
+// 3. Example in comments
+// Input example:
+// { city: "Paris", month: "2026-06",
+//   expected_audience_min: 40,
+//   expected_audience_max: 80,
+//   budget_limit: 1500,
+//   ticket_price: 15 }
+```
+
+### Reliability Mandate (All External APIs)
+```typescript
+// Retry with exponential backoff
+async function callWithRetry(fn, maxRetries = 3) {
+  for (let i = 0; i < maxRetries; i++) {
+    try {
+      return await Promise.race([
+        fn(),
+        timeout(10000) // 10 second timeout
+      ])
+    } catch (err) {
+      if (i === maxRetries - 1) throw err
+      await sleep(Math.pow(2, i) * 1000) // 1s, 2s, 4s
+    }
+  }
+}
+
+// Circuit breaker: 5 failures in 1 min
+// → stop calling, show graceful degradation
+// → alert admin, log to service_status table
+```
+
+### Security Boundaries (Write Operations)
+```typescript
+// ALWAYS get artist_id from auth session
+// NEVER accept it from request body
+
+// ❌ WRONG — security hole
+const { artist_id } = req.body
+
+// ✅ CORRECT — always from session
+const { user } = await supabase.auth.getUser()
+const artist_id = user.id
+
+// Validate ownership before any write
+const { data: member } = await supabase
+  .from('artist_members')
+  .select('role')
+  .eq('artist_id', concert.artist_id)
+  .eq('user_id', user.id)
+  .single()
+
+if (!member) throw new Error('Unauthorized')
+```
+
+### RED Observability Metrics
+```typescript
+// Add to every agent call in events table:
+await trackEvent({
+  event: 'agent_call',
+  properties: {
+    agent: 'concert-planner',
+    rate: 1,                    // Rate: count
+    error: error ? 1 : 0,       // Errors: 0 or 1
+    duration_ms: Date.now() - start, // Duration
+    tokens_used: response.usage.total_tokens,
+    success: !error
+  }
+})
+```
+
+### What NOT To Adopt Yet
+```
+❌ Formal semantic handshake protocol
+   (use Zod validation instead — same benefit)
+
+❌ Progressive file disclosure (grep/tail)
+   (files are small in MVP — not needed yet)
+
+❌ Semantic firewalls
+   (add in Phase 2 with multi-tenant scale)
+
+❌ Full distributed system framing
+   (you are one developer building an MVP)
+```
 
 ---
 
@@ -1120,8 +1331,14 @@ git push
 - Fan exclusive: ATELIER
 - Vision: cooperative cultural infrastructure
 - Corporate: SASU owns IP, cooperatives operate locally
+- Subdomain mode: concerts.artistname.com for wedge entry
+- Three routing modes: subdomain / full site / marketing
 - Agents: Claude API with tool use (not "Managed Agents")
 - Agent routes: /api/agent/onboarding, /concert, /legal
+- Agent inputs: ALWAYS validate with Zod schemas
+- Agent security: artist_id ALWAYS from auth session never body
+- Agent reliability: retry + exponential backoff on all external APIs
+- Agent observability: RED metrics (rate/error/duration) in events
 - Agents are stateless — state lives in Supabase
 - Cache agent results — control costs
 - Billing Providers: detect when artist cannot bill

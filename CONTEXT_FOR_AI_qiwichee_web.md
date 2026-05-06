@@ -84,7 +84,7 @@ MEMBER (Fan — "Atelier" access)
 
 ---
 
-## MVP = THREE MODULES + ONBOARDING
+## MVP = FOUR MODULES + ONBOARDING
 
 ### /onboarding (BUILD FIRST)
 ```
@@ -285,6 +285,276 @@ venues (
   artist_rating (numeric),
   last_cost_reported (timestamp)
 )
+```
+
+---
+
+## CO-EVENTS — MULTI-ARTIST CONCERTS
+
+### What It Is
+```
+Multiple artists share one venue, one event,
+one feuille de route — but separate legal docs.
+
+Benefits:
+├── Split venue costs (cheaper per artist)
+├── Pool fanbases (more ticket buyers)
+├── Cross-discovery (fans find new artists)
+├── Combined crowdfunding (more reach)
+└── Viral artist acquisition (new artists join)
+```
+
+### How It Works
+```
+Artist A invites Artist B to co-headline:
+→ Invitation sent through platform
+→ Artist B accepts/declines/negotiates
+→ Platform suggests running order by fanbase size
+   (smaller fanbase opens, larger closes)
+→ Cost split negotiated (equal or proportional)
+→ ONE shared feuille de route generated
+→ SEPARATE GUSO + CDDU per artist ✅
+→ Combined crowdfunding campaign launched
+→ Each artist promotes to their own fans
+```
+
+### Running Order Algorithm
+```
+2 artists: fewer fans opens, more fans closes
+3 artists: ascending fanbase order
+4+ artists: festival mode unlocked
+            staggered lineup poster generated
+            equal or proportional sets
+
+Artists can override suggestions
+Both must confirm final order
+```
+
+### Shared Feuille De Route
+```
+ONE document, multiple artists:
+├── Combined schedule (all sound checks, sets)
+├── Changeover logistics between acts
+├── Shared dressing room allocation
+├── Combined stage plot
+└── Each artist's responsibilities clearly assigned
+```
+
+### Viral Growth Engine
+```
+Artist on platform invites artist NOT on platform
+→ Platform sends: "Join free to coordinate"
+→ New artist joins ✅
+→ Zero marketing cost acquisition
+Every co-event = potential new artist signup
+```
+
+### Co-Event Database Tables
+```sql
+co_events (
+  id, title, concert_id,
+  status: 'proposed'|'negotiating'|'confirmed'|'completed',
+  created_by, created_at
+)
+
+co_event_artists (
+  id, co_event_id, artist_id,
+  running_order, set_duration_minutes,
+  cost_share_percent,
+  status: 'invited'|'accepted'|'declined',
+  responded_at
+)
+
+co_event_costs (
+  id, co_event_id, cost_type,
+  total_amount,
+  split_method: 'equal'|'proportional'|'custom',
+  created_at
+)
+
+co_event_cost_shares (
+  id, co_event_cost_id, artist_id,
+  amount, paid, paid_at
+)
+```
+
+---
+
+## CONTENT STUDIO — SOCIAL MEDIA ENGINE
+
+### The Problem (Confirmed)
+```
+Artists record rehearsals, concerts, sessions.
+Content sits unused on their phone.
+Social media goes quiet.
+Fans disengage.
+
+Root cause: too much work to repurpose content
+           across multiple platforms and formats.
+```
+
+### What The Platform Does
+```
+"Upload once → posts everywhere"
+
+1. Artist uploads raw video/audio
+2. AI finds best moments automatically
+3. Platform generates all formats:
+   ├── Instagram Reel (9:16, max 90s)
+   ├── Instagram Story (9:16, 15s)
+   ├── Instagram Post (1:1 square)
+   ├── TikTok (9:16, up to 3min)
+   ├── Facebook Reel (9:16)
+   ├── Twitter/X (16:9, max 2:20)
+   └── YouTube Shorts (9:16, max 60s)
+4. AI writes bilingual captions per platform
+5. Platform suggests optimal posting times
+6. Artist approves and schedules
+7. Platform auto-posts at scheduled times
+```
+
+### AI Content Analysis
+```
+/api/agent/content-analyzer
+
+Agent analyzes uploaded video:
+├── Finds best 15s, 30s, 60s moments
+├── Identifies high energy vs intimate sections
+├── Detects when artist is most expressive
+├── Flags technical issues (bad lighting, noise)
+└── Returns timestamped recommendations:
+    "04:23-04:38 — high energy chorus ⭐⭐⭐"
+    "12:05-12:35 — intimate vocal moment ⭐⭐"
+```
+
+### AI Caption Generation
+```
+/api/agent/content-writer
+
+Per platform, per language:
+├── Instagram FR: personal, hashtags, emoji
+├── Instagram EN: same tone, English
+├── Twitter FR: shorter, punchy
+├── Facebook FR: warmer, more detail
+└── Each respects platform character limits
+
+Artist edits before approval
+Platform learns artist's style over time
+```
+
+### Content Calendar
+```
+Unified view of all scheduled content:
+├── All platforms in one calendar
+├── Green = scheduled ✅
+├── Yellow = AI suggestion (needs approval)
+└── Red = missed opportunity ⚠️
+
+AI proactive plan before concerts:
+"Concert in 14 days. Suggested plan:
+ Day 14: Announce concert
+ Day 10: Rehearsal clip
+ Day 7: Venue reveal
+ Day 3: Urgency post
+ Day 1: Tomorrow night
+ Day 0: Live stories
+ Day +1: Thank you"
+```
+
+### Automated Event Posts
+```
+Triggered automatically:
+
+Concert created →
+auto-generate announcement post (needs approval)
+
+Crowdfunding 50% reached →
+auto-generate milestone post
+
+New fan milestone →
+auto-generate celebration post
+
+SACEM royalty → internal only, not posted
+```
+
+### Connected Social Accounts
+```
+Artist connects once via OAuth:
+├── Instagram (Meta API)
+├── Facebook (Meta API)
+├── Twitter/X (X API)
+├── TikTok (TikTok API)
+└── YouTube (YouTube API)
+
+All connections revocable anytime
+GDPR: explicit authorization per platform
+```
+
+### Privacy And Rights Flags
+```
+Band members in video →
+"Others appear in this video.
+ Send consent request to band members?"
+
+Background music detected →
+"Ensure you have rights before posting
+ to avoid platform takedowns."
+
+Venue recording restrictions →
+"Check your venue agreement allows
+ video recording and social posting."
+```
+
+### Technical Stack
+```
+Video processing: Cloudflare Stream (free 1000min/month)
+                  or Mux (pay per minute)
+AI analysis: Claude API with vision
+Subtitles: Whisper API (auto-transcription FR+EN)
+Scheduling: Supabase Edge Functions
+Cost per artist: ~€0.50-2.00/month
+```
+
+### Content Database Tables
+```sql
+content_pieces (
+  id, artist_id,
+  source_type: 'rehearsal'|'concert'|'studio'|'original',
+  concert_id (nullable),
+  raw_file_url, duration_seconds,
+  status: 'uploaded'|'analyzed'|'approved'|'scheduled'|'posted',
+  created_at
+)
+
+content_clips (
+  id, content_piece_id,
+  start_second, end_second,
+  platform, format,
+  processed_url,
+  caption_fr, caption_en,
+  hashtags (jsonb),
+  scheduled_at, posted_at,
+  status: 'draft'|'approved'|'scheduled'|'posted'|'failed'
+)
+
+social_accounts (
+  id, artist_id, platform,
+  access_token (encrypted),
+  account_name, connected_at, expires_at
+)
+```
+
+### Module Position
+```
+/modules/website   → permanent presence
+/modules/content   → ongoing social activity ← NEW
+/modules/concerts  → event management
+/modules/legal     → compliance
+
+/content feeds into:
+├── /concerts (concert-specific clips)
+├── /website (embed latest posts)
+└── Fan engagement (signups via social)
 ```
 
 ---
@@ -1045,6 +1315,24 @@ Agents do NOT replace:
     Predict crowdfunding potential
     Suggest venues by fan geography
     Identify cross-artist clusters
+
+/api/agent/content-analyzer (new)
+└── Analyze uploaded video/audio
+    Find best moments by timestamp
+    Flag technical issues
+    Return scored recommendations
+
+/api/agent/content-writer (new)
+└── Generate bilingual captions per platform
+    Respect character limits per platform
+    Learn artist's style over time
+    Include relevant hashtags
+
+/api/agent/co-event (new)
+└── Suggest running order by fanbase size
+    Calculate cost splits
+    Generate combined feuille de route
+    Draft co-event crowdfunding page
 ```
 
 ### Agent Principles

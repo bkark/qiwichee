@@ -890,3 +890,80 @@ Add to events table per agent call:
 - tokens_used (Claude API usage)
 - agent_name (which route)
 This enables RED monitoring per agent type.
+
+## Co-Events & Content Studio Decisions (2026-05-04)
+
+### Co-Events Feature Decision
+Multi-artist concert coordination built into platform.
+Triggered by artist feedback: sharing costs and fanbases
+is a real need for emerging independent artists.
+
+Key decisions:
+- Running order suggested by fanbase size (smaller opens)
+- Cost split: equal or proportional to fanbase size
+- ONE shared feuille de route for all artists
+- SEPARATE GUSO + CDDU per artist (legal requirement)
+- Combined crowdfunding campaign across all artist fanbases
+- 4+ artists unlocks festival mode with lineup poster
+- Artists not on platform invited automatically when tagged
+  → viral artist acquisition with zero marketing cost
+
+New agent route: /api/agent/co-event
+New tables: co_events, co_event_artists,
+            co_event_costs, co_event_cost_shares
+
+Business model: +1% coordination fee on co-event ticket sales
+Strategic value: every co-event is a potential new artist signup
+
+### Content Studio Feature Decision
+Direct response to artist pain point:
+raw content exists but never gets repurposed.
+Social media goes quiet. Fans disengage.
+
+Core promise: "Upload once → posts everywhere"
+
+Key decisions:
+- AI analyzes video and finds best moments automatically
+- All platform formats generated from one upload
+  (Instagram 9:16, Twitter 16:9, TikTok, YouTube Shorts, etc.)
+- Bilingual captions generated per platform per language
+- Optimal posting times suggested based on audience activity
+- Artist approves everything before posting
+- Platform auto-posts at scheduled times
+- Proactive content plan generated 14 days before concert
+- Automated milestone posts (crowdfunding, fan counts)
+
+Privacy rules:
+- Band members in video → consent request sent
+- Background music → rights reminder shown
+- Venue recording → agreement reminder shown
+
+Technical stack:
+- Video processing: Cloudflare Stream (free 1000min/month)
+- AI analysis: Claude API with vision
+- Subtitles: Whisper API (FR + EN auto-transcription)
+- Scheduling: Supabase Edge Functions
+- Social APIs: Meta, X, TikTok, YouTube (all free tiers)
+- Cost per artist: ~€0.50-2.00/month
+
+New agent routes:
+- /api/agent/content-analyzer (find best moments)
+- /api/agent/content-writer (bilingual captions)
+
+New tables: content_pieces, content_clips, social_accounts
+
+Module position: /content sits between /website and /concerts
+Feeds into: /concerts (event clips), /website (embed posts),
+            fan engagement (social → signups)
+
+### MVP Now Has Four Modules
+Updated from three to four modules:
+1. /onboarding — AI-guided self-setup wizard
+2. /website — bilingual site, CMS, Atelier
+3. /content — social media engine (new)
+4. /concerts — event management, feuille de route
+5. /legal — GUSO, CDDU, intermittent (killer feature)
+
+Content module deferred to Sprint 3 or 4.
+Core MVP (website + concerts + legal) remains priority.
+Content studio adds value but is not blocking.

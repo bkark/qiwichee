@@ -967,3 +967,58 @@ Updated from three to four modules:
 Content module deferred to Sprint 3 or 4.
 Core MVP (website + concerts + legal) remains priority.
 Content studio adds value but is not blocking.
+
+## Platform Expansion Decisions (2026-05-07)
+
+### Entertainers Beyond Musicians
+Platform extended to all performing artists in France.
+GUSO, CDDU, intermittent apply equally to all.
+Onboarding asks discipline → platform adapts:
+- Musicians: SACEM declarations
+- Comedians/Theatre/Circus: SACD (not SACEM)
+- Technical rider templates per discipline
+- Content suggestions per discipline
+This broadens the addressable market significantly.
+
+### Cover Artists Marketplace Decision
+New professional type: visual/cover artists.
+Artwork brief form auto-generated from recording project.
+Brief contains: mood, colors, references, formats, budget, deadline.
+Cover artists create opt-in profiles (is_visible = false default).
+Artists post brief → cover artists apply → platform matches.
+Payment via Stripe → platform commission 10-15%.
+Cover artist added as COLLABORATOR on recording project.
+Sees only artwork tasks, not financials or legal.
+
+### Project Journal / Communications Decision
+Every project gets a unified communications journal.
+Entry types: email, WhatsApp, internal note, document, call, automated, milestone.
+Email integration: booking@qiwichee.com auto-links to projects.
+Outgoing emails sent from platform → stored in journal automatically.
+Unified inbox across all projects with urgent/unread/pending views.
+New table: project_journal with full audit trail.
+This replaces WhatsApp chaos with structured project communication.
+
+### Open Source Migration Architecture Decision
+Four rules baked in from day one:
+1. Abstract every external service (service layer pattern)
+2. Data always in Supabase first (sync to providers)
+3. Environment variables for all endpoints
+4. Standard data formats (normalize to own schema)
+
+Open source alternatives documented per service.
+Migration trigger: cost > €200/month OR pricing change OR GDPR issue.
+Prefer French/EU providers strategically:
+- Brevo (French) over Mailchimp
+- Mistral (French) as Claude API alternative
+- OVH already chosen for domains
+Migration playbook per service documented in context file.
+
+### Claude Projects Decision
+Use Claude Projects instead of long conversations.
+Create project "Résonance Dev" with uploaded context files.
+200K context window = 500 pages = always enough.
+Custom instructions set once, apply to every chat.
+Each new chat inside project = full context + fresh capacity.
+This solves the "one question per session" problem permanently.
+Requires Claude Pro plan ($20/month).

@@ -559,6 +559,258 @@ social_accounts (
 
 ---
 
+## ENTERTAINERS BEYOND MUSICIANS
+
+### Platform Supports All Performing Artists
+```
+Discipline selection during onboarding:
+○ Musician / Singer
+○ Stand-up Comedian
+○ Circus / Acrobat / Juggler
+○ Mime / Physical Theatre
+○ Spoken Word / Poet
+○ DJ / Electronic
+○ Other performing artist
+
+Platform adapts per discipline:
+├── Musicians → SACEM declarations
+├── Comedians/Theatre/Circus → SACD
+│   (Société des Auteurs et Compositeurs Dramatiques)
+├── Technical rider templates per type
+│   (mime needs no PA, comedy needs specific lighting)
+└── Content suggestions adapted per discipline
+
+GUSO, CDDU, intermittent du spectacle:
+└── Same for ALL performing artists in France ✅
+    This is the killer feature for everyone
+```
+
+---
+
+## COVER ARTISTS & VISUAL CREATORS
+
+### The Brief Form — What Cover Artists Need
+```
+Platform generates "Artwork Brief" when recording project created:
+
+AUTO-FILLED:
+├── Artist name, project title, release date, genre
+
+ARTIST FILLS:
+├── Mood tags (ethereal, dark, warm, urban...)
+├── Color palette (picker or hex)
+├── Reference images (3-5 uploads)
+├── Text to include (auto-filled from project)
+├── What to avoid
+├── Formats needed:
+│   ☑ Album cover (3000×3000px)
+│   ☑ Single cover
+│   ☑ Social media pack
+│   ☐ Vinyl sleeve
+│   ☐ Animated cover (Spotify Canvas)
+├── Budget range (slider)
+├── Deadline (date picker)
+└── Revision rounds (2/3/unlimited)
+
+→ Generates professional brief PDF
+→ Artist posts to marketplace OR sends directly
+```
+
+### Cover Artist Marketplace
+```
+Cover artists create profiles:
+├── Portfolio (past covers)
+├── Style tags (abstract, photographic, illustrative...)
+├── Genre specialties
+├── Turnaround time and price range
+├── Tools (Photoshop, Procreate, Blender...)
+└── is_visible boolean (opt-in, GDPR safe)
+
+Workflow:
+Artist posts brief → cover artists apply with sample
+→ Artist selects → project created in platform
+→ Brief shared → revisions tracked in journal
+→ Payment via Stripe on approval
+→ Platform commission: 10-15%
+```
+
+### Cover Artist In Feuille De Route
+```
+Recording project checklist includes:
+├── ☐ Artwork brief created [cover artist assigned]
+├── ☐ Artwork draft received [date]
+├── ☐ Revisions requested [notes]
+├── ☐ Final artwork approved
+└── ☐ Files delivered (all formats)
+
+Cover artist = COLLABORATOR on recording project
+Sees only their tasks, not financials or legal docs
+```
+
+---
+
+## PROJECT COMMUNICATIONS — JOURNAL SYSTEM
+
+### The Problem
+```
+Currently:
+├── Venue emails → personal inbox (lost)
+├── Band coordination → WhatsApp chaos
+├── Cover artist emails → another inbox
+└── Nobody has the full picture of a project
+```
+
+### The Project Journal
+```
+Every project has a unified journal:
+All communications, notes, and actions in one place
+
+Entry types:
+├── 📧 Email (in/out) — linked to contact
+├── 💬 WhatsApp — manually logged or linked
+├── 📝 Internal note — team only, not sent
+├── 📄 Document — CDDU sent, contract signed
+├── 📞 Call — logged with summary
+├── 🤖 Automated — platform action (GUSO submitted)
+└── ✅ Milestone — task completed
+
+Each entry shows:
+├── Date/time, direction (in/out/internal)
+├── Who sent/received
+├── Status (sent/read/replied/pending)
+└── Linked documents or contacts
+```
+
+### Email Integration
+```
+INCOMING:
+booking@qiwichee.com receives venue reply
+→ Platform asks: "Link to project?"
+→ Stored in project journal
+→ Team sees it without checking inbox
+
+OUTGOING:
+Artist writes in journal → Send as email
+→ Sent from booking@qiwichee.com
+→ Auto-stored in journal
+→ Recipient gets normal email
+```
+
+### Unified Inbox
+```
+One inbox across ALL projects:
+├── ⭐ URGENT (deadline approaching)
+├── 📬 UNREAD (new messages)
+├── 📤 PENDING (awaiting reply > 5 days)
+└── SORTED BY PROJECT
+    ├── Concert June 15 (8 messages)
+    └── EP Recording (5 messages)
+```
+
+### New Database Table
+```sql
+project_journal (
+  id, project_id, project_type,
+  entry_type: 'email'|'whatsapp'|'note'|'document'|'call'|'auto'|'milestone',
+  direction: 'in'|'out'|'internal',
+  from_contact, to_contact,
+  subject, body,
+  linked_document_id,
+  created_by, created_at,
+  is_read, read_at
+)
+```
+
+---
+
+## OPEN SOURCE MIGRATION ARCHITECTURE
+
+### Design Rules For Portability (Built In From Day One)
+
+```
+RULE 1 — Abstract every external service
+Never call providers directly in components.
+Always use a service layer:
+
+// emailService.ts — swap provider here only
+// Today: Mailchimp → Tomorrow: Brevo → Future: Listmonk
+await emailService.addSubscriber(data)
+
+// cmsService.ts
+// Today: Sanity → Future: Directus/Strapi/Payload
+await cmsService.getContent('bio')
+
+// aiService.ts
+// Today: Claude API → Future: Mistral (French!)
+await aiService.generate(prompt)
+```
+
+```
+RULE 2 — Data always in Supabase first
+Never store data only in external provider.
+Fan data in Supabase → synced to Mailchimp.
+If Mailchimp disappears → data safe in Supabase.
+```
+
+```
+RULE 3 — Environment variables for all endpoints
+Never hardcode service URLs.
+Swap provider = change env vars = done.
+```
+
+```
+RULE 4 — Standard data formats
+Normalize all external data to your schema.
+Never store provider-specific formats in DB.
+```
+
+### Open Source Alternatives Per Service
+```
+Vercel → Coolify (self-hosted free)
+         Railway / Render (cheaper)
+
+Mailchimp → Brevo (French! cheaper, GDPR)
+            Listmonk (open source, self-hosted)
+            Mautic (open source)
+
+Sanity → PayloadCMS (Next.js native, open source)
+         Directus (open source)
+         Strapi (open source)
+
+Stripe → Mollie (European, competitive)
+         (no true open source equivalent)
+
+Claude API → Mistral (French! strategic choice)
+             Llama 3 (Meta, self-hostable)
+             OpenAI (fallback)
+
+Supabase → Self-hosted PostgreSQL + Auth.js
+           (Supabase is already open source)
+```
+
+### Migration Trigger Points
+```
+Migrate when:
+├── Service costs > €200/month → evaluate OSS
+├── Unexpected pricing change → 30-day plan
+├── Outage > 4 hours → evaluate alternatives
+├── GDPR issue with US provider → French alternative
+└── Strategic: prefer French/EU providers always
+    (Brevo, Mistral, OVH already chosen)
+```
+
+### The Migration Playbook
+```
+VERCEL → SELF-HOSTED: 2 hours (standard Node.js build)
+MAILCHIMP → BREVO: 1 day (CSV export/import)
+MAILCHIMP → LISTMONK: 1 week (self-host on VPS €6/month)
+SANITY → PAYLOAD: 1-2 weeks (JSON export/import)
+CLAUDE → MISTRAL: 2-3 days (compatible API format)
+SUPABASE → SELF-HOSTED: 1 day (pg_dump, already OSS)
+```
+
+---
+
 ## CROWDFUNDING STRATEGY (Phased)
 
 ### Phase 2A — Light Crowdfunding (early, safe)
@@ -823,6 +1075,183 @@ PHASE 2+ COMMISSIONS
 
 ---
 
+## SEO STRATEGY
+
+### Two Separate SEO Targets
+```
+RÉSONANCE (resonance.fr)
+└── Targets: artists, venues, professionals
+    searching for music industry tools
+
+QIWICHEE (qiwichee.com + .fr)
+└── Targets: fans searching for the artist
+    music discovery, concert tickets
+```
+
+### Qiwichee SEO — Technical Foundation
+```typescript
+// src/app/layout.tsx — site-wide metadata
+export const metadata = {
+  title: {
+    template: '%s | Qiwi Chee',
+    default: 'Qiwi Chee — Hybrid Pop Artist'
+  },
+  description: 'Franco-Algerian-American singer-songwriter
+                based in Paris. Hybrid pop in French + English.',
+  openGraph: { type: 'music.musician', locale: 'fr_FR' },
+  alternates: {
+    canonical: 'https://qiwichee.com',
+    languages: {
+      'fr': 'https://qiwichee.com/fr',
+      'en': 'https://qiwichee.com/en'
+    }
+  }
+}
+```
+
+### Schema.org Structured Data (Rich Results)
+```typescript
+// Concert page — Google shows this in search:
+// "Qiwi Chee Live · June 15 · Paris · €15 · Available"
+const concertSchema = {
+  "@type": "MusicEvent",
+  "name": "Qiwi Chee Live — Le Café de la Danse",
+  "startDate": "2026-06-15T20:00",
+  "location": { "@type": "MusicVenue", "name": "..." },
+  "performer": { "@type": "MusicGroup", "name": "Qiwi Chee" },
+  "offers": { "price": "15", "priceCurrency": "EUR",
+               "availability": "InStock" }
+}
+
+// Artist page
+const artistSchema = {
+  "@type": "MusicGroup",
+  "name": "Qiwi Chee",
+  "genre": ["Hybrid Pop", "Indie Pop", "Francophone"],
+  "sameAs": ["spotify URL", "youtube URL", "instagram URL"]
+}
+```
+
+### Bilingual SEO (hreflang)
+```html
+<!-- Tells Google which language version to serve -->
+<link rel="alternate" hreflang="fr" href="https://qiwichee.com/fr" />
+<link rel="alternate" hreflang="en" href="https://qiwichee.com/en" />
+<link rel="alternate" hreflang="x-default" href="https://qiwichee.com" />
+```
+
+### Per-Page Metadata
+```
+/ (home)
+Title: "Qiwi Chee — Hybrid Pop Artist | Paris"
+
+/concerts
+Title: "Concerts — Qiwi Chee"
+
+/concerts/june-15-paris
+Title: "Concert June 15 — Le Café de la Danse | Qiwi Chee"
+→ Schema.org Event markup auto-generated per concert
+
+/music/hybrid-fruit
+Title: "Hybrid Fruit EP — Qiwi Chee"
+→ Schema.org MusicAlbum markup
+```
+
+### Local SEO
+```
+Google My Business (free):
+├── Category: Musician/Band
+├── Link to qiwichee.com
+├── Post upcoming concerts as events
+└── Appears in Google Maps searches
+
+Concert event syndication (free):
+├── Google Events (automatic via schema)
+├── Facebook Events
+├── Bandsintown listing
+└── Songkick listing
+```
+
+### Résonance SEO — Content Strategy
+```
+Publish free guides targeting real searches:
+
+"Comment remplir un GUSO en 2026"
+→ Ranks for "remplir GUSO"
+
+"Tout savoir sur l'intermittent du spectacle"
+→ Highest searched topic by French artists
+
+"Qu'est-ce qu'un CDDU et comment le rédiger"
+→ Ranks for "CDDU rédiger"
+
+"Comment organiser un concert indépendant"
+→ Ranks for "organiser concert"
+
+"Feuille de route concert : guide complet"
+→ Ranks for "feuille de route concert"
+
+Each guide ends with:
+"Résonance automatise tout ça en 2 minutes.
+ Essayez gratuitement →"
+
+Claude helps write all guides.
+Cost: €0. Impact: primary acquisition channel.
+```
+
+### The Résonance SEO Flywheel
+```
+Guides published → artists find via Google
+        ↓
+Artists discover Résonance → sign up
+        ↓
+Artists create concerts → indexed pages
+        ↓
+Concert pages link back to Résonance
+        ↓
+Résonance gains domain authority
+        ↓
+Guides rank even higher ↺
+```
+
+### Next.js SEO (Automatic)
+```
+SSR → Google sees full content immediately
+Static generation → ultra-fast loading
+Sitemap.xml → all pages discoverable
+Metadata API → easy per-page SEO
+Core Web Vitals → LCP <2.5s, CLS <0.1
+Next.js Image → optimized images auto
+Vercel CDN → fast globally
+```
+
+### Two Immediate SEO Actions (After DNS)
+```
+1. Google Search Console (free)
+   → Add qiwichee.com as property
+   → Verify via OVH DNS TXT record
+   → Submit sitemap.xml
+   → Monitor indexing and queries
+
+2. Google My Business (free)
+   → Create profile for Qiwi Chee
+   → Category: Musician/Band
+   → Add website, upcoming concerts
+   → Appears in Google Maps
+```
+
+### Core Web Vitals (Performance = SEO)
+```
+LCP < 2.5s: Next.js Image component everywhere
+FID < 100ms: minimal JS on load
+CLS < 0.1: images have defined dimensions
+
+Vercel handles most of this automatically.
+Monitor in Google Search Console.
+```
+
+---
+
 ## RESILIENCE ARCHITECTURE
 
 ### Health Checks (Vercel Cron — free, every 5 min)
@@ -996,6 +1425,52 @@ NEXT_PUBLIC_SANITY_PROJECT_ID     = bayrhx8r
 NEXT_PUBLIC_SANITY_DATASET        = production
 NEXT_PUBLIC_MAILCHIMP_AUDIENCE_ID = c5532d5f66
 MAILCHIMP_API_KEY                 = [private]
+```
+
+---
+
+## HOW TO USE CLAUDE PROJECTS (Important)
+
+### Setup Once — Works Forever
+```
+1. Click "Projects" in Claude left sidebar
+2. Create new project: "Résonance Dev"
+3. Upload these files to knowledge base:
+   ├── CONTEXT_FOR_AI_qiwichee_web.md
+   ├── DECISIONS.md
+   └── PROJECT_STATE.md
+4. Add custom instructions (see below)
+5. Every new chat INSIDE the project
+   automatically has full context
+   No pasting needed ever again
+```
+
+### Custom Instructions For The Project
+```
+You are the development assistant for RÉSONANCE,
+a music platform for independent French artists.
+Developer: telecom engineer learning web dev,
+           Courbevoie, France.
+Always explain commands and WHY.
+Use telecom analogies when helpful.
+One step at a time, wait for confirmation.
+Keep to MVP scope — reference uploaded files.
+Use View > Terminal in VS Code (Apple keyboard).
+Never suggest Telegram — use WhatsApp links.
+Flag geographic/institutional risks neutrally.
+Remind to consult lawyer before /legal module.
+```
+
+### Why Projects Solve Your Time Problem
+```
+This long chat → context fills up → one question limit
+
+Projects workspace:
+├── 200K context window (500 pages)
+├── Files loaded automatically every chat
+├── Each new chat starts fresh but informed
+├── No pasting, no repeating context
+└── Work for hours per session
 ```
 
 ---
@@ -1615,6 +2090,11 @@ git push
 - Beta hook = legal automation not crowdfunding
 - Monitor at 3 levels: technical/business/behavioral
 - Graceful degradation — one API down ≠ all broken
+- SEO: schema.org markup on every concert and artist page
+- SEO: hreflang tags for FR/EN bilingual pages
+- SEO: Google Search Console after DNS configured
+- SEO: Résonance content guides = primary acquisition
+- SEO: Next.js Image component everywhere (performance)
 - Platform: RÉSONANCE
 - Fan exclusive: ATELIER
 - Vision: cooperative cultural infrastructure

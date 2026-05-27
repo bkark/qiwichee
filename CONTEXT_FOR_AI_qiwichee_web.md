@@ -2041,7 +2041,7 @@ SPRINT 5:
 ## RESUME LOCALLY
 
 ```bash
-cd ~/qiwichee
+cd ~/Projects/qiwichee
 npm run dev
 ```
 Local: http://localhost:3000
@@ -2064,7 +2064,7 @@ git push
 
 ```bash
 cp ~/Downloads/CONTEXT_FOR_AI_qiwichee_web.md \
-   ~/qiwichee/CONTEXT_FOR_AI_qiwichee_web.md
+   ~/Projects/qiwichee/CONTEXT_FOR_AI_qiwichee_web.md
 git add .
 git commit -m "Update AI context - session [date]"
 git push

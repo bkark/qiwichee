@@ -33,7 +33,7 @@ LIVE: https://qiwichee.vercel.app
       NO real content yet
 
 GitHub: https://github.com/bkark/qiwichee
-Local:  /home/simba/qiwichee
+Local:  /home/simba/Projects/qiwichee
 
 Files in repo:
 ├── CONTEXT_FOR_AI_qiwichee_web.md ✅
@@ -282,7 +282,7 @@ Data always in Supabase first
 ## GIT WORKFLOW
 
 ```bash
-cd ~/qiwichee
+cd ~/Projects/qiwichee
 git add .
 git commit -m "What and why"
 git push
@@ -295,9 +295,9 @@ git push
 
 ```bash
 cp ~/Downloads/CONTEXT_FOR_AI_qiwichee_web.md \
-   ~/qiwichee/CONTEXT_FOR_AI_qiwichee_web.md
+   ~/Projects/qiwichee/CONTEXT_FOR_AI_qiwichee_web.md
 cp ~/Downloads/PROJECT_STATE.md \
-   ~/qiwichee/PROJECT_STATE.md
+   ~/Projects/qiwichee/PROJECT_STATE.md
 git add . && git commit -m "Update context - session [date]" && git push
 ```
 

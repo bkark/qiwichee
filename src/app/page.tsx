@@ -1,3 +1,5 @@
+import ExternalLink from "./components/ExternalLink";
+
 // ─────────────────────────────────────────────────────────────
 // ARTIST DATA — the ONLY block that changes per artist in the
 // Résonance template. Everything below is reusable structure.
@@ -85,36 +87,36 @@ export default function Home() {
           <p className="mt-4 text-zinc-600">Listen on your platform of choice.</p>
           <ul className="mt-6 flex flex-wrap gap-4 text-sm">
             <li>
-              <a
+              <ExternalLink
                 className="rounded-md border border-zinc-300 px-4 py-2 hover:bg-zinc-50"
                 href="https://open.spotify.com/artist/4Bu89sfVzy14qW0dK8Ugbs"
               >
                 Spotify
-              </a>
+              </ExternalLink>
             </li>
             <li>
-              <a
+              <ExternalLink
                 className="rounded-md border border-zinc-300 px-4 py-2 hover:bg-zinc-50"
                 href="https://www.youtube.com/@qiwichee"
               >
                 YouTube
-              </a>
+              </ExternalLink>
             </li>
             <li>
-              <a
+              <ExternalLink
                 className="rounded-md border border-zinc-300 px-4 py-2 hover:bg-zinc-50"
                 href="https://qiwichee.bandcamp.com/"
               >
                 Bandcamp
-              </a>
+              </ExternalLink>
             </li>
             <li>
-              <a
+              <ExternalLink
                 className="rounded-md border border-zinc-300 px-4 py-2 hover:bg-zinc-50"
                 href="https://www.instagram.com/qiwichee/"
               >
                 Instagram
-              </a>
+              </ExternalLink>
             </li>
           </ul>
         </section>

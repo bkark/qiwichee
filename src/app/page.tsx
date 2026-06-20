@@ -1,65 +1,144 @@
-import Image from "next/image";
+// ─────────────────────────────────────────────────────────────
+// ARTIST DATA — the ONLY block that changes per artist in the
+// Résonance template. Everything below is reusable structure.
+// ─────────────────────────────────────────────────────────────
+const artist = {
+  name: "Qiwi Chee",
+  url: "https://qiwichee.com",
+  genre: "Hybrid Pop",
+  description:
+    "Franco-Algerian-American singer-songwriter based in Paris. Hybrid pop in French and English.",
+  // sameAs = verified official profiles. Identity-linking for search + AI.
+  sameAs: [
+    "https://open.spotify.com/artist/4Bu89sfVzy14qW0dK8Ugbs",
+    "https://www.instagram.com/qiwichee/",
+    "https://qiwichee.bandcamp.com/",
+    "https://www.youtube.com/@qiwichee",
+    "https://msha.ke/qiwichee/",
+  ],
+};
+
+// schema.org MusicGroup — machine-readable identity card.
+// Server-rendered into the page so crawlers and AI agents read it directly.
+const musicGroupSchema = {
+  "@context": "https://schema.org",
+  "@type": "MusicGroup",
+  name: artist.name,
+  url: artist.url,
+  genre: artist.genre,
+  description: artist.description,
+  sameAs: artist.sameAs,
+};
 
 export default function Home() {
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
+    <div className="min-h-screen bg-white text-zinc-900">
+      {/* Structured data — invisible to humans, read by crawlers/AI */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(musicGroupSchema) }}
+      />
+
+      <header className="border-b border-zinc-200">
+        <nav
+          aria-label="Primary"
+          className="mx-auto flex max-w-3xl items-center justify-between px-6 py-5"
+        >
+          <span className="text-lg font-semibold tracking-tight">Qiwi Chee</span>
+          <ul className="flex gap-6 text-sm">
+            <li>
+              <a className="hover:underline" href="#music">
+                Music
+              </a>
+            </li>
+            <li>
+              <a className="hover:underline" href="#about">
+                About
+              </a>
+            </li>
+          </ul>
+        </nav>
+      </header>
+
+      <main className="mx-auto max-w-3xl px-6">
+        <section className="py-20" aria-labelledby="hero-heading">
+          <h1
+            id="hero-heading"
+            className="text-4xl font-semibold tracking-tight sm:text-5xl"
+          >
+            Qiwi Chee
           </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
+          <p className="mt-4 max-w-xl text-lg text-zinc-600">
+            Franco-Algerian-American singer-songwriter based in Paris. Hybrid pop
+            in French and English.
           </p>
-        </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
+        </section>
+
+        <section
+          id="music"
+          className="border-t border-zinc-200 py-16"
+          aria-labelledby="music-heading"
+        >
+          <h2 id="music-heading" className="text-2xl font-semibold tracking-tight">
+            Music
+          </h2>
+          <p className="mt-4 text-zinc-600">Listen on your platform of choice.</p>
+          <ul className="mt-6 flex flex-wrap gap-4 text-sm">
+            <li>
+              <a
+                className="rounded-md border border-zinc-300 px-4 py-2 hover:bg-zinc-50"
+                href="https://open.spotify.com/artist/4Bu89sfVzy14qW0dK8Ugbs"
+              >
+                Spotify
+              </a>
+            </li>
+            <li>
+              <a
+                className="rounded-md border border-zinc-300 px-4 py-2 hover:bg-zinc-50"
+                href="https://www.youtube.com/@qiwichee"
+              >
+                YouTube
+              </a>
+            </li>
+            <li>
+              <a
+                className="rounded-md border border-zinc-300 px-4 py-2 hover:bg-zinc-50"
+                href="https://qiwichee.bandcamp.com/"
+              >
+                Bandcamp
+              </a>
+            </li>
+            <li>
+              <a
+                className="rounded-md border border-zinc-300 px-4 py-2 hover:bg-zinc-50"
+                href="https://www.instagram.com/qiwichee/"
+              >
+                Instagram
+              </a>
+            </li>
+          </ul>
+        </section>
+
+        <section
+          id="about"
+          className="border-t border-zinc-200 py-16"
+          aria-labelledby="about-heading"
+        >
+          <h2 id="about-heading" className="text-2xl font-semibold tracking-tight">
+            About
+          </h2>
+          <p className="mt-4 max-w-xl text-zinc-600">
+            Placeholder bio. Replace this with Qiwi Chee&rsquo;s real story once
+            the structure is confirmed.
+          </p>
+        </section>
       </main>
+
+      <footer className="border-t border-zinc-200">
+        <div className="mx-auto max-w-3xl px-6 py-8 text-sm text-zinc-500">
+          <p>&copy; {new Date().getFullYear()} Qiwi Chee. All rights reserved.</p>
+        </div>
+      </footer>
     </div>
   );
 }

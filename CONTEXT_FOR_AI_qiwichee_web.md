@@ -1,14 +1,70 @@
 # Résonance — AI Context File
-> Paste this at the start of any new conversation to resume instantly.
+> Paste/upload this at the start of any new conversation to resume instantly.
 
-**Last updated:** 2026-05-04 — Full Strategic Update
-**Status:** qiwichee.vercel.app LIVE ✅
-**Domains purchased:** qiwichee.com + qiwichee.fr (OVH) ✅
-**Next session goal:** Configure DNS + Supabase setup + landing page
+**Last updated:** 2026-06-20 — Homepage build session
+**Status:** qiwichee.com LIVE on Vercel (4 domains, SSL) ✅ · Homepage built ✅
+**Next session goal:** Bilingual FR/EN refactor (next-intl + [locale] route)
 
 ---
 
-## VISION STATEMENT (Updated)
+## ⚡ CURRENT BUILD STATE (2026-06-20)
+
+```
+DONE THIS SESSION:
+├── Claude Code installed (v2.1.183) + authenticated (Claude Pro)
+├── CLAUDE.md startup-config committed at repo root
+├── XDG folder map repaired + Chrome download dir fixed (~/Downloads)
+├── Homepage built: src/app/page.tsx + layout.tsx
+│   ├── Semantic structure (header/main/footer, h1/h2, aria labels)
+│   ├── Server-rendered (no "use client") — crawlers/AI see full HTML
+│   ├── Metadata export (title template, description, OG)
+│   └── MusicGroup JSON-LD with 5 verified sameAs URLs
+└── Committed (7315470) + pushed + auto-deployed to Vercel
+
+NEXT, IN ORDER:
+├── 1. Bilingual FR/EN refactor (next-intl, wrap in [locale] segment)
+├── 2. Real bio text + images (replace placeholders, alt text)
+├── 3. Accessibility statement page + robots.txt (allow AI crawlers)
+├── 4. → Homepage template DONE
+└── 5. → GUSO social-charge calculator (first free wedge tool)
+```
+
+### ⚠️ TEMPLATE GOTCHA — Next.js 16 OpenGraph
+```
+Next.js 16 REJECTS og:type "music.musician" at RUNTIME (validates
+against its own hardcoded list). A TypeScript cast does NOT bypass it.
+→ Use og:type "website" (or "profile").
+→ The MusicGroup JSON-LD carries the musician signal instead — that's
+  the real discoverability workhorse anyway. OG type is just preview cards.
+LESSON: `as X` silences compile-time types only; runtime validators
+        need the value itself to be valid.
+```
+
+---
+
+## 🎵 VERIFIED ARTIST PROFILES — Qiwi Chee (sameAs)
+
+```
+Confirmed to her (cross-checked: Hybrid Fruit EP, 🇩🇿🇫🇷🇺🇲 bio, Leï Lani rebrand):
+├── Spotify:   https://open.spotify.com/artist/4Bu89sfVzy14qW0dK8Ugbs
+├── Instagram: https://www.instagram.com/qiwichee/
+├── Bandcamp:  https://qiwichee.bandcamp.com/
+├── YouTube:   https://www.youtube.com/@qiwichee  (ID UCR8h9_VrE-mTa-wekiB6luA)
+└── Links hub: https://msha.ke/qiwichee/
+
+NOT used (kept sameAs clean — one authoritative YouTube entry):
+├── youtube.com/c/LEILANIMUSIC  (old vanity URL, superseded by @qiwichee)
+└── YouTube "- Topic" channel UCAGC-ebmLl1lCQEcSAVb-5g (auto-generated audio)
+
+TODO: Deezer + Apple Music URLs exist on her msha.ke hub — add when canonical
+      URLs confirmed. Once qiwichee.com is the hub, point sameAs there.
+Bio (verbatim, her own): "Auteur/Compositeur-Interprète Franco-algériano-
+americaine · Hybrid pop · Paris." Identity: any pronouns fine.
+```
+
+---
+
+## VISION STATEMENT
 
 ```
 RÉSONANCE is not just a tool.
@@ -16,14 +72,9 @@ It is a cooperative cultural infrastructure
 connecting artists, fans, venues, collaborators,
 professionals and institutions.
 
-The platform grows through:
-├── Shared fanbase graph
-├── Shared venue network
-├── Shared professional marketplace
-├── Shared data and AI automation
-└── Collective intelligence over time
-
-This is the long-term North Star.
+Grows through: shared fanbase graph · shared venue network ·
+shared professional marketplace · shared data + AI automation ·
+collective intelligence over time. This is the North Star.
 ```
 
 ---
@@ -31,13 +82,28 @@ This is the long-term North Star.
 ## NAMING CONVENTION
 
 ```
-RÉSONANCE = the platform (your SaaS product)
-QIWICHEE = one artist's instance of Résonance
+RÉSONANCE = the platform (the SaaS product)
+QIWICHEE  = one artist's instance of Résonance (reference template)
 
 GitHub repos:
-├── bkark/qiwichee — current (proof of concept)
-└── bkark/resonance-platform — future (the product)
-    After beta validation
+├── bkark/qiwichee — current (proof of concept + template)
+└── bkark/resonance-platform — future (the product, after beta)
+```
+
+---
+
+## STANDING BUILD REQUIREMENTS — apply to EVERY page
+
+```
+THREE-IN-ONE FOUNDATION (one layer, not three jobs):
+├── SEO — server-rendered semantic HTML + metadata + sitemap + hreflang
+├── WCAG 2.1 AA accessibility — alt text, keyboard nav, color contrast,
+│   visible focus, accessibility statement page
+└── AI-agent discoverability — complete server-rendered schema.org JSON-LD
+    (MusicGroup, MusicEvent); robots.txt ALLOW AI crawlers (ClaudeBot, GPTBot)
+
+Build in from the start — costly to retrofit. Next.js SSR gives the
+server-rendered base for free; JSON-LD + a11y attrs are the deliberate adds.
 ```
 
 ---
@@ -45,20 +111,11 @@ GitHub repos:
 ## MVP POSITIONING
 
 ```
-"The first platform that automates GUSO, CDDU
- and intermittent du spectacle for independent
- French artists — while giving them a professional
- bilingual website and simple concert management."
+"The first platform that automates GUSO, CDDU and intermittent du
+ spectacle for independent French artists — while giving them a
+ professional bilingual website and simple concert management."
 
-Beta hook (what artists join for):
-├── GUSO automation ✅
-├── CDDU automation ✅
-├── Intermittent tracking ✅
-├── Concert management ✅
-├── Bilingual website ✅
-├── WhatsApp notifications ✅
-└── Feuille de route ✅
-
+Beta hook: GUSO + CDDU + intermittent + website + concerts + feuille de route.
 Crowdfunding is a bonus — NOT the hook.
 ```
 
@@ -67,1341 +124,256 @@ Crowdfunding is a bonus — NOT the hook.
 ## THREE USER ROLES (RBAC via Supabase RLS)
 
 ```
-OWNER (Artist)
-└── Full access: legal, finance, team, content
-    GUSO/CDDU, fan list, all settings
-
-COLLABORATOR (Staff/Band/Professional)
-└── Interactive Feuille de Route (live checklist)
-    Their own CDDU and payments
-    Cannot see GUSO or financial data
-
-MEMBER (Fan — "Atelier" access)
-└── Their own guest list status ONLY
-    Exclusive Atelier fan content
-    Cannot see ANY legal or financial data
+OWNER (Artist) — full: legal, finance, team, content, GUSO/CDDU, fan list
+COLLABORATOR (Staff/Band/Pro) — feuille de route, own CDDU/payments;
+                                NOT GUSO or financial data
+MEMBER (Fan — "ATELIER") — own guest-list status only + Atelier content;
+                           NO legal/financial data
 ```
 
 ---
 
 ## MVP = FOUR MODULES + ONBOARDING
 
-### /onboarding (BUILD FIRST)
 ```
-AI-guided self-setup wizard (Claude API):
-├── Step 1: Artist basic info
-├── Step 2: AI Data Importer
-│   ├── Paste legacy URLs
-│   ├── Scrape: bio, discography, photos, videos
-│   ├── Bilingual translation (Claude API FR↔EN)
-│   └── Auto-populate Sanity CMS
-├── Step 3: Style selection
-├── Step 4: Domain choice
-├── Step 5: Invite collaborators
-├── Step 6: First concert setup
-└── Step 7: LIVE (under 15 minutes)
-
-Qiwi Chee self-onboards as first beta test
-You observe via Clarity session recordings
-```
-
-### /website
-```
-├── Bilingual FR/EN (next-i18n)
-├── Music player (Songlink/Odesli)
-├── Fan email signup (Mailchimp)
-├── Sanity CMS (auto-populated)
-├── Atelier — gated fan exclusive area
-└── PWA manifest
-```
-
-### /concerts
-```
-├── Create concert (paid OR free)
-├── Public event page + QR fan signup
-├── Ticket link (Stripe — simple)
-├── Support button (Phase 2A crowdfunding)
-│   └── External links: PayPal.me, Lydia,
-│       Ko-fi, Tipeee, Stripe Payment Link
-├── Interactive Feuille de Route (LIVE CHECKLIST)
-│   ☐ Load-in  ☐ Setup  ☐ Sound check
-│   ☐ Doors   ☐ Show starts
-├── Stage plot (auto-generated)
-├── Technical rider template
-├── GUSO declaration (paid AND free concerts)
-├── CDDU per band member + YouSign
-├── Rehearsal management
-└── Guest list (fan sees own status via RLS)
-```
-
-### /legal (KILLER FEATURE — BUILD LAST)
-```
-⚠️ Consult entertainment lawyer BEFORE building
-
-├── Legal structure: GUSO/CAE/Association/Company
-├── GUSO pre-filled generation
-├── CDDU auto-generation
-├── Intermittent hours tracker (507h dashboard)
-└── Legal compliance dashboard
+/onboarding (build first) — AI wizard, legacy URL scraper, FR↔EN translate,
+                            auto-populate Sanity, <15 min to live
+/website   — bilingual FR/EN, music player, fan signup (Mailchimp),
+             Sanity CMS, Atelier gated area, PWA
+/concerts  — create concert (paid OR free), public page + QR signup,
+             ticket link, feuille de route (LIVE CHECKLIST not PDF),
+             stage plot, rider, GUSO (paid AND free), CDDU + YouSign,
+             guest list (RLS)
+/legal (KILLER FEATURE — build LAST, lawyer FIRST) — GUSO/CDDU/intermittent
+             507h tracker, compliance dashboard
 ```
 
 ---
 
-## CONCERT PLANNER & WHAT-IF ENGINE
+## CONCERT PLANNER & WHAT-IF ENGINE (summary)
 
-### The Problem (Confirmed by Qiwi Chee)
 ```
-"How much will this concert cost to produce?"
-"Which venue fits my budget and audience size?"
-"What if I charge €15 vs €20 per ticket?"
-"Will I lose money if only 40 people show up?"
+Problem (confirmed by Qiwi Chee): "how much will this concert cost?
+which venue fits budget/audience? what if €15 vs €20? lose money at 40 people?"
 
-Current reality:
-├── Call 5 venues → wait days for callbacks
-├── Build manual spreadsheet to compare
-├── Guess attendance → stressful decisions
-└── No visibility on break-even point
-```
+What-if simulator: ticket price / attendance / band fees / promo sliders →
+revenue, costs, profit/loss, break-even update live. AI suggests when in deficit.
 
-### The What-If Simulator
-```
-Artist sets parameters:
-├── Target city, month
-├── Expected audience range
-├── Budget limit
-└── Ticket price idea
+AI Concert Planner agent: plain-language goal → Safe / Balanced / Ambitious
+scenarios with break-even + reasoning.
 
-Platform shows matching venues with scenarios:
+Venue contact workflow: pre-filled inquiry email → track sent/response/quote →
+data saved to venue profile → future artists benefit.
 
-VENUE A — Le Café de la Danse
-Capacity: 100 │ Rental: €600 │ PA included ✅
-├── If 50 tickets at €15: Profit €150 ✅
-├── If 80 tickets at €15: Profit €600 ✅
-└── Break even: 40 tickets (40% capacity) ✅
+Post-concert learning loop: actual vs projected attendance/revenue, venue
+rating, would-return → platform learns estimation accuracy + venue fit.
 
-VENUE B — La Maroquinerie
-Capacity: 250 │ Rental: €1,200 │ PA included ✅
-├── If 50 tickets at €15: Loss -€450 ❌
-├── If 125 tickets at €15: Profit €675 ✅
-└── Break even: 80 tickets (32% capacity) ⚠️
-```
-
-### What-If Sliders (live calculation)
-```
-Artist adjusts in real time:
-🎟️ Ticket price slider
-👥 Expected attendance slider
-🎸 Band fees slider
-📣 Promotion budget slider
-
-→ Revenue, costs, profit/loss update instantly
-→ Break-even point shown clearly
-→ AI suggestions when in deficit
-```
-
-### AI Concert Planner Agent
-```
-/api/agent/concert-planner
-
-Artist types goal in plain language:
-"Concert in Paris, June, 3-piece band,
- budget €1,500, want to break even"
-
-Agent returns:
-├── SCENARIO A — Safe (library/mairie, free venue)
-│   Cost: €650, Break even: 44 tickets ✅
-├── SCENARIO B — Balanced (small venue €400)
-│   Cost: €1,050, Break even: 70 tickets ⚠️
-└── SCENARIO C — Ambitious (exceeds budget) ❌
-
-With recommendation and reasoning.
-```
-
-### Venue Contact Workflow
-```
-For unclaimed venues (most at start):
-Artist clicks "Contact this venue"
-→ Platform generates pre-filled inquiry email (FR)
-→ Artist sends with one click
-→ Platform tracks: sent → response → quoted price
-→ Response data saved to venue profile
-→ Future artists benefit from this data
-```
-
-### Post-Concert Learning Loop
-```
-After each concert artist fills review:
-├── Actual attendance vs projected
-├── Actual revenue vs projected
-├── Venue rating (1-5)
-├── Would you return? (yes/no)
-└── Notes for other artists
-
-Platform learns:
-├── Artist's attendance estimation accuracy
-├── Which venues work for which genres
-├── Seasonal patterns
-└── Genre-specific price sensitivity
-```
-
-### New Database Tables
-```sql
-concert_scenarios (
-  id, artist_id, venue_id, scenario_name,
-  expected_attendance, ticket_price,
-  venue_cost, band_fees, promotion_cost,
-  other_costs (jsonb), projected_revenue,
-  projected_profit, break_even_tickets,
-  status: 'planning'|'selected'|'rejected',
-  created_at
-)
-
-venue_inquiries (
-  id, artist_id, venue_id, sent_at,
-  response_received_at, quoted_price,
-  availability_dates (jsonb), notes,
-  status: 'sent'|'responded'|'booked'|'rejected'
-)
-
-concert_reviews (
-  id, concert_id, venue_id,
-  actual_attendance, actual_revenue,
-  actual_total_cost, venue_rating,
-  venue_notes, would_return, created_at
-)
-```
-
-### Venue Table Additions
-```sql
-venues (
-  ...existing fields...
-  rental_cost_min (numeric),
-  rental_cost_max (numeric),
-  pa_included (boolean),
-  lighting_included (boolean),
-  capacity_seated (integer),
-  capacity_standing (integer),
-  typical_genres (jsonb),
-  artist_rating (numeric),
-  last_cost_reported (timestamp)
-)
+Tables: concert_scenarios, venue_inquiries, concert_reviews,
+        venues (+ rental_cost, pa_included, capacity, typical_genres, rating).
 ```
 
 ---
 
-## CO-EVENTS — MULTI-ARTIST CONCERTS
+## CO-EVENTS (multi-artist concerts) — summary
 
-### What It Is
 ```
-Multiple artists share one venue, one event,
-one feuille de route — but separate legal docs.
-
-Benefits:
-├── Split venue costs (cheaper per artist)
-├── Pool fanbases (more ticket buyers)
-├── Cross-discovery (fans find new artists)
-├── Combined crowdfunding (more reach)
-└── Viral artist acquisition (new artists join)
-```
-
-### How It Works
-```
-Artist A invites Artist B to co-headline:
-→ Invitation sent through platform
-→ Artist B accepts/declines/negotiates
-→ Platform suggests running order by fanbase size
-   (smaller fanbase opens, larger closes)
-→ Cost split negotiated (equal or proportional)
-→ ONE shared feuille de route generated
-→ SEPARATE GUSO + CDDU per artist ✅
-→ Combined crowdfunding campaign launched
-→ Each artist promotes to their own fans
-```
-
-### Running Order Algorithm
-```
-2 artists: fewer fans opens, more fans closes
-3 artists: ascending fanbase order
-4+ artists: festival mode unlocked
-            staggered lineup poster generated
-            equal or proportional sets
-
-Artists can override suggestions
-Both must confirm final order
-```
-
-### Shared Feuille De Route
-```
-ONE document, multiple artists:
-├── Combined schedule (all sound checks, sets)
-├── Changeover logistics between acts
-├── Shared dressing room allocation
-├── Combined stage plot
-└── Each artist's responsibilities clearly assigned
-```
-
-### Viral Growth Engine
-```
-Artist on platform invites artist NOT on platform
-→ Platform sends: "Join free to coordinate"
-→ New artist joins ✅
-→ Zero marketing cost acquisition
-Every co-event = potential new artist signup
-```
-
-### Co-Event Database Tables
-```sql
-co_events (
-  id, title, concert_id,
-  status: 'proposed'|'negotiating'|'confirmed'|'completed',
-  created_by, created_at
-)
-
-co_event_artists (
-  id, co_event_id, artist_id,
-  running_order, set_duration_minutes,
-  cost_share_percent,
-  status: 'invited'|'accepted'|'declined',
-  responded_at
-)
-
-co_event_costs (
-  id, co_event_id, cost_type,
-  total_amount,
-  split_method: 'equal'|'proportional'|'custom',
-  created_at
-)
-
-co_event_cost_shares (
-  id, co_event_cost_id, artist_id,
-  amount, paid, paid_at
-)
+Multiple artists, one venue/event/feuille de route, SEPARATE legal docs.
+Running order by fanbase size (smaller opens). Combined crowdfunding.
+Viral growth: invite artist not on platform → they join free.
+Tables: co_events, co_event_artists, co_event_costs, co_event_cost_shares.
 ```
 
 ---
 
-## CONTENT STUDIO — SOCIAL MEDIA ENGINE
+## CONTENT STUDIO (social engine) — summary
 
-### The Problem (Confirmed)
 ```
-Artists record rehearsals, concerts, sessions.
-Content sits unused on their phone.
-Social media goes quiet.
-Fans disengage.
-
-Root cause: too much work to repurpose content
-           across multiple platforms and formats.
-```
-
-### What The Platform Does
-```
-"Upload once → posts everywhere"
-
-1. Artist uploads raw video/audio
-2. AI finds best moments automatically
-3. Platform generates all formats:
-   ├── Instagram Reel (9:16, max 90s)
-   ├── Instagram Story (9:16, 15s)
-   ├── Instagram Post (1:1 square)
-   ├── TikTok (9:16, up to 3min)
-   ├── Facebook Reel (9:16)
-   ├── Twitter/X (16:9, max 2:20)
-   └── YouTube Shorts (9:16, max 60s)
-4. AI writes bilingual captions per platform
-5. Platform suggests optimal posting times
-6. Artist approves and schedules
-7. Platform auto-posts at scheduled times
-```
-
-### AI Content Analysis
-```
-/api/agent/content-analyzer
-
-Agent analyzes uploaded video:
-├── Finds best 15s, 30s, 60s moments
-├── Identifies high energy vs intimate sections
-├── Detects when artist is most expressive
-├── Flags technical issues (bad lighting, noise)
-└── Returns timestamped recommendations:
-    "04:23-04:38 — high energy chorus ⭐⭐⭐"
-    "12:05-12:35 — intimate vocal moment ⭐⭐"
-```
-
-### AI Caption Generation
-```
-/api/agent/content-writer
-
-Per platform, per language:
-├── Instagram FR: personal, hashtags, emoji
-├── Instagram EN: same tone, English
-├── Twitter FR: shorter, punchy
-├── Facebook FR: warmer, more detail
-└── Each respects platform character limits
-
-Artist edits before approval
-Platform learns artist's style over time
-```
-
-### Content Calendar
-```
-Unified view of all scheduled content:
-├── All platforms in one calendar
-├── Green = scheduled ✅
-├── Yellow = AI suggestion (needs approval)
-└── Red = missed opportunity ⚠️
-
-AI proactive plan before concerts:
-"Concert in 14 days. Suggested plan:
- Day 14: Announce concert
- Day 10: Rehearsal clip
- Day 7: Venue reveal
- Day 3: Urgency post
- Day 1: Tomorrow night
- Day 0: Live stories
- Day +1: Thank you"
-```
-
-### Automated Event Posts
-```
-Triggered automatically:
-
-Concert created →
-auto-generate announcement post (needs approval)
-
-Crowdfunding 50% reached →
-auto-generate milestone post
-
-New fan milestone →
-auto-generate celebration post
-
-SACEM royalty → internal only, not posted
-```
-
-### Connected Social Accounts
-```
-Artist connects once via OAuth:
-├── Instagram (Meta API)
-├── Facebook (Meta API)
-├── Twitter/X (X API)
-├── TikTok (TikTok API)
-└── YouTube (YouTube API)
-
-All connections revocable anytime
-GDPR: explicit authorization per platform
-```
-
-### Privacy And Rights Flags
-```
-Band members in video →
-"Others appear in this video.
- Send consent request to band members?"
-
-Background music detected →
-"Ensure you have rights before posting
- to avoid platform takedowns."
-
-Venue recording restrictions →
-"Check your venue agreement allows
- video recording and social posting."
-```
-
-### Technical Stack
-```
-Video processing: Cloudflare Stream (free 1000min/month)
-                  or Mux (pay per minute)
-AI analysis: Claude API with vision
-Subtitles: Whisper API (auto-transcription FR+EN)
-Scheduling: Supabase Edge Functions
-Cost per artist: ~€0.50-2.00/month
-```
-
-### Content Database Tables
-```sql
-content_pieces (
-  id, artist_id,
-  source_type: 'rehearsal'|'concert'|'studio'|'original',
-  concert_id (nullable),
-  raw_file_url, duration_seconds,
-  status: 'uploaded'|'analyzed'|'approved'|'scheduled'|'posted',
-  created_at
-)
-
-content_clips (
-  id, content_piece_id,
-  start_second, end_second,
-  platform, format,
-  processed_url,
-  caption_fr, caption_en,
-  hashtags (jsonb),
-  scheduled_at, posted_at,
-  status: 'draft'|'approved'|'scheduled'|'posted'|'failed'
-)
-
-social_accounts (
-  id, artist_id, platform,
-  access_token (encrypted),
-  account_name, connected_at, expires_at
-)
-```
-
-### Module Position
-```
-/modules/website   → permanent presence
-/modules/content   → ongoing social activity ← NEW
-/modules/concerts  → event management
-/modules/legal     → compliance
-
-/content feeds into:
-├── /concerts (concert-specific clips)
-├── /website (embed latest posts)
-└── Fan engagement (signups via social)
+"Upload once → posts everywhere." Raw video → AI finds best moments →
+all formats (Reel/Story/Post/TikTok/Shorts) → bilingual captions →
+optimal times → approve → auto-post.
+Agents: content-analyzer (timestamped best moments), content-writer (captions).
+Privacy flags: band-member consent, background-music rights, venue restrictions.
+Stack: Cloudflare Stream + Claude vision + Whisper. ~€0.50-2/artist/month.
+Tables: content_pieces, content_clips, social_accounts.
 ```
 
 ---
 
 ## ENTERTAINERS BEYOND MUSICIANS
 
-### Platform Supports All Performing Artists
 ```
-Discipline selection during onboarding:
-○ Musician / Singer
-○ Stand-up Comedian
-○ Circus / Acrobat / Juggler
-○ Mime / Physical Theatre
-○ Spoken Word / Poet
-○ DJ / Electronic
-○ Other performing artist
-
-Platform adapts per discipline:
-├── Musicians → SACEM declarations
+Discipline picked at onboarding → platform adapts:
+├── Musicians → SACEM
 ├── Comedians/Theatre/Circus → SACD
-│   (Société des Auteurs et Compositeurs Dramatiques)
-├── Technical rider templates per type
-│   (mime needs no PA, comedy needs specific lighting)
-└── Content suggestions adapted per discipline
-
-GUSO, CDDU, intermittent du spectacle:
-└── Same for ALL performing artists in France ✅
-    This is the killer feature for everyone
+└── Rider templates + content suggestions per discipline
+GUSO/CDDU/intermittent = same for ALL performing artists. Killer feature for all.
 ```
 
 ---
 
-## COVER ARTISTS & VISUAL CREATORS
+## COVER ARTISTS & VISUAL CREATORS — summary
 
-### The Brief Form — What Cover Artists Need
 ```
-Platform generates "Artwork Brief" when recording project created:
-
-AUTO-FILLED:
-├── Artist name, project title, release date, genre
-
-ARTIST FILLS:
-├── Mood tags (ethereal, dark, warm, urban...)
-├── Color palette (picker or hex)
-├── Reference images (3-5 uploads)
-├── Text to include (auto-filled from project)
-├── What to avoid
-├── Formats needed:
-│   ☑ Album cover (3000×3000px)
-│   ☑ Single cover
-│   ☑ Social media pack
-│   ☐ Vinyl sleeve
-│   ☐ Animated cover (Spotify Canvas)
-├── Budget range (slider)
-├── Deadline (date picker)
-└── Revision rounds (2/3/unlimited)
-
-→ Generates professional brief PDF
-→ Artist posts to marketplace OR sends directly
-```
-
-### Cover Artist Marketplace
-```
-Cover artists create profiles:
-├── Portfolio (past covers)
-├── Style tags (abstract, photographic, illustrative...)
-├── Genre specialties
-├── Turnaround time and price range
-├── Tools (Photoshop, Procreate, Blender...)
-└── is_visible boolean (opt-in, GDPR safe)
-
-Workflow:
-Artist posts brief → cover artists apply with sample
-→ Artist selects → project created in platform
-→ Brief shared → revisions tracked in journal
-→ Payment via Stripe on approval
-→ Platform commission: 10-15%
-```
-
-### Cover Artist In Feuille De Route
-```
-Recording project checklist includes:
-├── ☐ Artwork brief created [cover artist assigned]
-├── ☐ Artwork draft received [date]
-├── ☐ Revisions requested [notes]
-├── ☐ Final artwork approved
-└── ☐ Files delivered (all formats)
-
-Cover artist = COLLABORATOR on recording project
-Sees only their tasks, not financials or legal docs
+Auto-generated Artwork Brief from recording project (mood, palette, refs,
+formats, budget, deadline) → marketplace → cover artists apply → Stripe
+on approval, 10-15% commission. Cover artist = COLLABORATOR (artwork tasks only).
 ```
 
 ---
 
-## PROJECT COMMUNICATIONS — JOURNAL SYSTEM
+## PROJECT JOURNAL (communications) — summary
 
-### The Problem
 ```
-Currently:
-├── Venue emails → personal inbox (lost)
-├── Band coordination → WhatsApp chaos
-├── Cover artist emails → another inbox
-└── Nobody has the full picture of a project
-```
-
-### The Project Journal
-```
-Every project has a unified journal:
-All communications, notes, and actions in one place
-
-Entry types:
-├── 📧 Email (in/out) — linked to contact
-├── 💬 WhatsApp — manually logged or linked
-├── 📝 Internal note — team only, not sent
-├── 📄 Document — CDDU sent, contract signed
-├── 📞 Call — logged with summary
-├── 🤖 Automated — platform action (GUSO submitted)
-└── ✅ Milestone — task completed
-
-Each entry shows:
-├── Date/time, direction (in/out/internal)
-├── Who sent/received
-├── Status (sent/read/replied/pending)
-└── Linked documents or contacts
-```
-
-### Email Integration
-```
-INCOMING:
-booking@qiwichee.com receives venue reply
-→ Platform asks: "Link to project?"
-→ Stored in project journal
-→ Team sees it without checking inbox
-
-OUTGOING:
-Artist writes in journal → Send as email
-→ Sent from booking@qiwichee.com
-→ Auto-stored in journal
-→ Recipient gets normal email
-```
-
-### Unified Inbox
-```
-One inbox across ALL projects:
-├── ⭐ URGENT (deadline approaching)
-├── 📬 UNREAD (new messages)
-├── 📤 PENDING (awaiting reply > 5 days)
-└── SORTED BY PROJECT
-    ├── Concert June 15 (8 messages)
-    └── EP Recording (5 messages)
-```
-
-### New Database Table
-```sql
-project_journal (
-  id, project_id, project_type,
-  entry_type: 'email'|'whatsapp'|'note'|'document'|'call'|'auto'|'milestone',
-  direction: 'in'|'out'|'internal',
-  from_contact, to_contact,
-  subject, body,
-  linked_document_id,
-  created_by, created_at,
-  is_read, read_at
-)
+Every project = unified journal. Entry types: email/whatsapp/note/document/
+call/auto/milestone. booking@qiwichee.com auto-links incoming to projects;
+outgoing sent + stored. Unified inbox (urgent/unread/pending) by project.
+Table: project_journal (full audit trail).
 ```
 
 ---
 
 ## OPEN SOURCE MIGRATION ARCHITECTURE
 
-### Design Rules For Portability (Built In From Day One)
-
 ```
-RULE 1 — Abstract every external service
-Never call providers directly in components.
-Always use a service layer:
+RULE 1 — Abstract every external service (emailService/cmsService/aiService)
+RULE 2 — Data always in Supabase first (sync out to providers)
+RULE 3 — Env vars for all endpoints
+RULE 4 — Normalize external data to own schema
 
-// emailService.ts — swap provider here only
-// Today: Mailchimp → Tomorrow: Brevo → Future: Listmonk
-await emailService.addSubscriber(data)
-
-// cmsService.ts
-// Today: Sanity → Future: Directus/Strapi/Payload
-await cmsService.getContent('bio')
-
-// aiService.ts
-// Today: Claude API → Future: Mistral (French!)
-await aiService.generate(prompt)
-```
-
-```
-RULE 2 — Data always in Supabase first
-Never store data only in external provider.
-Fan data in Supabase → synced to Mailchimp.
-If Mailchimp disappears → data safe in Supabase.
-```
-
-```
-RULE 3 — Environment variables for all endpoints
-Never hardcode service URLs.
-Swap provider = change env vars = done.
-```
-
-```
-RULE 4 — Standard data formats
-Normalize all external data to your schema.
-Never store provider-specific formats in DB.
-```
-
-### Open Source Alternatives Per Service
-```
-Vercel → Coolify (self-hosted free)
-         Railway / Render (cheaper)
-
-Mailchimp → Brevo (French! cheaper, GDPR)
-            Listmonk (open source, self-hosted)
-            Mautic (open source)
-
-Sanity → PayloadCMS (Next.js native, open source)
-         Directus (open source)
-         Strapi (open source)
-
-Stripe → Mollie (European, competitive)
-         (no true open source equivalent)
-
-Claude API → Mistral (French! strategic choice)
-             Llama 3 (Meta, self-hostable)
-             OpenAI (fallback)
-
-Supabase → Self-hosted PostgreSQL + Auth.js
-           (Supabase is already open source)
-```
-
-### Migration Trigger Points
-```
-Migrate when:
-├── Service costs > €200/month → evaluate OSS
-├── Unexpected pricing change → 30-day plan
-├── Outage > 4 hours → evaluate alternatives
-├── GDPR issue with US provider → French alternative
-└── Strategic: prefer French/EU providers always
-    (Brevo, Mistral, OVH already chosen)
-```
-
-### The Migration Playbook
-```
-VERCEL → SELF-HOSTED: 2 hours (standard Node.js build)
-MAILCHIMP → BREVO: 1 day (CSV export/import)
-MAILCHIMP → LISTMONK: 1 week (self-host on VPS €6/month)
-SANITY → PAYLOAD: 1-2 weeks (JSON export/import)
-CLAUDE → MISTRAL: 2-3 days (compatible API format)
-SUPABASE → SELF-HOSTED: 1 day (pg_dump, already OSS)
+OSS targets (prefer French/EU): Mailchimp→Brevo · Claude→Mistral ·
+Sanity→Payload · Vercel→Coolify · Supabase already OSS.
+Migrate when: cost >€200/mo, pricing change, outage >4h, GDPR issue.
 ```
 
 ---
 
-## CROWDFUNDING STRATEGY (Phased)
+## CROWDFUNDING (phased)
 
-### Phase 2A — Light Crowdfunding (early, safe)
 ```
-What it is:
-├── Support button on concert/project pages
-├── Progress bar (goal, raised, deadline)
-├── External payment links:
-│   ├── PayPal.me
-│   ├── Lydia
-│   ├── Stripe Payment Link
-│   ├── Ko-fi
-│   └── Tipeee
-└── Perks: Atelier access, early content,
-          supporter wall, name in credits
-
-What it is NOT:
-├── Résonance does NOT handle money
-├── No refunds handled by platform
-├── No KYC required
-├── No Stripe Connect
-└── No escrow logic
-
-Build complexity: LOW (button + progress bar + links)
-Legal risk: ZERO (money goes directly to artist)
-When: After core MVP is stable
-```
-
-### Phase 2B — Full Crowdfunding (later, advanced)
-```
-What it adds:
-├── Stripe Connect onboarding
-├── KYC verification
-├── Escrow logic (hold until goal reached)
-├── Automatic refunds if goal not reached
-├── Automatic payouts to artist + collaborators
-├── Résonance commission (5-10%)
-├── Accounting logs and VAT handling
-└── Full financial compliance
-
-When: After platform stability + trust + real fanbase
-Build complexity: HIGH (fintech product)
-Legal risk: SIGNIFICANT (needs lawyer + accountant)
+Phase 2A (early, safe): support button + progress bar + EXTERNAL links
+  (PayPal.me, Lydia, Ko-fi, Tipeee, Stripe Payment Link). Platform handles
+  NO money. Zero legal risk. Build after MVP stable.
+Phase 2B (later): Stripe Connect, KYC, escrow, refunds, payouts, 5-10%
+  commission. High complexity, significant legal risk (lawyer + accountant).
 ```
 
 ---
 
-## MARKETPLACE VISION (Phase 2+, not MVP)
-
-```
-RÉSONANCE becomes marketplace for professionals:
-├── Musicians (session players)
-├── Sound engineers
-├── Photographers
-├── Videographers
-├── Lighting technicians
-├── Stage managers
-├── Graphic designers
-└── Community managers
-
-How professionals work:
-├── Join platform with profile
-├── Added by artists during concert creation
-├── Offer services to multiple artists
-└── Build reputation inside Résonance
-
-Ranking system:
-├── Concerts completed on platform
-├── Artist ratings
-├── Reliability (no-shows, delays)
-└── Skills and specialization
-
-Revenue: marketplace commission on bookings
-When: Phase 2+, after beta validation
-```
-
----
-
-## FANBASE GRAPH (Long-term Data Asset)
-
-```
-Résonance builds collective fan graph from:
-├── QR code check-ins at concerts
-├── Atelier logins and engagement
-├── Guest list confirmations
-├── Fan signups per artist
-├── Crowdfunding support patterns
-└── City and genre preferences
-
-Graph enables:
-├── Extended fanbase recommendations
-│   "Fans of Qiwi Chee also like..."
-├── Crowdfunding predictions
-│   "Based on your fanbase, expect €X"
-├── Venue suggestions
-│   "Your fans are concentrated in Lyon"
-├── Artist-to-artist discovery
-└── Cross-artist concert promotion
-
-This graph is the moat that grows automatically.
-No competitor can replicate without the same scale.
-```
-
----
-
-## SUPABASE SCHEMA (Complete + Updated)
+## SUPABASE SCHEMA (key tables)
 
 ```sql
--- USERS & ROLES
-profiles (id, email, full_name, avatar_url, created_at)
+profiles · artist_members(role: owner|collaborator|member) · artists ·
+concerts(+ hidden Phase-2 crowdfunding fields) · feuille_de_route_items ·
+guso_declarations · cddu_contracts · guest_list · venues · professionals
+(is_visible default false) · events · service_status · feedback ·
+concert_scenarios · venue_inquiries · concert_reviews · co_events(+children) ·
+content_pieces · content_clips · social_accounts · project_journal
 
-artist_members (
-  id, artist_id, user_id,
-  role: 'owner'|'collaborator'|'member',
-  invited_by, joined_at, is_active
-)
-
--- ARTISTS
-artists (
-  id, stage_name, bio_fr, bio_en,
-  photo_url, genre, owner_id,
-  sanity_project_id, mailchimp_audience_id,
-  legal_structure: 'guso'|'cae'|'association'|'company',
-  subscription_tier, created_at
-)
-
--- CONCERTS (with hidden Phase 2 fields)
-concerts (
-  id, artist_id, title, date, venue_id,
-  is_paid, ticket_price, ticket_link,
-  capacity, description_fr, description_en,
-  status: 'draft'|'published'|'completed',
-
-  -- Phase 2A crowdfunding (hidden for now)
-  estimated_costs (jsonb),
-  musician_fees (jsonb),
-  venue_cost (numeric),
-  equipment_cost (numeric),
-  funding_goal (numeric),
-  funding_raised (numeric),
-  funding_deadline (timestamp),
-  funding_status: 'draft'|'active'|'successful'|'failed',
-  budget_notes text, -- artist annotations, hidden during MVP
-
-  created_at
-)
-
--- FEUILLE DE ROUTE (live checklist)
-feuille_de_route_items (
-  id, concert_id, label, scheduled_time,
-  is_complete, completed_by, completed_at,
-  sort_order
-)
-
--- LEGAL (owner only via RLS)
-guso_declarations (
-  id, concert_id, artist_id,
-  status: 'draft'|'submitted'|'confirmed',
-  declaration_data (jsonb), created_at
-)
-
-cddu_contracts (
-  id, concert_id, band_member_id,
-  role_on_stage, fee_amount,
-  signed_at, document_url, created_at
-)
-
--- GUEST LIST (member sees own row only)
-guest_list (
-  id, concert_id, fan_id,
-  status: 'pending'|'confirmed'|'denied',
-  plus_one, added_by
-)
-
--- VENUES (from open data + manual)
-venues (
-  id, name, address, city, postal_code,
-  latitude, longitude, email, phone, website,
-  capacity, venue_type, source,
-  claimed, last_updated
-)
-
--- PROFESSIONALS (hidden Phase 2 table)
-professionals (
-  id, user_id,
-  role, -- musician/photographer/sound_engineer/etc.
-  skills (jsonb),
-  rating (numeric),
-  completed_concerts (integer),
-  hourly_rate (numeric),
-  availability (jsonb),
-  is_visible boolean default false, -- must opt-in to be listed
-  created_at
-)
-
--- MONITORING
-events (
-  id, artist_id, event_name,
-  properties (jsonb),
-  session_id, created_at
-)
-
-service_status (
-  id, service_name, is_up,
-  last_checked, last_down_at,
-  error_message, consecutive_failures
-)
-
-feedback (
-  id, user_id, action,
-  rating, comment, created_at
-)
+Security: artist_id ALWAYS from auth session, NEVER request body.
+RLS enforces the three roles.
 ```
 
 ---
 
-## PRICING MODEL (Updated)
+## PRICING MODEL
 
 ```
-CONCERTS ONLY (€9/month) — NEW ENTRY TIER
-├── concerts.artistname.com subdomain
-├── Ticket sales + GUSO + CDDU
-├── Feuille de route live checklist
-├── Fan QR signup at concerts
-└── Budget/what-if planner
-
-FREE TIER
-├── Limited (2 concerts/month)
-├── Basic website
-└── Fan email signup
-
-STARTER (€15/month)
-├── Unlimited concerts
-├── Full bilingual website
-├── GUSO + CDDU automation
-└── Intermittent tracking basic
-
-PRO (€29-49/month)
-├── Everything in Starter
-├── Interactive feuille de route
-├── Full intermittent dashboard
-├── Rehearsal management
-├── Phase 2A crowdfunding
-└── WhatsApp notifications
-
-PREMIUM (€79+/month)
-├── Everything in Pro
-├── Advanced analytics
-├── Priority support
-└── Marketplace access (Phase 2+)
-
-USAGE-BASED ADD-ONS
-├── Extra CDDU beyond tier limit
-├── Extra GUSO declarations
-└── Extra concerts
-
-PHASE 2+ COMMISSIONS
-├── Marketplace bookings
-├── Crowdfunding (Phase 2B): 5-10%
-└── Billing Provider connections
+CONCERTS ONLY €9/mo (wedge — concerts.artistname.com subdomain)
+FREE (2 concerts/mo, basic site, fan signup)
+STARTER €15/mo (unlimited concerts, full bilingual site, GUSO+CDDU, basic 507h)
+PRO €29-49/mo (+ live feuille de route, full 507h, rehearsals, Phase 2A, WhatsApp)
+PREMIUM €79+/mo (+ analytics, priority, marketplace)
+Add-ons: extra CDDU/GUSO/concerts. Phase 2+: marketplace + crowdfunding commission.
 ```
 
 ---
 
-## SEO STRATEGY
+## SEO STRATEGY (summary)
 
-### Two Separate SEO Targets
 ```
-RÉSONANCE (resonance.fr)
-└── Targets: artists, venues, professionals
-    searching for music industry tools
+Two targets: resonance.fr (artists/venues/pros) vs qiwichee.com (fans).
 
-QIWICHEE (qiwichee.com + .fr)
-└── Targets: fans searching for the artist
-    music discovery, concert tickets
-```
+Qiwichee technical: title template "%s | Qiwi Chee", OG website (NOT music.musician
+  — see gotcha), canonical, hreflang FR/EN, schema.org MusicGroup + MusicEvent
+  per concert, Next.js Image everywhere, Core Web Vitals (LCP<2.5 CLS<0.1).
 
-### Qiwichee SEO — Technical Foundation
-```typescript
-// src/app/layout.tsx — site-wide metadata
-export const metadata = {
-  title: {
-    template: '%s | Qiwi Chee',
-    default: 'Qiwi Chee — Hybrid Pop Artist'
-  },
-  description: 'Franco-Algerian-American singer-songwriter
-                based in Paris. Hybrid pop in French + English.',
-  openGraph: { type: 'music.musician', locale: 'fr_FR' },
-  alternates: {
-    canonical: 'https://qiwichee.com',
-    languages: {
-      'fr': 'https://qiwichee.com/fr',
-      'en': 'https://qiwichee.com/en'
-    }
-  }
-}
-```
+After DNS (DONE): Google Search Console (verify via OVH TXT, submit sitemap) +
+Google My Business (Musician/Band category).
 
-### Schema.org Structured Data (Rich Results)
-```typescript
-// Concert page — Google shows this in search:
-// "Qiwi Chee Live · June 15 · Paris · €15 · Available"
-const concertSchema = {
-  "@type": "MusicEvent",
-  "name": "Qiwi Chee Live — Le Café de la Danse",
-  "startDate": "2026-06-15T20:00",
-  "location": { "@type": "MusicVenue", "name": "..." },
-  "performer": { "@type": "MusicGroup", "name": "Qiwi Chee" },
-  "offers": { "price": "15", "priceCurrency": "EUR",
-               "availability": "InStock" }
-}
-
-// Artist page
-const artistSchema = {
-  "@type": "MusicGroup",
-  "name": "Qiwi Chee",
-  "genre": ["Hybrid Pop", "Indie Pop", "Francophone"],
-  "sameAs": ["spotify URL", "youtube URL", "instagram URL"]
-}
-```
-
-### Bilingual SEO (hreflang)
-```html
-<!-- Tells Google which language version to serve -->
-<link rel="alternate" hreflang="fr" href="https://qiwichee.com/fr" />
-<link rel="alternate" hreflang="en" href="https://qiwichee.com/en" />
-<link rel="alternate" hreflang="x-default" href="https://qiwichee.com" />
-```
-
-### Per-Page Metadata
-```
-/ (home)
-Title: "Qiwi Chee — Hybrid Pop Artist | Paris"
-
-/concerts
-Title: "Concerts — Qiwi Chee"
-
-/concerts/june-15-paris
-Title: "Concert June 15 — Le Café de la Danse | Qiwi Chee"
-→ Schema.org Event markup auto-generated per concert
-
-/music/hybrid-fruit
-Title: "Hybrid Fruit EP — Qiwi Chee"
-→ Schema.org MusicAlbum markup
-```
-
-### Local SEO
-```
-Google My Business (free):
-├── Category: Musician/Band
-├── Link to qiwichee.com
-├── Post upcoming concerts as events
-└── Appears in Google Maps searches
-
-Concert event syndication (free):
-├── Google Events (automatic via schema)
-├── Facebook Events
-├── Bandsintown listing
-└── Songkick listing
-```
-
-### Résonance SEO — Content Strategy
-```
-Publish free guides targeting real searches:
-
-"Comment remplir un GUSO en 2026"
-→ Ranks for "remplir GUSO"
-
-"Tout savoir sur l'intermittent du spectacle"
-→ Highest searched topic by French artists
-
-"Qu'est-ce qu'un CDDU et comment le rédiger"
-→ Ranks for "CDDU rédiger"
-
-"Comment organiser un concert indépendant"
-→ Ranks for "organiser concert"
-
-"Feuille de route concert : guide complet"
-→ Ranks for "feuille de route concert"
-
-Each guide ends with:
-"Résonance automatise tout ça en 2 minutes.
- Essayez gratuitement →"
-
-Claude helps write all guides.
-Cost: €0. Impact: primary acquisition channel.
-```
-
-### The Résonance SEO Flywheel
-```
-Guides published → artists find via Google
-        ↓
-Artists discover Résonance → sign up
-        ↓
-Artists create concerts → indexed pages
-        ↓
-Concert pages link back to Résonance
-        ↓
-Résonance gains domain authority
-        ↓
-Guides rank even higher ↺
-```
-
-### Next.js SEO (Automatic)
-```
-SSR → Google sees full content immediately
-Static generation → ultra-fast loading
-Sitemap.xml → all pages discoverable
-Metadata API → easy per-page SEO
-Core Web Vitals → LCP <2.5s, CLS <0.1
-Next.js Image → optimized images auto
-Vercel CDN → fast globally
-```
-
-### Two Immediate SEO Actions (After DNS)
-```
-1. Google Search Console (free)
-   → Add qiwichee.com as property
-   → Verify via OVH DNS TXT record
-   → Submit sitemap.xml
-   → Monitor indexing and queries
-
-2. Google My Business (free)
-   → Create profile for Qiwi Chee
-   → Category: Musician/Band
-   → Add website, upcoming concerts
-   → Appears in Google Maps
-```
-
-### Core Web Vitals (Performance = SEO)
-```
-LCP < 2.5s: Next.js Image component everywhere
-FID < 100ms: minimal JS on load
-CLS < 0.1: images have defined dimensions
-
-Vercel handles most of this automatically.
-Monitor in Google Search Console.
+Résonance content flywheel: free guides ("Comment remplir un GUSO 2026",
+"intermittent du spectacle", "CDDU rédiger", "organiser un concert",
+"feuille de route") → rank → artists find → sign up → concert pages indexed →
+domain authority ↑ → guides rank higher ↺. Cost €0. Primary acquisition channel.
 ```
 
 ---
 
-## RESILIENCE ARCHITECTURE
+## AGENT ENGINEERING (summary)
 
-### Health Checks (Vercel Cron — free, every 5 min)
 ```
-Tests: Supabase, Sanity, Mailchimp, Stripe, Claude API
-Results → service_status table
-Alert after 3 consecutive failures
-```
+Claude API + tool use = orchestration brain. Next.js + Supabase = frontend+data.
+Routes: /api/agent/onboarding, /concert, /legal (MVP); /marketplace, /fanbase
+(P2A); /crowdfunding (P2B); /content-analyzer, /content-writer, /co-event.
 
-### Graceful Degradation
-```
-Mailchimp down → save signups locally, sync later
-Stripe down → friendly message + alert artist
-Sanity down → serve cached content
-Claude API down → show manual fallback
-```
-
-### Status Page: resonance.fr/status
-### Caching: Vercel Edge Cache (1h bio, 5min concerts)
-
----
-
-## MONITORING ARCHITECTURE
-
-### Three Levels
-```
-Level 1 — Technical (health checks, uptime)
-Level 2 — Business (growth, MRR, concerts)
-Level 3 — Behavioral (Clarity, funnel, features)
-```
-
-### Tools (All Free)
-```
-Microsoft Clarity → session recordings
-Better Uptime → external uptime monitoring
-Vercel Analytics → page views
-Custom /admin → business dashboard
-Weekly email → automated Monday report
-Emoji feedback → 😊😐😟 on key actions
-```
-
-### Admin Dashboard (/admin — your NOC view)
-```
-├── Platform health (all API statuses)
-├── Artists (count, MRR, active, churned)
-├── Concerts (created, GUSO generated)
-├── Onboarding funnel (step-by-step drop-off)
-├── Revenue (MRR, growth, tier breakdown)
-└── Fanbase graph preview
+Principles:
+├── Zod strict input/output schemas on EVERY route
+├── artist_id from auth session, validate ownership before writes
+├── Retry + exponential backoff + 10s timeout + circuit breaker on external APIs
+├── RED metrics (rate/error/duration) → events table
+├── Stateless per task — state in Supabase, cache results to control cost
+└── Use Sonnet for most tasks. "Claude API with tool use", not "Managed Agents".
 ```
 
 ---
 
-## OPEN DATA — VENUE DATABASE
+## BILLING PROVIDERS (summary)
 
 ```
-Sources (ODbL licence — free):
-├── data.iledefrance.fr — Paris venues
-├── opendata.paris.fr — active event venues
-├── data.culture.gouv.fr — national cultural venues
-└── data.gouv.fr — national performance venues
-
-Hundreds of venues pre-loaded before first artist joins
-Libraries and mairies included automatically
-Solves chicken-and-egg problem
+Non-incorporated artist can't invoice. Platform detects (no legal structure +
+paid concert + GUSO/CDDU needed) → suggests validated Billing Provider
+(CAE / SCIC / association) to invoice on artist's behalf. Résonance =
+apporteur d'affaire (% commission). Provider appears as resource in feuille
+de route with admin responsibility.
 ```
 
 ---
 
-## NOTIFICATION STRATEGY
+## LEGAL & CORPORATE (summary)
 
 ```
-PRIMARY: Email (Mailchimp)
-SECONDARY: WhatsApp pre-filled links (free)
-TERTIARY: In-platform dashboard
-NOT USED: Telegram (artist said no), Twilio (cost)
-```
+SASU (yours, France) owns ALL IP → licenses platform to local cooperatives.
+Local: France SCIC · Belgium ASBL · Quebec coop de solidarité · MENA partners.
+Cooperatives unlock local funding (CNM, SODEC...). Expansion: France → BE/CH →
+Quebec → MENA francophone.
 
----
-
-## QIWI CHEE STRATEGY
-
-```
-Role: First client AND first beta tester
-
-Process:
-├── Build under dev account
-├── She self-onboards via wizard (observed)
-├── Fix friction points
-└── Transfer when ready:
-    Supabase → her email
-    Vercel → add her as owner
-    Connect qiwichee.com (OVH DNS)
+⚠️ See Resonance_context.md for the V1→V2 structure decision (CAE entrepreneur-
+   salarié first, then SAS-ESS in BPI ICC lane or SCIC). Do NOT found a SCIC now.
+   Do NOT build IP inside an association to privatize later (asset trap).
 ```
 
 ---
 
-## BETA STRATEGY
+## ⚠️ LEGAL FLAG — European Accessibility Act (neutral / lawyer territory)
 
 ```
-Beta hook: GUSO + CDDU + intermittent + website
-NOT: crowdfunding (that comes later)
-
-Week 1-2: Platform ready, venues pre-loaded
-Week 3: Qiwi Chee self-onboards
-Week 4: Fix friction, invite 2 more artists
-Week 5-6: Invite 2 more artists
-Week 7-8: Approach venues
-Month 3: Do they pay? → continue or pivot
+EAA enforceable since 28 June 2025. France: Law 2023-171 / Ord. 2023-859 /
+Decree 2023-931. Standard EN 301 549 (= WCAG 2.1 AA). Enforcement: DGCCRF.
+Microenterprise exemption (<10 employees AND <€2M turnover) likely covers
+you + Qiwi Chee NOW. Stops being optional once site has ticketing/e-commerce
+or Résonance is consumer-facing above threshold. Confirm with ESS/entertainment
+lawyer when choosing V2 structure. Not a decision to make from notes.
 ```
 
 ---
 
-## BUILD PHASES (Complete Roadmap)
+## ETHICAL RISK LAYER (standing rule)
 
 ```
-MVP (NOW):
-├── /onboarding wizard
-├── /website module
-├── /concerts module
-└── /legal module (lawyer first)
-
-PHASE 2A (after stable MVP):
-├── Light crowdfunding (support button)
-├── Professional profiles (visible)
-└── Basic fanbase graph
-
-PHASE 2B (after trust + fanbase):
-├── Full crowdfunding (Stripe Connect)
-├── KYC + escrow + refunds
-└── Résonance commission
-
-PHASE 3+:
-├── Full marketplace (professionals)
-├── Advanced fanbase graph
-├── Venue marketplace
-└── Francophone expansion
-```
-
----
-
-## ARTIST VALIDATION — CONFIRMED
-
-```
-✅ GUSO + CDDU = nightmare
-✅ Intermittent tracking = critical
-✅ Free concerts matter → build fans
-✅ Feuille de route = live checklist
-✅ Rehearsal management needed
-✅ Equipment management needed
+Flag features touching: disputed territories, state cultural-diplomacy
+institutions, partners with human-rights controversies, venues in occupied
+zones. Alerts: neutral/technical, non-prescriptive, universal rules — never
+political framing. E.g. open-data venue import → "geographic validation
+recommended"; institutional partner → "due-diligence recommended".
 ```
 
 ---
@@ -1409,709 +381,75 @@ PHASE 3+:
 ## WHAT IS LIVE
 
 ```
-✅ qiwichee.vercel.app — LIVE
-✅ github.com/bkark/qiwichee
-✅ Mailchimp — ID: c5532d5f66
-✅ Sanity — Project ID: bayrhx8r
-✅ Vercel environment variables set
+✅ qiwichee.com + .fr + www (Vercel, SSL valid)
+✅ Homepage built + deployed (semantic + metadata + MusicGroup JSON-LD)
+✅ OVH Email Pro: hello@qiwichee.com (mailbox), booking@ (alias → hello@)
+✅ github.com/bkark/qiwichee · CLAUDE.md committed
+✅ Claude Code installed + authenticated (Claude Pro)
+✅ Mailchimp ID c5532d5f66 · Sanity ID bayrhx8r · Vercel env vars set
 ```
 
 ---
 
-## ENVIRONMENT VARIABLES
+## INFRASTRUCTURE FACTS (verified, don't re-derive)
 
 ```
-NEXT_PUBLIC_SANITY_PROJECT_ID     = bayrhx8r
-NEXT_PUBLIC_SANITY_DATASET        = production
-NEXT_PUBLIC_MAILCHIMP_AUDIENCE_ID = c5532d5f66
-MAILCHIMP_API_KEY                 = [private]
-```
+EMAIL — OVH Email Pro:
+├── Server pro2.mail.ovh.net for BOTH IMAP (993 SSL/TLS) + SMTP (587 STARTTLS)
+│   NOT ssl0.ovh.net (that's shared MX Plan — common wrong answer in guides)
+├── Webmail: https://pro2.mail.ovh.net
+└── Gmail app setup: choose "Other (IMAP)", NOT "Google"
 
----
+DNS — Vercel:
+├── Apex A record: 216.198.79.1 (RE-VERIFY in Vercel at any reconfig)
+├── www CNAME: 42d7eef65754d8a8.vercel-dns-017.com. (project-specific,
+│   NOT generic cname.vercel-dns.com.)
+└── .fr strategy: canonical redirect → .com recommended (awaiting confirm)
 
-## HOW TO USE CLAUDE PROJECTS (Important)
-
-### Setup Once — Works Forever
-```
-1. Click "Projects" in Claude left sidebar
-2. Create new project: "Résonance Dev"
-3. Upload these files to knowledge base:
-   ├── CONTEXT_FOR_AI_qiwichee_web.md
-   ├── DECISIONS.md
-   └── PROJECT_STATE.md
-4. Add custom instructions (see below)
-5. Every new chat INSIDE the project
-   automatically has full context
-   No pasting needed ever again
-```
-
-### Custom Instructions For The Project
-```
-You are the development assistant for RÉSONANCE,
-a music platform for independent French artists.
-Developer: telecom engineer learning web dev,
-           Courbevoie, France.
-Always explain commands and WHY.
-Use telecom analogies when helpful.
-One step at a time, wait for confirmation.
-Keep to MVP scope — reference uploaded files.
-Use View > Terminal in VS Code (Apple keyboard).
-Never suggest Telegram — use WhatsApp links.
-Flag geographic/institutional risks neutrally.
-Remind to consult lawyer before /legal module.
-```
-
-### Why Projects Solve Your Time Problem
-```
-This long chat → context fills up → one question limit
-
-Projects workspace:
-├── 200K context window (500 pages)
-├── Files loaded automatically every chat
-├── Each new chat starts fresh but informed
-├── No pasting, no repeating context
-└── Work for hours per session
+ENV VARS:
+NEXT_PUBLIC_SANITY_PROJECT_ID=bayrhx8r · NEXT_PUBLIC_SANITY_DATASET=production
+NEXT_PUBLIC_MAILCHIMP_AUDIENCE_ID=c5532d5f66 · MAILCHIMP_API_KEY=[private]
 ```
 
 ---
 
-## DEVELOPER
-
-- **OS:** Linux Mint, Apple keyboard adapted
-  → View > Terminal in VS Code
-  → Long pastes: `cat > file << 'ENDOFFILE'`
-- **Location:** Courbevoie, Île-de-France, France
-- **Node.js:** v22.22.2 / **npm:** 10.9.7
-- **Git:** 2.34.1 / **VS Code:** 1.117.0
-- **Vercel CLI:** 52.0.0
-- **GitHub CLI:** 2.4.0 (gh auth setup-git if push fails)
-
----
-
-## ACCOUNTS
-
-| Service | Status | Details |
-|---|---|---|
-| GitHub | ✅ | bkark |
-| Vercel | ✅ | Live, auto-deploys |
-| Mailchimp | ✅ | Audience ID: c5532d5f66 |
-| Sanity.io | ✅ | Project ID: bayrhx8r |
-| Supabase | ⏳ | Create next session |
-| Stripe | ⏳ | Simple ticket links |
-| Better Uptime | ⏳ | Free monitoring |
-| MS Clarity | ⏳ | Free session recording |
-| OVH | ✅ | qiwichee.com + qiwichee.fr purchased |
-| Zimbra email | ⏳ | Set up booking@qiwichee.com |
-
----
-
-## TECH STACK
-
-| Need | Tool | Notes |
-|---|---|---|
-| Framework | Next.js | ✅ |
-| Hosting | Vercel | ✅ live |
-| Database | Supabase | ⏳ + RLS |
-| Auth | Supabase Auth | ⏳ |
-| CMS | Sanity | ✅ account |
-| Fan emails | Mailchimp | ✅ |
-| Payments | Stripe | ⏳ simple |
-| Bilingual | next-i18n | ⏳ |
-| AI features | Claude API + tool use | ⏳ agent routes |
-| Notifications | WhatsApp links | ⏳ free |
-| Monitoring | MS Clarity | ⏳ |
-| Uptime | Better Uptime | ⏳ |
-| Mobile | PWA | ⏳ |
-| E-signature | YouSign | ⏳ |
-| Health checks | Vercel Cron | ⏳ |
-
----
-
-## SUBDOMAIN STRATEGY — CONCERTS ONLY MODE
-
-### The Problem It Solves
-```
-Some artists already have a good website
-and don't want to replace it.
-They only want the concert management tools.
-
-Solution: concerts.artistname.com
-└── Résonance module embedded as subdomain
-    Artist keeps existing site
-    Links to concerts subdomain for tickets/GUSO
-    Low friction → high adoption
-```
-
-### How It Works Technically
-```
-Artist adds ONE DNS record at their registrar:
-Type: CNAME
-Name: concerts
-Target: cname.vercel-dns.com
-
-Result:
-concerts.qiwichee.com → runs Résonance /concerts
-qiwichee.com → their existing site (untouched)
-```
-
-### Next.js Middleware Routing
-```
-Request comes in:
-├── concerts.qiwichee.com → concerts-only mode
-│   └── Load /concerts module only
-│       Apply artist branding
-│       No /website module
-│
-├── qiwichee.com → full Résonance site
-│   └── Load all modules
-│
-└── resonance.fr → platform marketing site
-    └── Load marketing page
-
-One codebase, three modes, clean routing.
-```
-
-### New Pricing Tier
-```
-CONCERTS ONLY (€9/month) — new entry tier
-├── concerts.artistname.com subdomain
-├── Concert listings and ticket sales
-├── GUSO + CDDU automation
-├── Feuille de route (live checklist)
-├── Fan signup at concerts (QR code)
-├── Budget/what-if planner
-└── No website builder needed
-
-Target: artists with existing good websites
-        who just want legal automation
-        Lowest friction entry point
-        "Wedge strategy" into full platform
-```
-
-### The Wedge Strategy
-```
-Entry: CONCERTS ONLY (€9/month)
-       Artist keeps existing site
-       Adds only what they need
-
-Growth: Artist sees value in legal tools
-        Asks "can you also handle my website?"
-        Upgrades to STARTER (€15/month)
-
-Full: Artist on full platform
-      Upgrades to PRO (€29-49/month)
-      Refers other artists → referral rewards
-```
-
----
-
-## AGENT ENGINEERING PRINCIPLES
-
-### Adopted From Agent Architect Review
-```
-Seven Skills Framework (mental checklist):
-├── System Design — orchestration via agent routes ✅
-├── Tool Contracts — Zod schemas on all inputs ✅
-├── Retrieval — RAG for venue/legal data (Phase 2)
-├── Reliability — retry + circuit breakers ✅
-├── Security — artist_id always from auth session ✅
-├── Observability — RED metrics in events table ✅
-└── Product Thinking — artist feedback drives all ✅
-```
-
-### Layered Memory (Already Built)
-```
-Procedural memory → CLAUDE.md (in repo) ✅
-Episodic memory → Supabase events table ✅
-Semantic memory → CONTEXT_FOR_AI + DECISIONS.md ✅
-```
-
-### Airtight Tool Contracts (Implement Now)
-```typescript
-// Every agent route must have:
-
-// 1. Strict Zod input schema
-const ConcertPlannerInput = z.object({
-  artist_id: z.string().uuid(),
-  city: z.string().min(2),
-  month: z.string().regex(/^\d{4}-\d{2}$/),
-  expected_audience_min: z.number().int().positive(),
-  expected_audience_max: z.number().int().positive(),
-  budget_limit: z.number().positive(),
-  ticket_price: z.number().positive()
-})
-
-// 2. Strict output type
-type ConcertPlannerOutput = {
-  scenarios: Scenario[]
-  recommended: 'safe' | 'balanced' | 'ambitious'
-  reasoning: string
-  venue_emails: VenueEmail[]
-}
-
-// 3. Example in comments
-// Input example:
-// { city: "Paris", month: "2026-06",
-//   expected_audience_min: 40,
-//   expected_audience_max: 80,
-//   budget_limit: 1500,
-//   ticket_price: 15 }
-```
-
-### Reliability Mandate (All External APIs)
-```typescript
-// Retry with exponential backoff
-async function callWithRetry(fn, maxRetries = 3) {
-  for (let i = 0; i < maxRetries; i++) {
-    try {
-      return await Promise.race([
-        fn(),
-        timeout(10000) // 10 second timeout
-      ])
-    } catch (err) {
-      if (i === maxRetries - 1) throw err
-      await sleep(Math.pow(2, i) * 1000) // 1s, 2s, 4s
-    }
-  }
-}
-
-// Circuit breaker: 5 failures in 1 min
-// → stop calling, show graceful degradation
-// → alert admin, log to service_status table
-```
-
-### Security Boundaries (Write Operations)
-```typescript
-// ALWAYS get artist_id from auth session
-// NEVER accept it from request body
-
-// ❌ WRONG — security hole
-const { artist_id } = req.body
-
-// ✅ CORRECT — always from session
-const { user } = await supabase.auth.getUser()
-const artist_id = user.id
-
-// Validate ownership before any write
-const { data: member } = await supabase
-  .from('artist_members')
-  .select('role')
-  .eq('artist_id', concert.artist_id)
-  .eq('user_id', user.id)
-  .single()
-
-if (!member) throw new Error('Unauthorized')
-```
-
-### RED Observability Metrics
-```typescript
-// Add to every agent call in events table:
-await trackEvent({
-  event: 'agent_call',
-  properties: {
-    agent: 'concert-planner',
-    rate: 1,                    // Rate: count
-    error: error ? 1 : 0,       // Errors: 0 or 1
-    duration_ms: Date.now() - start, // Duration
-    tokens_used: response.usage.total_tokens,
-    success: !error
-  }
-})
-```
-
-### What NOT To Adopt Yet
-```
-❌ Formal semantic handshake protocol
-   (use Zod validation instead — same benefit)
-
-❌ Progressive file disclosure (grep/tail)
-   (files are small in MVP — not needed yet)
-
-❌ Semantic firewalls
-   (add in Phase 2 with multi-tenant scale)
-
-❌ Full distributed system framing
-   (you are one developer building an MVP)
-```
-
----
-
-## AGENT ARCHITECTURE
-
-### Role Of Agents
-```
-Claude API + tool use = the orchestration brain
-Next.js + Supabase = frontend + data layer
-Sanity = CMS layer
-
-Agents replace:
-├── Custom Python scrapers
-├── Custom PDF generation backend
-├── Rules engine for GUSO logic
-├── Translation service
-├── Multi-step workflow orchestration
-└── Custom microservices
-
-Agents do NOT replace:
-├── Supabase (data still lives there)
-├── Sanity (content still lives there)
-├── Next.js (routing still lives there)
-└── RLS policies (security still in Supabase)
-```
-
-### Agent API Routes (Next.js)
-```
-/api/agent/onboarding
-└── Scrape legacy URLs → extract bio/discography/photos
-    Translate FR↔EN → map to Sanity schemas
-    Validate with artist → generate missing content
-
-/api/agent/concert
-└── Generate descriptions (FR/EN)
-    Propose feuille de route schedule items
-    Generate technical rider template
-    Detect missing information
-    Pre-fill GUSO/CDDU fields
-
-/api/agent/legal
-└── Assemble GUSO data + validate fields
-    Generate CDDU contracts
-    Fill CERFA forms → produce PDFs
-    Check intermittent hours logic
-
-/api/agent/marketplace (Phase 2+)
-└── Match artists with professionals
-    Rank by reliability + skills
-    Suggest replacements on cancellation
-    Predict costs from past concerts
-
-/api/agent/fanbase (Phase 2+)
-└── Analyze fan engagement
-    Predict crowdfunding potential
-    Suggest venues by fan geography
-    Identify cross-artist clusters
-
-/api/agent/content-analyzer (new)
-└── Analyze uploaded video/audio
-    Find best moments by timestamp
-    Flag technical issues
-    Return scored recommendations
-
-/api/agent/content-writer (new)
-└── Generate bilingual captions per platform
-    Respect character limits per platform
-    Learn artist's style over time
-    Include relevant hashtags
-
-/api/agent/co-event (new)
-└── Suggest running order by fanbase size
-    Calculate cost splits
-    Generate combined feuille de route
-    Draft co-event crowdfunding page
-```
-
-### Agent Principles
-```
-1. Agents are STATELESS per task
-   Each call is self-contained
-   State lives in Supabase not in agent
-
-2. Agents do NOT store data
-   Results saved to Supabase or Sanity
-   Agent has no memory between calls
-
-3. Cost management
-   Cache results in Supabase
-   Batch tasks when possible
-   Avoid long-running sessions
-   Use Claude claude-sonnet-4-20250514 for most tasks
-
-4. No extra infrastructure needed
-   No backend server beyond Next.js API routes
-   No custom scrapers to maintain
-   No microservices to deploy
-
-5. Correct terminology
-   "Claude API with tool use" not "Managed Agents"
-   Same behavior — correct API naming
-```
-
-### Agent Phasing
-```
-MVP NOW:
-├── /api/agent/onboarding (scrape + translate + map)
-├── /api/agent/concert (descriptions + FDR + rider)
-└── /api/agent/legal (GUSO + CDDU + PDF)
-
-PHASE 2A:
-├── /api/agent/marketplace (matching)
-└── /api/agent/fanbase (insights)
-
-PHASE 2B:
-└── /api/agent/crowdfunding (payouts + refunds)
-```
-
----
-
-## LEGAL & CORPORATE STRUCTURE
-
-### SASU + Cooperative Architecture
-```
-SASU (yours — France)
-├── Owns ALL IP, algorithms, brand, platform code
-├── Controls product direction
-├── Central technical provider
-└── Licenses platform to local cooperatives
-
-Local cooperatives per country:
-├── France: SCIC (Société Coopérative d'Intérêt Collectif)
-├── Belgium: cooperative or ASBL
-├── Quebec: coopérative de solidarité
-├── Algeria/Morocco/Tunisia: partner institutions
-└── Each accesses LOCAL cultural funding
-
-Why this structure:
-├── SASU protects IP completely
-├── Cooperatives unlock local subsidies
-│   (CNM France, SODEC Quebec, etc.)
-├── Each country complies with local law
-└── You control product, cooperatives operate locally
-```
-
-### International Expansion Priority
-```
-Phase 1: France (current)
-Phase 2: Belgium, Switzerland (French-speaking)
-Phase 3: Quebec (Canada)
-Phase 4: Algeria, Morocco, Tunisia (MENA francophone)
-Phase 5: Other francophone regions
-
-Each expansion:
-├── New local cooperative or partner
-├── Local cultural funding applications
-├── Local artist employment law compliance
-└── Platform license from SASU
-```
-
-### Résonance Public Face (Planned)
-```
-resonance.fr (check availability at OVH)
-└── Platform marketing site
-    "Join the beta" → Mailchimp "Résonance Artists" list
-    Separate from qiwichee.com (artist instance)
-
-Two Mailchimp audiences:
-├── "Qiwichee Fans" — fans of Qiwi Chee
-└── "Résonance Artists" — artists interested in platform
-```
-
----
-
-## BILLING PROVIDERS SYSTEM
-
-### The Problem
-```
-Non-incorporated artist cannot issue invoices.
-Platform must detect this and offer a solution.
-```
-
-### Billing Providers
-```
-Validated entities that can invoice on behalf of artists:
-├── CAE (Coopérative d'Activité et d'Emploi)
-├── Partner SCIC/cooperative
-├── Local institution on platform
-└── Association already registered
-
-Billing Provider can:
-├── Invoice venue/organizer on artist's behalf
-├── Act as intermediary for payment
-├── Appear as selectable resource in Feuille de Route
-└── Track administrative responsibility per concert
-
-RÉSONANCE commission:
-└── Apporteur d'affaire when connecting artist
-    with Billing Provider (% of transaction)
-```
-
-### Agent Detection Logic
-```
-When artist creates concert:
-Agent detects:
-├── Does artist have legal structure? (from profile)
-├── Is concert paid?
-└── Is GUSO/CDDU required?
-
-If artist cannot bill + concert is paid:
-└── Platform suggests Billing Provider:
-    "You don't have a billing structure.
-     Would you like to connect with a
-     Billing Provider to handle invoicing?"
-    [Select from validated providers list]
-```
-
-### Feuille de Route Integration
-```
-Feuille de Route now tracks:
-├── Billing Provider (who invoices)
-├── Local institutions involved
-├── Professionals (musicians, engineers...)
-└── Who is responsible for each admin step
-
-Each person/entity has a role and a task:
-├── Artist → perform
-├── Billing Provider → invoice venue
-├── Sound engineer → technical setup
-└── Stage manager → production coordination
-```
-
----
-
-## ETHICAL RISK MANAGEMENT LAYER
-
-### Standing Rule For This AI
-```
-When designing features, alert if they touch:
-├── Internationally disputed territories
-│   → Flag: "geographic validation needed"
-├── Institutions tied to state-sponsored
-│   cultural diplomacy
-│   → Flag: "institutional due-diligence recommended"
-├── Partners with known human-rights controversies
-│   → Flag: "partner metadata may require filtering"
-└── Venues in militarily occupied zones
-    → Flag: "geographic validation needed"
-
-Alerts are:
-├── Neutral and technical (never political)
-├── Non-prescriptive (you decide, not the AI)
-└── Based on universal rules not specific movements
-
-Examples:
-├── Open data venue import from certain regions
-│   → "geographic validation recommended
-│      before auto-importing venue data"
-├── International touring feature
-│   → "cross-border routing should include
-│      geographic metadata validation layer"
-└── Institutional partner integration
-    → "due-diligence on institutional affiliation
-       recommended before platform listing"
-```
-
----
-
-## SPRINT PLAN
+## DEVELOPER ENVIRONMENT
 
 ```
-SPRINT 1 (next sessions):
-├── Configure DNS at OVH (qiwichee.com + .fr → Vercel)
-├── Set up booking@qiwichee.com (Zimbra)
-├── Add domains to Vercel project
-├── Supabase setup + schema + RLS policies
-├── next-i18n bilingual setup
-├── MS Clarity + Better Uptime setup
-└── Replace default page with real landing
+OS: Linux Mint · user simba · hostname ssd
+Repo: /home/simba/Projects/qiwichee
+Specs source: /home/simba/GDrive/Resonance/02_Produit_Tech/Specs/
+Sync: /home/simba/GDrive/Resonance/sync_resonance.sh
+Node v22.22.3 · Next.js 16.2.4 · TypeScript · Tailwind 4
 
-SPRINT 2:
-├── AI Data Importer (scrape → Sanity)
-├── Bilingual translation (Claude API)
-└── Onboarding wizard UI
-
-SPRINT 3:
-├── /concerts module
-├── Interactive live checklist
-├── Phase 2A support button (simple)
-└── GUSO/CDDU generation
-
-SPRINT 4:
-├── /legal module (lawyer first)
-├── Intermittent tracker
-├── Admin dashboard (/admin)
-└── Transfer ownership function
-
-SPRINT 5:
-├── Beta with Qiwi Chee
-├── Watch Clarity recordings
-└── Fix friction weekly
-```
-
----
-
-## RESUME LOCALLY
-
-```bash
-cd ~/Projects/qiwichee
-npm run dev
-```
-Local: http://localhost:3000
-Live: https://qiwichee.vercel.app
-
----
-
-## GIT WORKFLOW
-
-```bash
-git add .
-git status
-git commit -m "What and why"
-git push
-```
-
----
-
-## UPDATE THIS FILE
-
-```bash
-cp ~/Downloads/CONTEXT_FOR_AI_qiwichee_web.md \
-   ~/Projects/qiwichee/CONTEXT_FOR_AI_qiwichee_web.md
-git add .
-git commit -m "Update AI context - session [date]"
-git push
+WORKFLOW QUIRKS:
+├── Terminal MANGLES fast multi-line pastes (reorders bytes). For long files:
+│   download + cp, OR let Claude Code write directly. NEVER paste a big heredoc.
+├── Chrome downloads → ~/Downloads (fixed this session; XDG map was broken)
+├── Heredoc for short writes only: cat > file << 'ENDOFFILE'
+├── sed -i for bulk edits, grep to verify before commit
+└── Apple keyboard: View > Terminal in VS Code
 ```
 
 ---
 
 ## INSTRUCTIONS FOR THIS AI
 
-- Explain every command — user learns while building
-- Explain WHY — telecom analogies help
-- One step at a time — wait for confirmation
-- French legal context always matters
-- Apple keyboard — View > Terminal in VS Code
-- DO NOT suggest out-of-scope features
-- DO NOT suggest Telegram (artist said no)
-- Feuille de route = LIVE CHECKLIST not PDF
-- Free concerts need GUSO+CDDU too
-- Three roles enforced by Supabase RLS
-- Crowdfunding = Phase 2A only (no money handling now)
-- Professionals table exists but hidden for now
-- Pricing: free → €9-15 → €29-49 → €79+
-- Beta hook = legal automation not crowdfunding
-- Monitor at 3 levels: technical/business/behavioral
-- Graceful degradation — one API down ≠ all broken
-- SEO: schema.org markup on every concert and artist page
-- SEO: hreflang tags for FR/EN bilingual pages
-- SEO: Google Search Console after DNS configured
-- SEO: Résonance content guides = primary acquisition
-- SEO: Next.js Image component everywhere (performance)
-- Platform: RÉSONANCE
-- Fan exclusive: ATELIER
-- Vision: cooperative cultural infrastructure
-- Corporate: SASU owns IP, cooperatives operate locally
-- Subdomain mode: concerts.artistname.com for wedge entry
-- Three routing modes: subdomain / full site / marketing
-- Agents: Claude API with tool use (not "Managed Agents")
-- Agent routes: /api/agent/onboarding, /concert, /legal
-- Agent inputs: ALWAYS validate with Zod schemas
-- Agent security: artist_id ALWAYS from auth session never body
-- Agent reliability: retry + exponential backoff on all external APIs
-- Agent observability: RED metrics (rate/error/duration) in events
-- Agents are stateless — state lives in Supabase
-- Cache agent results — control costs
-- Billing Providers: detect when artist cannot bill
-- Suggest Billing Provider in concert workflow
-- Ethical layer: flag geographic/institutional risks
-  using neutral technical language only
-- Never political framing — always technical flags
-- Full vision: DECISIONS.md north star only
+```
+- Explain every command + WHY (telecom analogies help). One step, wait.
+- Keep to MVP scope. Never suggest Telegram (WhatsApp links).
+- artist_id ALWAYS from auth session, never body.
+- Service-layer abstraction + Zod on every external API / agent route.
+- Feuille de route = LIVE CHECKLIST not PDF. Free concerts need GUSO+CDDU.
+- Three roles via RLS. Atelier = fan area. Crowdfunding = Phase 2A only.
+- Every page: three-in-one foundation (SEO + WCAG 2.1 AA + schema.org JSON-LD).
+- Flag geographic/institutional risks neutrally (technical, never political).
+- Remind: consult entertainment lawyer BEFORE /legal module.
+- Build sequence: finish Qiwichee site (template) → GUSO calculator → platform.
+- Platform: RÉSONANCE. Fan area: ATELIER. Corporate: SASU owns IP.
+- End of session: ask if instructions need updating; offer updated CONTEXT_FOR_AI;
+  remind to run ~/sync_resonance.sh.
+```
+
+---
+*Updated 2026-06-20 · Next: bilingual FR/EN refactor (next-intl + [locale])*

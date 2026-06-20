@@ -18,6 +18,14 @@ const artist = {
     "https://www.youtube.com/@qiwichee",
     "https://msha.ke/qiwichee/",
   ],
+  // Streaming/social links rendered in the Music section.
+  links: [
+    { name: "Spotify",     href: "https://open.spotify.com/artist/4Bu89sfVzy14qW0dK8Ugbs" },
+    { name: "Apple Music", href: "https://music.apple.com/fr/artist/qiwi-chee/1676154343" },
+    { name: "YouTube",     href: "https://www.youtube.com/@qiwichee" },
+    { name: "Bandcamp",    href: "https://qiwichee.bandcamp.com/" },
+    { name: "Instagram",   href: "https://www.instagram.com/qiwichee/" },
+  ],
 };
 
 // schema.org MusicGroup — machine-readable identity card.
@@ -86,38 +94,16 @@ export default function Home() {
           </h2>
           <p className="mt-4 text-zinc-600">Listen on your platform of choice.</p>
           <ul className="mt-6 flex flex-wrap gap-4 text-sm">
-            <li>
-              <ExternalLink
-                className="rounded-md border border-zinc-300 px-4 py-2 hover:bg-zinc-50"
-                href="https://open.spotify.com/artist/4Bu89sfVzy14qW0dK8Ugbs"
-              >
-                Spotify
-              </ExternalLink>
-            </li>
-            <li>
-              <ExternalLink
-                className="rounded-md border border-zinc-300 px-4 py-2 hover:bg-zinc-50"
-                href="https://www.youtube.com/@qiwichee"
-              >
-                YouTube
-              </ExternalLink>
-            </li>
-            <li>
-              <ExternalLink
-                className="rounded-md border border-zinc-300 px-4 py-2 hover:bg-zinc-50"
-                href="https://qiwichee.bandcamp.com/"
-              >
-                Bandcamp
-              </ExternalLink>
-            </li>
-            <li>
-              <ExternalLink
-                className="rounded-md border border-zinc-300 px-4 py-2 hover:bg-zinc-50"
-                href="https://www.instagram.com/qiwichee/"
-              >
-                Instagram
-              </ExternalLink>
-            </li>
+            {artist.links.map(({ name, href }) => (
+              <li key={name}>
+                <ExternalLink
+                  className="rounded-md border border-zinc-300 px-4 py-2 hover:bg-zinc-50"
+                  href={href}
+                >
+                  {name}
+                </ExternalLink>
+              </li>
+            ))}
           </ul>
         </section>
 

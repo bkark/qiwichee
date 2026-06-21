@@ -1,28 +1,42 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  /* ── Qiwichee palette (artist theme #1) ── */
+  --bg:                   #EAF4F8; /* pale aqua water */
+  --surface:              #FFFFFF; /* cards / raised */
+  --text:                 #14181C; /* dark water / hair */
+  --text-muted:           #566B73; /* cool secondary text */
+  --border:               #CFE2E9; /* aqua hairline */
+  --accent:               #1257D6; /* deep electric blue */
+  --accent-bright:        #2E8BFF; /* vivid azure — decorative only */
+  --accent-contrast:      #FFFFFF; /* text/icon ON --accent */
+  --accent-warm:          #F2B705; /* poppy/citrus yellow */
+  --accent-warm-contrast: #1A1405; /* dark text ON --accent-warm */
+  --accent-soft:          #E86B9A; /* blossom pink — decorative/tertiary */
+  --font-display:         var(--font-bricolage);
+  --font-body:            var(--font-inter);
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+  --color-bg:                   var(--bg);
+  --color-surface:              var(--surface);
+  --color-text:                 var(--text);
+  --color-muted:                var(--text-muted);
+  --color-border:               var(--border);
+  --color-accent:               var(--accent);
+  --color-accent-bright:        var(--accent-bright);
+  --color-accent-contrast:      var(--accent-contrast);
+  --color-accent-warm:          var(--accent-warm);
+  --color-accent-warm-contrast: var(--accent-warm-contrast);
+  --color-accent-soft:          var(--accent-soft);
+  --font-display:               var(--font-bricolage);
+  --font-body:                  var(--font-inter);
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-body);
 }
 
 .sr-only {

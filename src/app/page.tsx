@@ -43,19 +43,19 @@ const musicGroupSchema = {
 
 export default function Home() {
   return (
-    <div className="min-h-screen bg-white text-zinc-900">
+    <div className="min-h-screen bg-bg text-text">
       {/* Structured data — invisible to humans, read by crawlers/AI */}
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(musicGroupSchema) }}
       />
 
-      <header className="border-b border-zinc-200">
+      <header className="border-b border-border">
         <nav
           aria-label="Primary"
           className="mx-auto flex max-w-3xl items-center justify-between px-6 py-5"
         >
-          <span className="text-lg font-semibold tracking-tight">Qiwi Chee</span>
+          <span className="font-display text-lg font-semibold tracking-tight">Qiwi Chee</span>
           <ul className="flex gap-6 text-sm">
             <li>
               <a className="hover:underline" href="#music">
@@ -75,11 +75,11 @@ export default function Home() {
         <section className="py-20" aria-labelledby="hero-heading">
           <h1
             id="hero-heading"
-            className="text-4xl font-semibold tracking-tight sm:text-5xl"
+            className="font-display text-4xl font-semibold tracking-tight sm:text-5xl"
           >
             Qiwi Chee
           </h1>
-          <p className="mt-4 max-w-xl text-lg text-zinc-600">
+          <p className="mt-4 max-w-xl text-lg text-muted">
             Franco-Algerian-American singer-songwriter based in Paris. Hybrid pop
             in French and English.
           </p>
@@ -87,18 +87,18 @@ export default function Home() {
 
         <section
           id="music"
-          className="border-t border-zinc-200 py-16"
+          className="border-t border-border py-16"
           aria-labelledby="music-heading"
         >
-          <h2 id="music-heading" className="text-2xl font-semibold tracking-tight">
+          <h2 id="music-heading" className="font-display text-2xl font-semibold tracking-tight">
             Music
           </h2>
-          <p className="mt-4 text-zinc-600">Listen on your platform of choice.</p>
+          <p className="mt-4 text-muted">Listen on your platform of choice.</p>
           <ul className="mt-6 flex flex-wrap gap-4 text-sm">
             {artist.links.map(({ name, href }) => (
               <li key={name}>
                 <ExternalLink
-                  className="rounded-md border border-zinc-300 px-4 py-2 hover:bg-zinc-50"
+                  className="rounded-md border border-border px-4 py-2 hover:bg-surface"
                   href={href}
                 >
                   {name}
@@ -110,21 +110,21 @@ export default function Home() {
 
         <section
           id="about"
-          className="border-t border-zinc-200 py-16"
+          className="border-t border-border py-16"
           aria-labelledby="about-heading"
         >
-          <h2 id="about-heading" className="text-2xl font-semibold tracking-tight">
+          <h2 id="about-heading" className="font-display text-2xl font-semibold tracking-tight">
             About
           </h2>
-          <p className="mt-4 max-w-xl text-zinc-600">
+          <p className="mt-4 max-w-xl text-muted">
             Placeholder bio. Replace this with Qiwi Chee&rsquo;s real story once
             the structure is confirmed.
           </p>
         </section>
       </main>
 
-      <footer className="border-t border-zinc-200">
-        <div className="mx-auto max-w-3xl px-6 py-8 text-sm text-zinc-500">
+      <footer className="border-t border-border">
+        <div className="mx-auto max-w-3xl px-6 py-8 text-sm text-muted">
           <p>&copy; {new Date().getFullYear()} Qiwi Chee. All rights reserved.</p>
         </div>
       </footer>

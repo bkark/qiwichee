@@ -22,6 +22,7 @@ const artist = {
   links: [
     { name: "Spotify",     href: "https://open.spotify.com/artist/4Bu89sfVzy14qW0dK8Ugbs" },
     { name: "Apple Music", href: "https://music.apple.com/fr/artist/qiwi-chee/1676154343" },
+    { name: "Deezer",      href: "https://www.deezer.com/fr/artist/204585817" },
     { name: "YouTube",     href: "https://www.youtube.com/@qiwichee" },
     { name: "Bandcamp",    href: "https://qiwichee.bandcamp.com/" },
     { name: "Instagram",   href: "https://www.instagram.com/qiwichee/" },

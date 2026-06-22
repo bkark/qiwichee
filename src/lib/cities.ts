@@ -1,0 +1,18 @@
+export const FR_CITIES: string[] = [
+  'Paris', 'Lyon', 'Marseille', 'Toulouse', 'Bordeaux',
+  'Lille', 'Nantes', 'Strasbourg', 'Rennes', 'Montpellier',
+  'Nice', 'Grenoble', 'Toulon', 'Dijon', 'Angers',
+  'Reims', 'Metz', 'Brest', 'Le Havre', 'Rouen',
+  'Clermont-Ferrand', 'Saint-Étienne', 'Amiens', 'Limoges', 'Tours',
+  'Caen', 'Orléans', 'Mulhouse', 'Perpignan', 'Besançon',
+  'Nancy', 'Pau', 'Nîmes', 'Avignon', 'Villeurbanne',
+  'Aix-en-Provence', 'Boulogne-Billancourt', 'Cannes', 'Antibes', 'Saint-Nazaire',
+  'Dunkerque', 'Colmar', 'Troyes', 'Lorient', 'Annecy',
+  'Argenteuil', 'Montreuil', 'Versailles', 'Nanterre', 'Créteil',
+  'Poitiers', 'Mérignac', 'Pessac', 'La Rochelle', 'Ajaccio',
+  'Quimper', 'Chartres', 'Valence', 'Montauban', 'Calais',
+  'Bourges', 'Béziers', 'Évreux', 'Chambéry', 'Niort',
+  'Vannes', 'Laval', 'Le Mans', 'Bayonne', 'Thionville',
+  'Cergy', 'Évry-Courcouronnes', 'Clichy', 'La Seyne-sur-Mer', 'Vitry-sur-Seine',
+  'Asnières-sur-Seine', 'Saint-Denis', 'Rueil-Malmaison', 'Champigny-sur-Marne', 'Aubervilliers',
+]

@@ -1,4 +1,5 @@
 import ExternalLink from "./components/ExternalLink";
+import AtelierGate from "@/components/AtelierGate";
 
 // ─────────────────────────────────────────────────────────────
 // ARTIST DATA — the ONLY block that changes per artist in the
@@ -41,7 +42,11 @@ const musicGroupSchema = {
   sameAs: artist.sameAs,
 };
 
-export default function Home() {
+// searchParams carries error codes forwarded from the auth callback
+type SearchParams = Promise<{ error?: string }>
+
+export default async function Home({ searchParams }: { searchParams: SearchParams }) {
+  const { error } = await searchParams;
   return (
     <div className="min-h-screen bg-bg text-text">
       {/* Structured data — invisible to humans, read by crawlers/AI */}
@@ -84,6 +89,8 @@ export default function Home() {
             in French and English.
           </p>
         </section>
+
+        <AtelierGate initialError={error} />
 
         <section
           id="music"

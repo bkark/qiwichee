@@ -60,12 +60,13 @@ export default function AtelierGate({ initialError }: AtelierGateProps) {
 
         <form onSubmit={handleSubmit} noValidate className="mt-6 flex flex-col gap-4">
           {/* Honeypot — hidden from real users, traps bots */}
-          <div aria-hidden="true" className="sr-only">
+          <div className="sr-only">
             <label htmlFor="website">Website</label>
             <input
               id="website"
               name="website"
               type="text"
+              aria-hidden="true"
               value={honeypot}
               onChange={(e) => setHoneypot(e.target.value)}
               tabIndex={-1}

@@ -6,11 +6,10 @@ import { createClient } from '@/lib/supabase/client'
 import CitiesPicker from '@/components/CitiesPicker'
 
 interface AtelierContentProps {
-  userId: string
   initialCities: string[]
 }
 
-export default function AtelierContent({ userId, initialCities }: AtelierContentProps) {
+export default function AtelierContent({ initialCities }: AtelierContentProps) {
   const [cities, setCities] = useState<string[]>(initialCities)
   const [saving, setSaving] = useState(false)
   const [saveStatus, setSaveStatus] = useState<'idle' | 'saved' | 'error'>('idle')
@@ -21,10 +20,17 @@ export default function AtelierContent({ userId, initialCities }: AtelierContent
     setSaveStatus('idle')
 
     const supabase = createClient()
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) {
+      setSaving(false)
+      setSaveStatus('error')
+      return
+    }
+
     const { error } = await supabase
       .from('fans')
-      .update({ cities })
-      .eq('id', userId)
+      .update({ cities: cities as string[] })
+      .eq('id', user.id)
 
     setSaving(false)
     setSaveStatus(error ? 'error' : 'saved')

@@ -36,7 +36,7 @@ export default async function AtelierPage() {
           </span>
         </header>
 
-        <AtelierContent userId={user.id} initialCities={cities} />
+        <AtelierContent initialCities={cities} />
 
         {/* Coming-soon placeholder */}
         <section

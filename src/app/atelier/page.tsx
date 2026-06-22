@@ -25,18 +25,7 @@ export default async function AtelierPage() {
   return (
     <div className="min-h-screen bg-bg text-text">
       <main className="mx-auto max-w-3xl px-6 py-16">
-        {/* Header */}
-        <header className="border-b border-border pb-8">
-          <h1 className="font-display text-3xl font-semibold tracking-tight">
-            Bienvenue, {nickname}
-          </h1>
-          {/* Status badge — bg-accent-warm gives contrast-passing dark text on yellow */}
-          <span className="mt-2 inline-block rounded-full bg-accent-warm px-3 py-0.5 text-xs font-medium text-accent-warm-contrast">
-            {status}
-          </span>
-        </header>
-
-        <AtelierContent initialCities={cities} />
+        <AtelierContent initialNickname={nickname} initialCities={cities} status={status} />
 
         {/* Coming-soon placeholder */}
         <section

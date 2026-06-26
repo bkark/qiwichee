@@ -8,8 +8,8 @@
   --text-muted:           #5C3944; /* muted plum — secondary text */
   --border:               #CBD3E7; /* periwinkle — DECORATIVE dividers only (exempt from 3:1) */
   --border-strong:        #6671A8; /* FUNCTIONAL input outlines — 3.92:1 vs --bg (AA non-text ✓) */
-  --accent:               #4453B5; /* deepened periwinkle — buttons / links (white text) */
-  --accent-bright:        #99AADB; /* vivid periwinkle — DECORATIVE only */
+  --accent:               #7A3B8C; /* deepened prune — buttons / links (white text) */
+  --accent-bright:        #B968CC; /* vivid orchid — DECORATIVE only */
   --accent-contrast:      #FFFFFF; /* text/icon ON --accent */
   --accent-warm:          #DF9DB0; /* dusty rose — badges / status (DARK text) */
   --accent-warm-contrast: #1F0610; /* dark text ON --accent-warm */

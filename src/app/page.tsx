@@ -1,5 +1,7 @@
 import ExternalLink from "./components/ExternalLink";
 import AtelierGate from "@/components/AtelierGate";
+import EmbedPlayer from "./components/EmbedPlayer";
+import type { MediaAsset } from "@/lib/media/types";
 
 // ─────────────────────────────────────────────────────────────
 // ARTIST DATA — the ONLY block that changes per artist in the
@@ -30,6 +32,13 @@ const artist = {
   ],
 };
 
+const lullabies: MediaAsset = {
+  provider: 'youtube',
+  assetId: 'L0mHWXa2UyQ',
+  type: 'video',
+  title: 'Qiwi Chee — Lullabies (clip officiel)',
+};
+
 // schema.org MusicGroup — machine-readable identity card.
 // Server-rendered into the page so crawlers and AI agents read it directly.
 const musicGroupSchema = {
@@ -40,6 +49,17 @@ const musicGroupSchema = {
   genre: artist.genre,
   description: artist.description,
   sameAs: artist.sameAs,
+};
+
+// VideoObject JSON-LD — server-rendered; client interactivity isolated to EmbedPlayer.
+// thumbnailUrl omitted until a local still is committed to public/.
+const videoObjectSchema = {
+  "@context": "https://schema.org",
+  "@type": "VideoObject",
+  name: lullabies.title,
+  description: "Le clip officiel de Lullabies par Qiwi Chee.",
+  embedUrl: `https://www.youtube-nocookie.com/embed/${lullabies.assetId}`,
+  contentUrl: `https://youtu.be/${lullabies.assetId}`,
 };
 
 // searchParams carries error codes forwarded from the auth callback
@@ -53,6 +73,10 @@ export default async function Home({ searchParams }: { searchParams: SearchParam
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(musicGroupSchema) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(videoObjectSchema) }}
       />
 
       <header className="border-b border-border">
@@ -101,6 +125,12 @@ export default async function Home({ searchParams }: { searchParams: SearchParam
             Music
           </h2>
           <p className="mt-4 text-muted">Listen on your platform of choice.</p>
+          <div className="mt-6">
+            <EmbedPlayer
+              asset={lullabies}
+              posterAlt="Qiwi Chee — Lullabies, clip officiel"
+            />
+          </div>
           <ul className="mt-6 flex flex-wrap gap-4 text-sm">
             {artist.links.map(({ name, href }) => (
               <li key={name}>

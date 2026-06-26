@@ -4,6 +4,16 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import CitiesPicker from '@/components/CitiesPicker'
+import EmbedPlayer from '@/app/components/EmbedPlayer'
+import type { MediaAsset } from '@/lib/media/types'
+
+// UNLOCK: when the unlisted YouTube ID arrives → set assetId and remove `locked`
+const insiderClip: MediaAsset = {
+  provider: 'youtube',
+  assetId: '',
+  type: 'video',
+  title: 'Concert privé — clip Atelier',
+}
 
 interface AtelierContentProps {
   initialNickname: string
@@ -65,6 +75,26 @@ export default function AtelierContent({ initialNickname, initialCities, status 
       </header>
 
       <div className="mt-8 flex flex-col gap-8">
+        {/* Insider clip — locked until the unlisted YouTube ID arrives */}
+        <section aria-labelledby="insider-heading" className="border-t border-border pt-8">
+          <h2
+            id="insider-heading"
+            className="font-display text-lg font-semibold tracking-tight text-text"
+          >
+            Exclusivité Atelier
+          </h2>
+          <div className="mt-4">
+            <EmbedPlayer
+              asset={insiderClip}
+              poster="/qiwichee_atelier_cover_80s.jpg"
+              posterAlt="Qiwi Chee en concert, bannière peinte « Release + Decay »"
+              locked
+              lockedLabel="Bientôt — réservé à l'Atelier"
+              caption="Un extrait qui n'existe nulle part ailleurs."
+            />
+          </div>
+        </section>
+
         {/* Profile — nickname + cities, one combined save */}
         <section aria-labelledby="profile-heading" className="border-t border-border pt-8">
           <h2

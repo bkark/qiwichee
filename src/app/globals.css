@@ -1,18 +1,19 @@
 @import "tailwindcss";
 
 :root {
-  /* ── Qiwichee palette (artist theme #1) ── */
-  --bg:                   #EAF4F8; /* pale aqua water */
+  /* ── Qiwichee palette · DEFAULT = "Lullabies" (artist theme #1, constant identity) ── */
+  --bg:                   #E8EBF5; /* pale periwinkle sky */
   --surface:              #FFFFFF; /* cards / raised */
-  --text:                 #14181C; /* dark water / hair */
-  --text-muted:           #566B73; /* cool secondary text */
-  --border:               #CFE2E9; /* aqua hairline */
-  --accent:               #1257D6; /* deep electric blue */
-  --accent-bright:        #2E8BFF; /* vivid azure — decorative only */
+  --text:                 #1F0610; /* deep plum-black hair */
+  --text-muted:           #5C3944; /* muted plum — secondary text */
+  --border:               #CBD3E7; /* periwinkle — DECORATIVE dividers only (exempt from 3:1) */
+  --border-strong:        #6671A8; /* FUNCTIONAL input outlines — 3.92:1 vs --bg (AA non-text ✓) */
+  --accent:               #4453B5; /* deepened periwinkle — buttons / links (white text) */
+  --accent-bright:        #99AADB; /* vivid periwinkle — DECORATIVE only */
   --accent-contrast:      #FFFFFF; /* text/icon ON --accent */
-  --accent-warm:          #F2B705; /* poppy/citrus yellow */
-  --accent-warm-contrast: #1A1405; /* dark text ON --accent-warm */
-  --accent-soft:          #E86B9A; /* blossom pink — decorative/tertiary */
+  --accent-warm:          #DF9DB0; /* dusty rose — badges / status (DARK text) */
+  --accent-warm-contrast: #1F0610; /* dark text ON --accent-warm */
+  --accent-soft:          #FACFB7; /* peach — DECORATIVE / tertiary */
   --font-display:         var(--font-bricolage);
   --font-body:            var(--font-inter);
 }
@@ -23,6 +24,7 @@
   --color-text:                 var(--text);
   --color-muted:                var(--text-muted);
   --color-border:               var(--border);
+  --color-border-strong:        var(--border-strong);
   --color-accent:               var(--accent);
   --color-accent-bright:        var(--accent-bright);
   --color-accent-contrast:      var(--accent-contrast);
@@ -32,6 +34,30 @@
   --font-display:               var(--font-bricolage);
   --font-body:                  var(--font-inter);
 }
+
+/* ── Per-release palette architecture ───────────────────────────────
+   The :root values above are the CONSTANT identity ("Lullabies").
+   A release section wraps its content in <div data-release="NAME"> and
+   overrides ONLY accent tokens. Structure tokens (bg / surface / text /
+   border / border-strong) stay constant so layout + contrast never
+   regress between sections.
+   NEVER wrap the Atelier gate — it is the front door, always the default.
+   Any real per-release palette MUST be AA-verified before going live. */
+[data-release] {
+  transition:
+    background-color 0.4s ease,
+    border-color     0.4s ease,
+    color            0.4s ease;
+}
+
+/* Template — copy, rename, fill with AA-verified accents, then uncomment:
+[data-release="lei-lani"] {
+  --accent:        #______;
+  --accent-bright: #______;
+  --accent-warm:   #______;
+  --accent-soft:   #______;
+}
+*/
 
 body {
   background: var(--bg);

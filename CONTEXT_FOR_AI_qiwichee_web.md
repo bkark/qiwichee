@@ -1,455 +1,485 @@
 # Résonance — AI Context File
 > Paste/upload this at the start of any new conversation to resume instantly.
 
-**Last updated:** 2026-06-20 — Homepage build session
-**Status:** qiwichee.com LIVE on Vercel (4 domains, SSL) ✅ · Homepage built ✅
-**Next session goal:** Bilingual FR/EN refactor (next-intl + [locale] route)
+**Last updated:** 2026-06-26 — DMARC LIVE (p=none, verified resolving) → full SPF+DKIM+DMARC stack COMPLETE. EMBEDPLAYER built + shipped (reusable lazy/consent provider-agnostic player; public Lullabies MV on front + LOCKED insider stub behind the gate; front thumbnail DEFERRED). EVENT-ENGINE SQL (docs/briefs/event_engine.sql) confirmed real + committed beside its brief — but UNRUN (verified in DB: 0 of 4 tables exist). LULLABIES PALETTE still pending apply. DYNAMIC PER-RELEASE PALETTE decided feasible. INSIDER CONTENT plan = two layers.
+**Status:** qiwichee.com LIVE (4 domains, SSL) ✅ · Homepage ✅ · 6 platform links ✅ · Theme-token layer ✅ · **Atelier gate (magic-link login + editable profile + status badge) ✅ tested** · **SPF+DKIM+DMARC ✅ COMPLETE** · **EmbedPlayer ✅ shipped** (front MV live + locked insider card) · Lullabies palette ✅ extracted+verified (apply pending) · Insider cover frame ✅ chosen · Event-engine SQL ✅ committed, ⛔ UNRUN
+**Next session goal:** Apply the **Lullabies palette** as the new default + stand up the `[data-release]` override architecture (lock the functional-input border token ≥3:1; bundle "Hybrid pop → Alternative Pop" text). Insider area still BLOCKED on an UNLISTED YouTube clip ID from Qiwi Chee (one-line flip at the `// UNLOCK:` marker once it arrives). Event engine still queued after the insider area (run event_engine.sql + seed owners row when built). Front MV thumbnail still to add (local poster, no 3rd-party fetch). Also pending from her: confirm band/song rights on the clip.
 
 ---
 
-## ⚡ CURRENT BUILD STATE (2026-06-20)
+## ⚡ THE PIVOT (read first — overrides older sequencing)
 
+The product is a **machine in the artist's hands to get fans to sign up and organize tiny concerts** — an insider community that grows itself. NOT "a nice artist website with a GUSO tool bolted on."
+
+Older files said *finish site → GUSO calculator → platform*, with GUSO as the "killer feature/hook." **That sequence is reversed.** GUSO/CDDU is a *retention/upsell* feature. The **fan machine is the acquisition hook** — visible, momentum-creating; an artist using it visibly is how we recruit the next beta tester. Acquire with the machine; deepen + monetize with the paperwork.
+
+### Two phases (locked)
 ```
-DONE THIS SESSION:
-├── Claude Code installed (v2.1.183) + authenticated (Claude Pro)
-├── CLAUDE.md startup-config committed at repo root
-├── XDG folder map repaired + Chrome download dir fixed (~/Downloads)
-├── Homepage built: src/app/page.tsx + layout.tsx
-│   ├── Semantic structure (header/main/footer, h1/h2, aria labels)
-│   ├── Server-rendered (no "use client") — crawlers/AI see full HTML
-│   ├── Metadata export (title template, description, OG)
-│   └── MusicGroup JSON-LD with 5 verified sameAs URLs
-└── Committed (7315470) + pushed + auto-deployed to Vercel
-
-NEXT, IN ORDER:
-├── 1. Bilingual FR/EN refactor (next-intl, wrap in [locale] segment)
-├── 2. Real bio text + images (replace placeholders, alt text)
-├── 3. Accessibility statement page + robots.txt (allow AI crawlers)
-├── 4. → Homepage template DONE
-└── 5. → GUSO social-charge calculator (first free wedge tool)
+PHASE 1 — THE FAN MACHINE  (build now, money-free, no paperwork)
+  Atelier gate → alive insider area → tiny-concert organizing (online → live)
+  → per-teaser tracked links → in-page media embeds.
+PHASE 2 — THE PAPERWORK LAYER  (the upsell)
+  GUSO / CDDU / intermittence 507h, formal & paid concerts, money flows. Triggered
+  when tiny concerts become real/paid gigs at real venues. CAE/legal track MUST be live.
 ```
 
-### ⚠️ TEMPLATE GOTCHA — Next.js 16 OpenGraph
+### The flywheel
 ```
-Next.js 16 REJECTS og:type "music.musician" at RUNTIME (validates
-against its own hardcoded list). A TypeScript cast does NOT bypass it.
-→ Use og:type "website" (or "profile").
-→ The MusicGroup JSON-LD carries the musician signal instead — that's
-  the real discoverability workhorse anyway. OG type is just preview cards.
-LESSON: `as X` silences compile-time types only; runtime validators
-        need the value itself to be valid.
+Social teaser → fan signs up to Atelier → insider → insiders fund + organize the next tiny
+concert → concert (QR / gated stream) recruits the NEXT batch → they sign up → ↺.
+Qiwi Chee running this VISIBLY = our beta-tester acquisition. Product = marketing.
+The owner dashboard's fan numbers ARE the pitch she shows other artists → referral growth.
 ```
 
----
-
-## 🎵 VERIFIED ARTIST PROFILES — Qiwi Chee (sameAs)
-
+### The single load-bearing idea
 ```
-Confirmed to her (cross-checked: Hybrid Fruit EP, 🇩🇿🇫🇷🇺🇲 bio, Leï Lani rebrand):
-├── Spotify:   https://open.spotify.com/artist/4Bu89sfVzy14qW0dK8Ugbs
-├── Instagram: https://www.instagram.com/qiwichee/
-├── Bandcamp:  https://qiwichee.bandcamp.com/
-├── YouTube:   https://www.youtube.com/@qiwichee  (ID UCR8h9_VrE-mTa-wekiB6luA)
-└── Links hub: https://msha.ke/qiwichee/
-
-NOT used (kept sameAs clean — one authoritative YouTube entry):
-├── youtube.com/c/LEILANIMUSIC  (old vanity URL, superseded by @qiwichee)
-└── YouTube "- Topic" channel UCAGC-ebmLl1lCQEcSAVb-5g (auto-generated audio)
-
-TODO: Deezer + Apple Music URLs exist on her msha.ke hub — add when canonical
-      URLs confirmed. Once qiwichee.com is the hub, point sameAs there.
-Bio (verbatim, her own): "Auteur/Compositeur-Interprète Franco-algériano-
-americaine · Hybrid pop · Paris." Identity: any pronouns fine.
+Capture the relationship BEFORE sending anyone off to listen. The Atelier gate is the CENTER:
+all above it exists to fill it; all below exists because it filled. For a LIVE event the gate
+is the mechanism, not friction — "the stream link is inside" makes the gate a door to scarcity.
 ```
 
 ---
 
-## VISION STATEMENT
+## ✅ CURRENT BUILD STATE (2026-06-26)
 
 ```
-RÉSONANCE is not just a tool.
-It is a cooperative cultural infrastructure
-connecting artists, fans, venues, collaborators,
-professionals and institutions.
+DONE — THEME-TOKEN FOUNDATION (current palette = aqua/blue underwater; to be REPLACED by Lullabies):
+├── Semantic tokens in globals.css :root, Tailwind 4 @theme inline. Bricolage + Inter via
+│   next/font. ZERO raw hex in components. WCAG AA verified. Deployed.
 
-Grows through: shared fanbase graph · shared venue network ·
-shared professional marketplace · shared data + AI automation ·
-collective intelligence over time. This is the North Star.
+DONE & TESTED — ATELIER ACCESS GATE (the heart of the machine):
+├── Email front door → Supabase magic link (passwordless). New→/atelier/welcome (nickname +
+│   optional cities)→/atelier; returning→/atelier. Editable nickname + multi-city picker, one save.
+├── visit_count via touch_fan RPC; status badge Nouveau→Habitué→Fidèle→Pilier (--accent-warm).
+├── Mailchimp sync in callback. Honeypot + Zod + server-only key. RLS own-row. Tested end-to-end.
+
+DONE — EMAIL DELIVERABILITY — FULL STACK COMPLETE (DMARC added 2026-06-26):
+├── mail-tester.com = 9.5/10. SPF_PASS · DKIM valid + DKIM_VALID_AU + DKIM_VALID_EF (aligned to
+│   domain & envelope) · OVH outbound IP on Mailspike whitelist, not blocklisted.
+├── DMARC now LIVE: _dmarc TXT "v=DMARC1; p=none; rua=mailto:hello@qiwichee.com" — verified
+│   resolving publicly (dig +short TXT _dmarc.qiwichee.com). Monitor-only, zero delivery risk.
+│   FUTURE (optional, much later): tighten p=none → quarantine → reject after reviewing rua reports.
+└── Ignore mail-tester's HTML nitpicks (bare test email, not the real Supabase template).
+
+DONE — EMBEDPLAYER (reusable lazy/consent media player) — SHIPPED 2026-06-26:
+├── Files: src/lib/media/types.ts (MediaProvider|MediaType|MediaAsset) · src/lib/media/mediaService.ts
+│   (getEmbedUrl → youtube-nocookie embed; bandcamp stubbed/throws; exhaustiveness check) ·
+│   src/app/components/EmbedPlayer.tsx ("use client"; poster-first, iframe mounts ONLY on click;
+│   keyboard <button> aria-label "Lire : {title}"; focus-visible ring; locked variant; tokens only).
+├── PLACEMENT 1 (front, public): page.tsx — lullabies MediaAsset {youtube, 'L0mHWXa2UyQ', video} in the
+│   Music section + server-rendered VideoObject JSON-LD beside MusicGroup. NO poster yet → shows the
+│   token-styled placeholder (grey box). Plays on click. ← THUMBNAIL DEFERRED (add local poster later).
+├── PLACEMENT 2 (insider, LOCKED): AtelierContent.tsx — "Exclusivité Atelier" section, locked EmbedPlayer,
+│   poster /qiwichee_atelier_cover_80s.jpg, assetId '' empty, // UNLOCK: comment marker at the call site.
+└── VERIFIED: hex grep clean (nothing outside :root); lazy/consent confirmed (no youtube-nocookie.com
+    request until click — iframe src only set after play). Committed + deployed (live).
+
+DONE — LULLABIES PALETTE (extracted from her video, AA-verified — APPLY PENDING):
+├── Source: official MV still youtu.be/L0mHWXa2UyQ. Dominant colours pulled from real pixels:
+│   peach skin, near-black plum hair, periwinkle sky, dusty rose, periwinkle-blue.
+├── This REPLACES the aqua/blue palette (full :root swap, per the re-skin plan). Values below.
+└── Bundle the "Hybrid pop → Alternative Pop" genre text change into the same apply pass.
+
+DONE — INSIDER CONTENT plan (two layers) + COVER FRAME:
+├── PUBLIC bait (front, ungated): the Lullabies official MV — polished, already public. (Now wired via EmbedPlayer.)
+├── INSIDER reward (behind gate): a PRIVATE concert clip she sent (NOT on YouTube yet) — precisely
+│   because it's nowhere else. Cover frame chosen at 80s (vocalist + hand-painted "Release + Decay"
+│   banner), saved as qiwichee_atelier_cover_80s.jpg → now the LOCKED insider card; swaps to video later.
+└── Clip facts: VID-20251117-WA0000.mp4, 848×480, ~128s, h264/aac, WhatsApp-compressed (lo-fi suits
+    the "alive, unfinished, inside" feel). RIGHTS FLAG: band/drummer in frame + song clearance must be
+    confirmed before any PUBLIC use; insider-gated use is lower-stakes but consent still applies.
+
+DONE (spec stored) — EVENT ENGINE SQL committed but UNRUN:
+├── docs/briefs/event_engine.sql sits beside docs/briefs/tiny_concert_engine.md (matched pair).
+├── Verified against the DB 2026-06-26: 0 of 4 tables exist (owners/events/event_access/rsvps) → NOT applied.
+│   This is the correct state — event engine is queued AFTER the insider area.
+└── When building: run the SQL top-to-bottom in the Supabase editor, THEN seed the owners row with the
+    artist auth UID (is_owner() is false for everyone, /atelier/artiste 404s for you too, until that row exists).
+
+NEXT, IN ORDER (Phase 1 machine):
+├── 1. APPLY LULLABIES PALETTE + [data-release] override architecture (unblocked, do this next).
+├── 2. ALIVE INSIDER AREA — reward behind the gate. Locked stub LIVE; BLOCKED on her UNLISTED clip ID
+│      (upload private clip Unlisted → send ID → flip `locked`→false + set assetId at the // UNLOCK marker).
+├── 3. EVENT ENGINE (tiny-concert) — SQL + BRIEF READY in docs/briefs/. Run SQL → seed owner → build owner UI.
+├── 4. PER-TEASER TRACKED LINKS — each clip its own link → lands on the gate → shows what converted.
+├── 5. IN-PAGE MEDIA EMBEDS — extend EmbedPlayer to the public leads (Bandcamp full + YouTube clip).
+└── 6. FRONT MV THUMBNAIL — add a local poster still to public/ + pass via the poster prop (no 3rd-party fetch).
+
+PENDING FROM QIWI CHEE (parked):
+├── Upload the private concert clip to YouTube as UNLISTED → send the video ID (unblocks insider area).
+├── Confirm: band OK to appear + the performed song is hers / cleared (rights on the clip).
+└── (Bundle w/ palette apply) Genre wording "Hybrid pop" → "Alternative Pop" everywhere.
 ```
 
----
+### Qiwichee theme — token values
 
-## NAMING CONVENTION
-
+**CURRENT (deployed, aqua/blue underwater — being replaced):**
 ```
-RÉSONANCE = the platform (the SaaS product)
-QIWICHEE  = one artist's instance of Résonance (reference template)
-
-GitHub repos:
-├── bkark/qiwichee — current (proof of concept + template)
-└── bkark/resonance-platform — future (the product, after beta)
+--bg #EAF4F8 · --surface #FFFFFF · --text #14181C · --text-muted #566B73 · --border #CFE2E9 ·
+--accent #1257D6 · --accent-bright #2E8BFF (decorative) · --accent-contrast #FFFFFF ·
+--accent-warm #F2B705 · --accent-warm-contrast #1A1405 · --accent-soft #E86B9A (decorative).
 ```
 
----
-
-## STANDING BUILD REQUIREMENTS — apply to EVERY page
-
+**NEW DEFAULT — LULLABIES (extracted + AA-verified 2026-06-24, APPLY PENDING):**
 ```
-THREE-IN-ONE FOUNDATION (one layer, not three jobs):
-├── SEO — server-rendered semantic HTML + metadata + sitemap + hreflang
-├── WCAG 2.1 AA accessibility — alt text, keyboard nav, color contrast,
-│   visible focus, accessibility statement page
-└── AI-agent discoverability — complete server-rendered schema.org JSON-LD
-    (MusicGroup, MusicEvent); robots.txt ALLOW AI crawlers (ClaudeBot, GPTBot)
-
-Build in from the start — costly to retrofit. Next.js SSR gives the
-server-rendered base for free; JSON-LD + a11y attrs are the deliberate adds.
+--bg #E8EBF5 (pale periwinkle sky) · --surface #FFFFFF · --text #1F0610 (deep plum-black hair) ·
+--text-muted #5C3944 (muted plum) · --border #CBD3E7 (periwinkle; DECORATIVE dividers) ·
+--accent #4453B5 (DEEPENED periwinkle — buttons/links, white text) ·
+--accent-bright #99AADB (vivid periwinkle — DECORATIVE only) · --accent-contrast #FFFFFF ·
+--accent-warm #DF9DB0 (dusty rose — badges/status, DARK text) · --accent-warm-contrast #1F0610 ·
+--accent-soft #FACFB7 (peach — DECORATIVE/tertiary).
+AA verified: text/bg 16.15 · muted/bg 8.30 · text/surface 19.23 · link(accent)/bg 5.60 ·
+white/accent 6.67 · dark/warm 8.78.
+NOTE: --border #CBD3E7 is for DECORATIVE dividers (exempt from 3:1). FUNCTIONAL input outlines
+(sole boundary of a control) need a deepened border token ≥3:1 vs --bg — LOCK its value at apply time.
 ```
 
----
-
-## MVP POSITIONING
-
+### DYNAMIC PER-RELEASE PALETTE — DECISION (2026-06-24): feasible, do it (curated)
 ```
-"The first platform that automates GUSO, CDDU and intermittent du
- spectacle for independent French artists — while giving them a
- professional bilingual website and simple concert management."
-
-Beta hook: GUSO + CDDU + intermittent + website + concerts + feuille de route.
-Crowdfunding is a bonus — NOT the hook.
-```
-
----
-
-## THREE USER ROLES (RBAC via Supabase RLS)
-
-```
-OWNER (Artist) — full: legal, finance, team, content, GUSO/CDDU, fan list
-COLLABORATOR (Staff/Band/Pro) — feuille de route, own CDDU/payments;
-                                NOT GUSO or financial data
-MEMBER (Fan — "ATELIER") — own guest-list status only + Atelier content;
-                           NO legal/financial data
-```
-
----
-
-## MVP = FOUR MODULES + ONBOARDING
-
-```
-/onboarding (build first) — AI wizard, legacy URL scraper, FR↔EN translate,
-                            auto-populate Sanity, <15 min to live
-/website   — bilingual FR/EN, music player, fan signup (Mailchimp),
-             Sanity CMS, Atelier gated area, PWA
-/concerts  — create concert (paid OR free), public page + QR signup,
-             ticket link, feuille de route (LIVE CHECKLIST not PDF),
-             stage plot, rider, GUSO (paid AND free), CDDU + YouSign,
-             guest list (RLS)
-/legal (KILLER FEATURE — build LAST, lawyer FIRST) — GUSO/CDDU/intermittent
-             507h tracker, compliance dashboard
-```
-
----
-
-## CONCERT PLANNER & WHAT-IF ENGINE (summary)
-
-```
-Problem (confirmed by Qiwi Chee): "how much will this concert cost?
-which venue fits budget/audience? what if €15 vs €20? lose money at 40 people?"
-
-What-if simulator: ticket price / attendance / band fees / promo sliders →
-revenue, costs, profit/loss, break-even update live. AI suggests when in deficit.
-
-AI Concert Planner agent: plain-language goal → Safe / Balanced / Ambitious
-scenarios with break-even + reasoning.
-
-Venue contact workflow: pre-filled inquiry email → track sent/response/quote →
-data saved to venue profile → future artists benefit.
-
-Post-concert learning loop: actual vs projected attendance/revenue, venue
-rating, would-return → platform learns estimation accuracy + venue fit.
-
-Tables: concert_scenarios, venue_inquiries, concert_reviews,
-        venues (+ rental_cost, pa_included, capacity, typical_genres, rating).
-```
-
----
-
-## CO-EVENTS (multi-artist concerts) — summary
-
-```
-Multiple artists, one venue/event/feuille de route, SEPARATE legal docs.
-Running order by fanbase size (smaller opens). Combined crowdfunding.
-Viral growth: invite artist not on platform → they join free.
-Tables: co_events, co_event_artists, co_event_costs, co_event_cost_shares.
+The token layer (zero raw hex, everything reads CSS vars) makes per-content theming nearly free:
+scope variable overrides on a wrapper and the cascade re-themes everything, no component changes.
+  [data-release="lei-lani"] { --bg:…; --accent:…; }  + transition for a smooth fade between sections.
+RULE: move only ACCENT tokens per release; keep STRUCTURE tokens (text/surface/border) in a tight
+family AND keep the Atelier GATE on the constant palette (it's the home/front door). "Identity stays,
+songs change." Curated per-release palettes (hand-picked, AA-verified) — NOT auto-extraction yet.
+The Lullabies palette becomes the DEFAULT; per-release palettes are overrides layered on top.
+Auto "palette-from-photo" extractor stays PARKED for /onboarding (auto-colours fail AA without a guard).
+Implement the default+override architecture in the same pass as the Lullabies apply (no rebuild later).
 ```
 
 ---
 
-## CONTENT STUDIO (social engine) — summary
-
+## 🛑 STANDING DB RULE — GRANTS ON RAW-SQL TABLES (hard-won, 2026-06-22)
 ```
-"Upload once → posts everywhere." Raw video → AI finds best moments →
-all formats (Reel/Story/Post/TikTok/Shorts) → bilingual captions →
-optimal times → approve → auto-post.
-Agents: content-analyzer (timestamped best moments), content-writer (captions).
-Privacy flags: band-member consent, background-music rights, venue restrictions.
-Stack: Cloudflare Stream + Claude vision + Whisper. ~€0.50-2/artist/month.
-Tables: content_pieces, content_clips, social_accounts.
-```
-
----
-
-## ENTERTAINERS BEYOND MUSICIANS
-
-```
-Discipline picked at onboarding → platform adapts:
-├── Musicians → SACEM
-├── Comedians/Theatre/Circus → SACD
-└── Rider templates + content suggestions per discipline
-GUSO/CDDU/intermittent = same for ALL performing artists. Killer feature for all.
+Tables created via the SQL editor start with NO role grants. RLS alone is NOT enough — Postgres
+checks TABLE-LEVEL grants FIRST, then RLS. A missing grant returns the SAME 42501/403 as RLS.
+RULE: every table the app writes to → final line:  grant select, insert, update on public.<t> to authenticated;
+(delete only if the client legitimately deletes; never anon unless truly needed.)
+DELIBERATE EXCEPTION (secret-hiding pattern): a table holding secrets the client must NEVER read
+(e.g. event_access.join-link) gets NO client grant + NO select policy; it's reachable ONLY via a
+security-definer RPC that authorizes the caller. See EVENT ENGINE.
+DIAGNOSIS: 42501 + valid Bearer + correct policy = missing grant. Read the Postgres error BODY.
+VERIFY-DON'T-ASSUME: a committed .sql file is NOT a built schema. Check the DB (information_schema.tables)
+before assuming a module is applied — event_engine.sql lived in the repo committed-but-UNRUN.
 ```
 
 ---
 
-## COVER ARTISTS & VISUAL CREATORS — summary
-
+## 🎟️ EVENT ENGINE (tiny-concert) — SQL + BRIEF READY (docs/briefs/), next major build after insider area
 ```
-Auto-generated Artwork Brief from recording project (mood, palette, refs,
-formats, budget, deadline) → marketplace → cover artists apply → Stripe
-on approval, 10-15% commission. Cover artist = COLLABORATOR (artwork tasks only).
-```
+Files: docs/briefs/tiny_concert_engine.md (full Claude Code brief) + docs/briefs/event_engine.sql
+(the schema — committed, UNRUN; 0/4 tables exist as of 2026-06-26). Summary of the locked design:
 
----
+ONE event object, three TYPES: 'stream' (she performs, fans watch), 'cocreate' (band jams / writes
+a song live — V1 WATCH-ONLY), 'physical' (small room). One MECHANISM: announce wide, the only way
+in is the gate. Fan hits event link → gate → login → RSVP → THEN the join link is revealed to them.
 
-## PROJECT JOURNAL (communications) — summary
+GATED-ACCESS (the security spine):
+  - events table = public-safe meta only (RLS: public read non-draft; owner writes via is_owner()).
+  - event_access table = the secret join link; NO client grant, NO select policy; reachable ONLY via
+    get_event_access(event_id) (security definer) which returns it ONLY to a logged-in 'going' fan
+    while status in (announced,live), or the owner. Anon / non-RSVP fan get NOTHING (verify in source+network).
+  - rsvps table = the guest list (fan RLS own-row; owner reads all). RSVP-as-guest-list.
 
-```
-Every project = unified journal. Entry types: email/whatsapp/note/document/
-call/auto/milestone. booking@qiwichee.com auto-links incoming to projects;
-outgoing sent + stored. Unified inbox (urgent/unread/pending) by project.
-Table: project_journal (full audit trail).
-```
+OWNER SIDE (/atelier/artiste, server component, is_owner() via owners table, 404 for non-owners):
+  - owner_fan_roster() — who joined, with status badge.
+  - owner_city_density() — fan count per city → "where do I play next?" (turns the cities field into the
+    data that picks the first physical room: online-first GENERATES the touring signal).
+  - owner_event_roster(event_id) — who's coming.
+  - create/announce event; owner_set_event_access() writes the secret (client can't).
 
----
+MANUAL STEP after running the SQL: seed ONE owners row with the artist auth UID (Supabase → Auth → Users).
+  Until it exists, is_owner() is false for everyone and /atelier/artiste 404s even for you.
 
-## OPEN SOURCE MIGRATION ARCHITECTURE
+EMAIL = two channels, never mixed: magic links = transactional (OVH SMTP, ~30/hr); event blast =
+  broadcast (Mailchimp audience c5532d5f66, has legal unsubscribe). V1 announce = create a Mailchimp
+  DRAFT she sends herself (NO auto-send). Native invite = the event card inside the Atelier.
 
-```
-RULE 1 — Abstract every external service (emailService/cmsService/aiService)
-RULE 2 — Data always in Supabase first (sync out to providers)
-RULE 3 — Env vars for all endpoints
-RULE 4 — Normalize external data to own schema
+RIGHTS GATE: events.rights_confirmed default false; Announce is BLOCKED for stream/cocreate until she
+  ticks "band OK + song mine/cleared". Assists, never advises.
 
-OSS targets (prefer French/EU): Mailchimp→Brevo · Claude→Mistral ·
-Sanity→Payload · Vercel→Coolify · Supabase already OSS.
-Migrate when: cost >€200/mo, pricing change, outage >4h, GDPR issue.
-```
+MONEY: none through the platform — chip_in_url = external link only (Lydia/Ko-fi/PayPal). No Stripe.
 
----
-
-## CROWDFUNDING (phased)
-
-```
-Phase 2A (early, safe): support button + progress bar + EXTERNAL links
-  (PayPal.me, Lydia, Ko-fi, Tipeee, Stripe Payment Link). Platform handles
-  NO money. Zero legal risk. Build after MVP stable.
-Phase 2B (later): Stripe Connect, KYC, escrow, refunds, payouts, 5-10%
-  commission. High complexity, significant legal risk (lawyer + accountant).
+ONLINE-FIRST: stream/cocreate = YouTube (unlisted/live) via EmbedPlayer type:'livestream'. Co-create
+  interactive room (Jitsi/LiveKit) + fan-visible recording-consent = DEFERRED (start watch-only).
 ```
 
 ---
 
-## SUPABASE SCHEMA (key tables)
-
-```sql
-profiles · artist_members(role: owner|collaborator|member) · artists ·
-concerts(+ hidden Phase-2 crowdfunding fields) · feuille_de_route_items ·
-guso_declarations · cddu_contracts · guest_list · venues · professionals
-(is_visible default false) · events · service_status · feedback ·
-concert_scenarios · venue_inquiries · concert_reviews · co_events(+children) ·
-content_pieces · content_clips · social_accounts · project_journal
-
-Security: artist_id ALWAYS from auth session, NEVER request body.
-RLS enforces the three roles.
+## 🚀 PER-ARTIST ONBOARDING — required infra steps (standing checklist)
+```
+1. Domain DNS → Vercel (apex A + www CNAME).
+2. Supabase: redirect allow-list (domain + www + localhost /auth/callback), Site URL, magic link on,
+   Confirm email on.
+3. Custom SMTP from the artist's own mailbox (lifts dev rate limit; on-brand sender).
+4. SPF + DKIM at the registrar/mail host — REQUIRED (verify via mail-tester; OVH: Email diagnostic).
+   DMARC p=none after SPF/DKIM stable 48h. (qiwichee.com: full SPF+DKIM+DMARC done 2026-06-26.)
+5. Every raw-SQL table → grant to authenticated (STANDING DB RULE).
+Use standard TXT records (not OVH proprietary types) so APIs/tools read them.
 ```
 
 ---
 
-## PRICING MODEL
-
+## 🎯 MVP POSITIONING (reframed)
 ```
-CONCERTS ONLY €9/mo (wedge — concerts.artistname.com subdomain)
-FREE (2 concerts/mo, basic site, fan signup)
-STARTER €15/mo (unlimited concerts, full bilingual site, GUSO+CDDU, basic 507h)
-PRO €29-49/mo (+ live feuille de route, full 507h, rehearsals, Phase 2A, WhatsApp)
-PREMIUM €79+/mo (+ analytics, priority, marketplace)
-Add-ons: extra CDDU/GUSO/concerts. Phase 2+: marketplace + crowdfunding commission.
+"A machine that helps an independent artist turn passive listeners into an insider fan community —
+ and organize tiny concerts with them, online first then live — starting today, with zero paperwork."
+Hook = the Atelier fan machine + gated live events. GUSO/CDDU = the later upsell once concerts go formal.
 ```
 
 ---
 
-## SEO STRATEGY (summary)
-
+## 🎬 MEDIA POLICY (standing — keep visitors, never feed platforms)
 ```
-Two targets: resonance.fr (artists/venues/pros) vs qiwichee.com (fans).
+Music/video plays IN-PAGE; the site captures traffic, never exports it. Social = net, site = boat.
+EMBED HIERARCHY: LEAD with full-audio on her turf (Bandcamp / a YouTube clip). Spotify/Apple = small
+"also on →" links (30s previews, don't credit plays). SoundCloud = full, fine.
+CRITICAL: player + gate ALWAYS together (listening is bait for capture). LAZY-LOAD every embed
+(thumbnail → iframe on click) — non-negotiable on mobile (Core Web Vitals + GDPR/EAA consent).
+ONE reusable EmbedPlayer = BUILT (lazy + consent + provider-agnostic {provider, assetId, type};
+type video|livestream). src/app/components/EmbedPlayer.tsx + src/lib/media/. Extend providers as needed.
 
-Qiwichee technical: title template "%s | Qiwi Chee", OG website (NOT music.musician
-  — see gotcha), canonical, hreflang FR/EN, schema.org MusicGroup + MusicEvent
-  per concert, Next.js Image everywhere, Core Web Vitals (LCP<2.5 CLS<0.1).
-
-After DNS (DONE): Google Search Console (verify via OVH TXT, submit sitemap) +
-Google My Business (Musician/Band category).
-
-Résonance content flywheel: free guides ("Comment remplir un GUSO 2026",
-"intermittent du spectacle", "CDDU rédiger", "organiser un concert",
-"feuille de route") → rank → artists find → sign up → concert pages indexed →
-domain authority ↑ → guides rank higher ↺. Cost €0. Primary acquisition channel.
-```
-
----
-
-## AGENT ENGINEERING (summary)
-
-```
-Claude API + tool use = orchestration brain. Next.js + Supabase = frontend+data.
-Routes: /api/agent/onboarding, /concert, /legal (MVP); /marketplace, /fanbase
-(P2A); /crowdfunding (P2B); /content-analyzer, /content-writer, /co-event.
-
-Principles:
-├── Zod strict input/output schemas on EVERY route
-├── artist_id from auth session, validate ownership before writes
-├── Retry + exponential backoff + 10s timeout + circuit breaker on external APIs
-├── RED metrics (rate/error/duration) → events table
-├── Stateless per task — state in Supabase, cache results to control cost
-└── Use Sonnet for most tasks. "Claude API with tool use", not "Managed Agents".
+HOSTING (DECISION 2026-06-22, holds): YouTube (UNLISTED) for insider content NOW — free, her channel.
+Do NOT pay for Cloudflare Stream until there's must-be-un-leakable content (a 480p WhatsApp clip isn't).
+VIDEO never in the repo. IMAGES → next/Image + alt. AUDIO (insider) → object storage behind the gate
+(signed URLs) when that layer is built.
+POSTERS/THUMBNAILS: local images only (next/Image), NO third-party thumbnail CDN fetch before the user
+clicks (keeps the no-network-before-consent property). Front MV currently shows a token placeholder until
+a local still is added.
+RAW staging: ~/GDrive/Resonance/02_Produit_Tech/. Claude CANNOT watch video — frames are a human call
+(Claude can extract & view frames from an uploaded video to pick a cover/thumbnail — done for the 80s frame).
 ```
 
 ---
 
-## BILLING PROVIDERS (summary)
-
+## 🔐 RIGHTS-AT-UPLOAD (standing)
 ```
-Non-incorporated artist can't invoice. Platform detects (no legal structure +
-paid concert + GUSO/CDDU needed) → suggests validated Billing Provider
-(CAE / SCIC / association) to invoice on artist's behalf. Résonance =
-apporteur d'affaire (% commission). Provider appears as resource in feuille
-de route with admin responsibility.
-```
-
----
-
-## LEGAL & CORPORATE (summary)
-
-```
-SASU (yours, France) owns ALL IP → licenses platform to local cooperatives.
-Local: France SCIC · Belgium ASBL · Quebec coop de solidarité · MENA partners.
-Cooperatives unlock local funding (CNM, SODEC...). Expansion: France → BE/CH →
-Quebec → MENA francophone.
-
-⚠️ See Resonance_context.md for the V1→V2 structure decision (CAE entrepreneur-
-   salarié first, then SAS-ESS in BPI ICC lane or SCIC). Do NOT found a SCIC now.
-   Do NOT build IP inside an association to privatize later (asset trap).
+Every media upload carries a RIGHTS RECORD; nothing publishes until it clears. A GATE, not a nag.
+Music → your recording? sample/cover? who performed + agreed public? Video → own footage? music cleared?
+anyone identifiable who must consent? Photo → took it / permission? recognizable people?
+THREE RULES: safe defaults (1 tap); status DRIVES behavior (uncleared → save private + flag); assists,
+never advises. For events: rights_confirmed blocks Announce on stream/cocreate (see EVENT ENGINE).
 ```
 
 ---
 
-## ⚠️ LEGAL FLAG — European Accessibility Act (neutral / lawyer territory)
-
+## 💶 MONETIZATION (early SaaS — model OPEN, lean B)
 ```
-EAA enforceable since 28 June 2025. France: Law 2023-171 / Ord. 2023-859 /
-Decree 2023-931. Standard EN 301 549 (= WCAG 2.1 AA). Enforcement: DGCCRF.
-Microenterprise exemption (<10 employees AND <€2M turnover) likely covers
-you + Qiwi Chee NOW. Stops being optional once site has ticketing/e-commerce
-or Résonance is consumer-facing above threshold. Confirm with ESS/entertainment
-lawyer when choosing V2 structure. Not a decision to make from notes.
-```
-
----
-
-## ETHICAL RISK LAYER (standing rule)
-
-```
-Flag features touching: disputed territories, state cultural-diplomacy
-institutions, partners with human-rights controversies, venues in occupied
-zones. Alerts: neutral/technical, non-prescriptive, universal rules — never
-political framing. E.g. open-data venue import → "geographic validation
-recommended"; institutional partner → "due-diligence recommended".
+GOAL: paying SaaS EARLY once there's artist traction.
+A) Freemium on the machine (~€9). B) Free machine, paid paperwork (first euro at Phase 2). ← LEAN.
+C) Free now, paid on a 2nd signal. DON'T paywall the core viral loop. DECIDE before Phase 2.
+NON-NEGOTIABLES: recurring SaaS fee = commercial revenue → needs CAE V1 to invoice legally ⇒ CRESS IDF /
+Les Scop IDF + a CAE on the CRITICAL PATH to the first euro. "Charge artists a SaaS fee" ≠ "process fans'
+concert money" (escrow/Stripe Connect = Phase 2B, lawyer+accountant; keep far away).
 ```
 
 ---
 
-## WHAT IS LIVE
-
+## ⚖️ LEGAL & STRUCTURE (V1 → V2)
 ```
-✅ qiwichee.com + .fr + www (Vercel, SSL valid)
-✅ Homepage built + deployed (semantic + metadata + MusicGroup JSON-LD)
-✅ OVH Email Pro: hello@qiwichee.com (mailbox), booking@ (alias → hello@)
-✅ github.com/bkark/qiwichee · CLAUDE.md committed
-✅ Claude Code installed + authenticated (Claude Pro)
-✅ Mailchimp ID c5532d5f66 · Sanity ID bayrhx8r · Vercel env vars set
+V1 — host in a cultural CAE (Coopérative d'Activité et d'Emploi) as entrepreneur-salarié. Cheap,
+  reversible, cooperative, can invoice now, IP portable BY CONTRACT (confirm in writing), ~10% of turnover.
+V2 (with traction) — SAS w/ ESS statutes in BPI ICC lane, OR a SCIC. Don't found a SCIC now (asset trap).
+  Don't build IP in an association to privatize later.
+PHASE 1 RULE: NO money through the platform. Fan chip-in = external links. Keeps V1 legal TODAY, no lawyer.
+⚠️ Older files say "SASU owns all IP" — SUPERSEDED by the CAE V1 plan (see Resonance_context.md).
+NEXT LEGAL ACTIONS: Call CRESS Île-de-France (free) + Les Scop IDF — CAE shortlist + IP clause.
+  Shortlist: Coopetic (Paris, media/culture, keeps intermittent — closest) · Coopaname (IDF) ·
+  Smart (verify 2026) · Artefacts (check IDF) · Artenréel (Strasbourg). Skip CLARA/CLARAbis.
+```
+
+---
+
+## 👥 THREE USER ROLES (RBAC via Supabase RLS)
+```
+OWNER (Artist) — full: media, events, fan roster, (Phase 2) legal/finance. is_owner() via owners table;
+  /atelier/artiste 404s for non-owners. Privileged reads via security-definer RPCs (never ship service-role
+  to the client; never trust request body for identity).
+COLLABORATOR (Staff/Band/grassroots helper) — assigned tasks; NOT financial/legal.
+MEMBER (Fan — "ATELIER") — own RSVP/profile + Atelier content; NO legal/financial.
+```
+
+---
+
+## 🛠️ STANDING BUILD REQUIREMENTS — every page
+```
+THREE-IN-ONE: SEO (server-rendered semantic HTML + metadata + sitemap + hreflang) · WCAG 2.1 AA
+  (alt, keyboard, contrast, visible focus, a11y statement) · AI-agent discoverability (schema.org JSON-LD
+  MusicGroup/MusicEvent; robots ALLOW ClaudeBot, GPTBot).
+DB: every raw-SQL table → grant to authenticated (+ the deliberate secret-table exception).
+MEDIA: lazy-load + consent EmbedPlayer, mediaService-resolved; pair with the gate. RIGHTS record per upload.
+THEME: via tokens, never raw hex (grep src for hex → nothing outside :root). Per-release = accent overrides.
+SECURITY: user_id/owner ALWAYS from auth session, never request body. getUser() before authenticated writes.
+  Zod on every route. Server-only secrets never NEXT_PUBLIC. External links → ExternalLink. Images → Image+alt.
+```
+
+---
+
+## 🔁 TEMPLATE PATTERNS (reuse per artist instance)
+```
+THEME TOKENS → per artist, only :root values + the `artist` data block change. qiwichee = theme #1.
+  Per-release palettes = [data-release] accent overrides on the default.
+ExternalLink → noopener noreferrer + a11y cue. Internal nav = Next.js <Link>.
+AtelierGate → email → magic link (signInWithOtp, emailRedirectTo /auth/callback OR a specific event slug). DONE.
+Auth callback → exchangeCodeForSession → rpc touch_fan → new→/atelier/welcome else→/atelier. DONE.
+Profile (AtelierContent) → editable nickname + city picker, ONE save. DONE. (Add "À venir" events section.)
+EmbedPlayer → DONE. Lazy thumbnail→iframe (mounts on click), consent-by-click, mediaService-resolved,
+  provider-agnostic {provider, assetId, type}, type video|livestream-ready, locked variant for "unlocks
+  soon" slots, tokens-only. src/app/components/EmbedPlayer.tsx + src/lib/media/{types,mediaService}.ts.
+Event engine (SQL + brief ready, UNRUN) → events/event_access/rsvps + security-definer RPCs. docs/briefs/.
+supabase/client.ts = createBrowserClient(url, anonKey). supabase/server.ts = @supabase/ssr cookie-based.
+  middleware.ts = session refresh.
+```
+
+---
+
+## 🎵 VERIFIED ARTIST PROFILES — Qiwi Chee
+```
+ON SITE NOW (artist.links via ExternalLink), LIVE: Spotify open.spotify.com/artist/4Bu89sfVzy14qW0dK8Ugbs ·
+Apple music.apple.com/fr/artist/qiwi-chee/1676154343 · Deezer deezer.com/fr/artist/204585817 ·
+YouTube youtube.com/@qiwichee (UCR8h9_VrE-mTa-wekiB6luA) · Bandcamp qiwichee.bandcamp.com ·
+Instagram instagram.com/qiwichee. JSON-LD sameAs also msha.ke/qiwichee (keep alive during transition;
+its layout is one-section-per-release — the model for the per-release palette idea).
+Lullabies official MV: youtu.be/L0mHWXa2UyQ (palette extraction source · public front bait · now wired
+  via EmbedPlayer in the Music section, with VideoObject JSON-LD).
+EMBED LEADS (when built): Bandcamp (full) + a YouTube jam clip. Spotify/Apple = small links.
+Bio (CURRENT): "Auteur/Compositeur-Interprète Franco-algériano-americaine · Hybrid pop · Paris."
+  → CHANGE PENDING: "Hybrid pop" → "Alternative Pop" (bundle w/ palette apply). EP: Hybrid Fruit.
+  Single: Une Dernière Chose. Releases seen on Milkshake: Hybrid Fruit, Une dernière chose, Leï Lani (old name).
+  Voice acting = separate site.
+PRIVATE CONCERT CLIP (insider reward, pending unlisted upload): VID-20251117-WA0000.mp4; cover frame
+  qiwichee_atelier_cover_80s.jpg (80s, "Release + Decay" banner) — now the LOCKED insider card poster.
+  Band/song rights to confirm before public. UNLOCK = flip `locked`→false + set assetId at // UNLOCK marker.
+```
+
+---
+
+## 🗄️ SUPABASE — PROJECT FACTS + SCHEMA
+```
+PROJECT: ref cieefpigrwlhklkkqmdb · URL https://cieefpigrwlhklkkqmdb.supabase.co · Region eu-west-1 (Ireland).
+  Org "Resonance" (Free). JWT ES256 current. Free tier PAUSES after ~1 week idle → click Restore.
+AUTH: magic link on. Redirect allow-list: qiwichee.com/auth/callback (+www, +.fr, + localhost:3000). Site URL
+  https://qiwichee.com. Confirm email ON.
+EMAIL/SMTP: custom SMTP via OVH → sender hello@qiwichee.com, pro2.mail.ovh.net:587 STARTTLS, user=full address.
+  Rate 30/hr. SPF+DKIM+DMARC all VERIFIED (mail-tester 9.5/10; DMARC p=none live 2026-06-26).
+KEYS: client uses legacy anon public key as NEXT_PUBLIC_SUPABASE_ANON_KEY. service_role NOT client-side.
+
+TABLES (built):
+fans ( id uuid PK → auth.users, email, nickname, cities text[] default '{}', visit_count int, created_at,
+       last_seen_at ) — RLS own-row; GRANTED select/insert/update to authenticated.
+rpc touch_fan(p_email) → (is_new, visits); security definer. fanStatus: 1 Nouveau · 2–4 Habitué ·
+  5–9 Fidèle · 10+ Pilier.
+
+TABLES (SPEC READY, UNRUN — event engine, per docs/briefs/event_engine.sql + tiny_concert_engine.md):
+owners(user_id) · events(public meta + rights_confirmed) · event_access(secret link, NO client grant) ·
+rsvps(guest list). RPCs: is_owner, get_event_access, owner_set_event_access, owner_event_roster,
+owner_fan_roster, owner_city_density. ⛔ NOT applied — verified 0/4 tables exist 2026-06-26. Run the .sql
++ seed owners row when building the event engine.
+
+PLANNED (later): media(rights), teaser_links, + Phase-2 (artists, artist_members, concerts, feuille_de_route,
+guso_declarations, cddu_contracts, venues, professionals, events-analytics, service_status, …).
+REMINDER: every new table → grant to authenticated (STANDING DB RULE); secret tables = the exception.
 ```
 
 ---
 
 ## INFRASTRUCTURE FACTS (verified, don't re-derive)
-
 ```
-EMAIL — OVH Email Pro:
-├── Server pro2.mail.ovh.net for BOTH IMAP (993 SSL/TLS) + SMTP (587 STARTTLS)
-│   NOT ssl0.ovh.net (that's shared MX Plan — common wrong answer in guides)
-├── Webmail: https://pro2.mail.ovh.net
-└── Gmail app setup: choose "Other (IMAP)", NOT "Google"
-
-DNS — Vercel:
-├── Apex A record: 216.198.79.1 (RE-VERIFY in Vercel at any reconfig)
-├── www CNAME: 42d7eef65754d8a8.vercel-dns-017.com. (project-specific,
-│   NOT generic cname.vercel-dns.com.)
-└── .fr strategy: canonical redirect → .com recommended (awaiting confirm)
-
-ENV VARS:
-NEXT_PUBLIC_SANITY_PROJECT_ID=bayrhx8r · NEXT_PUBLIC_SANITY_DATASET=production
-NEXT_PUBLIC_MAILCHIMP_AUDIENCE_ID=c5532d5f66 · MAILCHIMP_API_KEY=[private]
+EMAIL — OVH Email Pro: pro2.mail.ovh.net for IMAP (993 SSL) + SMTP (587 STARTTLS). Mailboxes
+  hello@qiwichee.com · booking@ (alias→hello@). SPF + DKIM + DMARC all VERIFIED. DMARC: _dmarc TXT
+  "v=DMARC1; p=none; rua=mailto:hello@qiwichee.com" live + resolving 2026-06-26 (monitor only).
+  SRV "off" = ignore. Domain mode Non-authoritative (OK). DON'T touch the Email Authoritative wizard.
+DNS — Vercel: apex A 216.198.79.1; www CNAME 42d7eef65754d8a8.vercel-dns-017.com. .fr → redirect to .com.
+ENV VARS (Vercel + .env.local): NEXT_PUBLIC_SUPABASE_URL · NEXT_PUBLIC_SUPABASE_ANON_KEY ·
+  NEXT_PUBLIC_SANITY_PROJECT_ID=bayrhx8r · NEXT_PUBLIC_SANITY_DATASET=production ·
+  NEXT_PUBLIC_MAILCHIMP_AUDIENCE_ID=c5532d5f66 · MAILCHIMP_API_KEY=[private, server-only].
+SERVICES: github.com/bkark/qiwichee · CLAUDE.md committed · Claude Code authed (Pro) · Vercel auto-deploys
+  from main · Sanity bayrhx8r · OVH domains live · Supabase cieefpigrwlhklkkqmdb.
 ```
 
 ---
 
 ## DEVELOPER ENVIRONMENT
-
 ```
-OS: Linux Mint · user simba · hostname ssd
-Repo: /home/simba/Projects/qiwichee
-Specs source: /home/simba/GDrive/Resonance/02_Produit_Tech/Specs/
-Sync: /home/simba/GDrive/Resonance/sync_resonance.sh
-Node v22.22.3 · Next.js 16.2.4 · TypeScript · Tailwind 4
+OS: Linux Mint · user simba · hostname ssd. Repo: /home/simba/Projects/qiwichee · Live: qiwichee.com + .fr
+Specs/raw: /home/simba/GDrive/Resonance/02_Produit_Tech/ · Sync: ~/sync_resonance.sh
+Briefs/specs in repo: docs/briefs/ (tiny_concert_engine.md, event_engine.sql) · docs/BRIEF_embed_player.md
+Node v22.22.3 · Next.js 16.2.4 · TS · Tailwind 4 (CSS-first @theme) · @supabase/ssr · supabase-js
 
 WORKFLOW QUIRKS:
-├── Terminal MANGLES fast multi-line pastes (reorders bytes). For long files:
-│   download + cp, OR let Claude Code write directly. NEVER paste a big heredoc.
-├── Chrome downloads → ~/Downloads (fixed this session; XDG map was broken)
-├── Heredoc for short writes only: cat > file << 'ENDOFFILE'
-├── sed -i for bulk edits, grep to verify before commit
-└── Apple keyboard: View > Terminal in VS Code
+  - Big pastes → "[Pasted text #N]" chip = it WENT THROUGH; type the instruction after. Long files: save the
+    .md/.sql into the repo (e.g. docs/briefs/) and point Claude Code at the path rather than pasting.
+  - Hand build steps to Claude Code as a scoped BRIEF: no auto-commit; show git diff HEAD; AA verify; grep hex.
+    Review the diff, then commit/push yourself.
+  - SQL runs in the Supabase SQL editor (browser), not Claude Code's filesystem (no Supabase MCP/CLI wired yet)
+    — copy the .sql into the editor yourself; Claude Code writes the app code.
+  - VERIFY-DON'T-ASSUME: a committed .sql is not a built schema. Check information_schema.tables before
+    assuming a module is applied. (event_engine.sql was committed but unrun — checked the DB to be sure.)
+  - DEBUG: read the actual error BODY, not just the status (42501 named the missing GRANT). git not staging a
+    file → run `git check-ignore -v` and `git ls-files --error-unmatch`; make git name the rule, don't theorize.
+  - Don't `npm audit fix --force` on cosmetic warnings.
+GOTCHA: Next.js 16 rejects og:type "music.musician" at RUNTIME → use "website"/"profile"; MusicGroup JSON-LD
+  carries the signal. Claude can extract & view video frames (ffmpeg) to pick covers — it cannot watch video.
 ```
 
 ---
 
 ## INSTRUCTIONS FOR THIS AI
-
 ```
 - Explain every command + WHY (telecom analogies help). One step, wait.
-- Keep to MVP scope. Never suggest Telegram (WhatsApp links).
-- artist_id ALWAYS from auth session, never body.
-- Service-layer abstraction + Zod on every external API / agent route.
-- Feuille de route = LIVE CHECKLIST not PDF. Free concerts need GUSO+CDDU.
-- Three roles via RLS. Atelier = fan area. Crowdfunding = Phase 2A only.
-- Every page: three-in-one foundation (SEO + WCAG 2.1 AA + schema.org JSON-LD).
-- Flag geographic/institutional risks neutrally (technical, never political).
-- Remind: consult entertainment lawyer BEFORE /legal module.
-- Build sequence: finish Qiwichee site (template) → GUSO calculator → platform.
-- Platform: RÉSONANCE. Fan area: ATELIER. Corporate: SASU owns IP.
-- End of session: ask if instructions need updating; offer updated CONTEXT_FOR_AI;
-  remind to run ~/sync_resonance.sh.
+- BUILD SEQUENCE: theme tokens ✅ → Atelier gate ✅ → SPF/DKIM/DMARC ✅ → EmbedPlayer ✅ → APPLY LULLABIES
+  PALETTE + [data-release] (NEXT) → alive insider area (needs her unlisted clip ID; locked stub already live)
+  → event engine (run docs/briefs/event_engine.sql + seed owner) → per-teaser links → more in-page embeds.
+  THEN Phase 2 GUSO/CDDU.
+- The site is a fan MACHINE; the Atelier gate is the center. Capture before sending anyone to listen. For live
+  events the gate is the access mechanism. Media in-page (lazy + consent EmbedPlayer, provider-agnostic).
+- Every raw-SQL table → grant to authenticated (secret tables = deliberate no-grant exception). Read error BODIES.
+  VERIFY a schema is actually in the DB before assuming it's applied (a committed .sql ≠ a built table).
+- Every media upload carries a rights record; nothing publishes until cleared; assists, never advises. Events:
+  rights_confirmed blocks Announce on stream/cocreate.
+- Phase 1 = NO money through the platform (chip-in = external links). SaaS fee needs CAE live → CRESS IDF /
+  Les Scop IDF on the critical path once charging. Monetization A/B/C = OPEN (lean B).
+- user_id/owner ALWAYS from auth session, never body. getUser() before writes. Zod on routes. Three roles via RLS.
+- Theme via tokens, never raw hex; per-release = accent overrides on the Lullabies default; gate stays constant.
+  Every page: SEO + WCAG AA + JSON-LD. Posters/thumbnails = local images, no 3rd-party fetch before click.
+- YouTube (unlisted) for content now; no paid Cloudflare until un-leakable content needs it.
+- Never suggest Telegram (WhatsApp links). Flag geographic/institutional risks neutrally.
+- End of session: ask if instructions need updating; offer updated CONTEXT_FOR_AI; remind ~/sync_resonance.sh.
 ```
 
 ---
-*Updated 2026-06-20 · Next: bilingual FR/EN refactor (next-intl + [locale])*
+
+## OPEN DECISIONS / NEXT ACTIONS
+```
+[x] Theme-token foundation (photo palette, AA, deployed) — current aqua/blue.
+[x] Atelier access gate — magic-link login + profile + status badge + Mailchimp sync + grants. TESTED.
+[x] SPF + DKIM at OVH — VERIFIED mail-tester 9.5/10 (SPF pass, DKIM valid+aligned, not blocklisted).
+[x] DMARC at OVH — LIVE 2026-06-26. _dmarc TXT v=DMARC1; p=none; rua=mailto:hello@qiwichee.com, verified
+    resolving. Full SPF+DKIM+DMARC stack complete. Future: optionally tighten to quarantine/reject after rua review.
+[x] EmbedPlayer — BUILT + shipped. Reusable lazy/consent provider-agnostic player; public Lullabies MV on
+    front (+ VideoObject JSON-LD) + LOCKED insider stub behind the gate. Hex-clean, consent-verified.
+[x] event_engine.sql — confirmed real, committed to docs/briefs/ beside its brief. UNRUN (0/4 tables exist).
+[x] Lullabies palette — extracted from her MV + AA-verified (new default; apply pending).
+[x] Dynamic per-release palette — DECIDED feasible (curated accent overrides; gate constant).
+[x] Insider content — two-layer plan (public Lullabies MV bait; private concert clip = inside reward).
+[x] Insider cover frame chosen (80s) → qiwichee_atelier_cover_80s.jpg (now the locked card poster).
+[x] Event engine — brief + SQL written (docs/briefs/).
+[ ] (NEXT build) Apply Lullabies palette as the new default + set up [data-release] override architecture;
+    bundle the "Hybrid pop → Alternative Pop" text change. Lock the functional-input border token (≥3:1).
+[ ] (FROM HER) Upload private concert clip UNLISTED → send video ID (unblocks insider area build).
+[ ] (FROM HER) Confirm band OK + song mine/cleared on the clip.
+[ ] (THEN build) Alive insider area behind the gate — flip locked→false + set assetId at // UNLOCK once ID arrives.
+[ ] (THEN build) Event engine — run docs/briefs/event_engine.sql in Supabase editor → seed owners row →
+    feed tiny_concert_engine.md to Claude Code for the owner UI + RSVP/get_event_access flow (Core scope only).
+[ ] Add front MV thumbnail — local poster still to public/ + pass via poster prop (no 3rd-party fetch).
+[ ] Watch visit_count double-fire (magic-link pre-fetch can fire callback twice). Harden touch_fan if seen.
+[ ] DECIDE monetization model A/B/C (lean B) — before Phase 2.
+[ ] Call CRESS IDF + Les Scop IDF (CAE shortlist + IP clause) — critical path once charging.
+[ ] Document Qiwi Chee's journey publicly (build-in-public = beta-tester acquisition).
+[ ] (Later) palette-from-photo auto-extractor in /onboarding.
+```
+
+---
+*Updated 2026-06-26 · DMARC live → SPF+DKIM+DMARC complete · EmbedPlayer shipped (front MV + locked insider
+stub; thumbnail deferred) · event_engine.sql committed-but-UNRUN (0/4 tables) · Lullabies palette apply pending.
+Next: apply the Lullabies palette + [data-release] architecture. Insider area still waiting on her unlisted clip ID.*

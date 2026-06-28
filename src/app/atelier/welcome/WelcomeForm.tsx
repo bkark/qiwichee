@@ -68,7 +68,11 @@ export default function WelcomeForm() {
         />
       </div>
 
-      <CitiesPicker value={cities} onChange={setCities} />
+      <div className="flex flex-col gap-1">
+        <p className="text-sm font-medium text-text">Où viendrais-tu la voir en concert ?</p>
+        <p className="text-sm text-muted">Choisis une ou plusieurs villes — ça aide Qiwi Chee à savoir où organiser le prochain concert.</p>
+        <CitiesPicker value={cities} onChange={setCities} />
+      </div>
 
       {error && (
         <p role="alert" className="text-sm text-text">

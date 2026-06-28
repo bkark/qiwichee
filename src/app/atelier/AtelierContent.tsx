@@ -120,7 +120,9 @@ export default function AtelierContent({ initialNickname, initialCities, status 
           </div>
 
           {/* Cities */}
-          <div className="mt-6">
+          <div className="mt-6 flex flex-col gap-1">
+            <p className="text-sm font-medium text-text">Où viendrais-tu la voir en concert ?</p>
+            <p className="text-sm text-muted">Choisis une ou plusieurs villes — ça aide Qiwi Chee à savoir où organiser le prochain concert.</p>
             <CitiesPicker value={cities} onChange={(c) => { setCities(c); setSaveStatus('idle') }} />
           </div>
 

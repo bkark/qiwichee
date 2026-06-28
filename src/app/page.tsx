@@ -1,6 +1,7 @@
 import ExternalLink from "./components/ExternalLink";
 import AtelierGate from "@/components/AtelierGate";
 import EmbedPlayer from "./components/EmbedPlayer";
+import BrandIcon, { type BrandName } from "./components/BrandIcon";
 import type { MediaAsset } from "@/lib/media/types";
 
 // ─────────────────────────────────────────────────────────────
@@ -61,6 +62,15 @@ const videoObjectSchema = {
   embedUrl: `https://www.youtube-nocookie.com/embed/${lullabies.assetId}`,
   contentUrl: `https://youtu.be/${lullabies.assetId}`,
 };
+
+const nameToIcon: Record<string, BrandName> = {
+  'Spotify':     'spotify',
+  'Apple Music': 'applemusic',
+  'Deezer':      'deezer',
+  'YouTube':     'youtube',
+  'Bandcamp':    'bandcamp',
+  'Instagram':   'instagram',
+}
 
 // searchParams carries error codes forwarded from the auth callback
 type SearchParams = Promise<{ error?: string }>
@@ -131,14 +141,16 @@ export default async function Home({ searchParams }: { searchParams: SearchParam
               posterAlt="Qiwi Chee — Lullabies, clip officiel"
             />
           </div>
-          <ul className="mt-6 flex flex-wrap gap-4 text-sm">
+          <ul className="mt-6 flex flex-wrap gap-1">
             {artist.links.map(({ name, href }) => (
               <li key={name}>
                 <ExternalLink
-                  className="rounded-md border border-border px-4 py-2 hover:bg-surface"
                   href={href}
+                  aria-label={`Qiwi Chee sur ${name}, nouvel onglet`}
+                  showArrow={false}
+                  className="flex items-center justify-center rounded-md p-2.5 text-muted transition-colors duration-200 hover:text-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-bg"
                 >
-                  {name}
+                  <BrandIcon name={nameToIcon[name]} />
                 </ExternalLink>
               </li>
             ))}

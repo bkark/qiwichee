@@ -10,7 +10,7 @@ import type { MediaAsset } from '@/lib/media/types'
 // UNLOCK: when the unlisted YouTube ID arrives → set assetId and remove `locked`
 const insiderClip: MediaAsset = {
   provider: 'youtube',
-  assetId: '',
+  assetId: 'Ashg6NO8azo',
   type: 'video',
   title: 'Concert privé — clip Atelier',
 }
@@ -88,7 +88,6 @@ export default function AtelierContent({ initialNickname, initialCities, status 
               asset={insiderClip}
               poster="/qiwichee_atelier_cover_80s.jpg"
               posterAlt="Qiwi Chee en concert, bannière peinte « Release + Decay »"
-              locked
               lockedLabel="Bientôt — réservé à l'Atelier"
               caption="Un extrait qui n'existe nulle part ailleurs."
             />

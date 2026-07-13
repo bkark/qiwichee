@@ -106,6 +106,13 @@ export default function AtelierGate({ initialError }: AtelierGateProps) {
                 Vérifie ta boîte mail — ton lien vers l&rsquo;Atelier arrive ✦
               </p>
             )}
+            {status === 'sent' && (
+              <p className="mt-2 text-xs text-muted">
+                Pas d&rsquo;e-mail dans ta boîte de réception&nbsp;? Regarde dans tes spams&nbsp;/
+                indésirables — et marque-le comme &laquo;&nbsp;non spam&nbsp;&raquo; pour recevoir les
+                prochains directement.
+              </p>
+            )}
             {(status === 'error' || (status === 'idle' && errorMsg)) && (
               <p role="alert" className="text-text">
                 {errorMsg}

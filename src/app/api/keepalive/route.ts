@@ -11,6 +11,6 @@ export async function GET(request: NextRequest) {
   const supabase = await createClient()
   const { error } = await supabase.rpc('keepalive')
 
-  if (error) return NextResponse.json({ ok: false, error: error.message, code: (error as { code?: string }).code }, { status: 500 })
+  if (error) return NextResponse.json({ ok: false }, { status: 500 })
   return NextResponse.json({ ok: true, at: new Date().toISOString() })
 }

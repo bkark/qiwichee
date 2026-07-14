@@ -43,21 +43,53 @@
    regress between sections.
    NEVER wrap the Atelier gate — it is the front door, always the default.
    Any real per-release palette MUST be AA-verified before going live. */
-[data-release] {
-  transition:
-    background-color 0.4s ease,
-    border-color     0.4s ease,
-    color            0.4s ease;
+
+/* Recolour transition — omitted entirely when prefers-reduced-motion: reduce */
+@media (prefers-reduced-motion: no-preference) {
+  [data-release] {
+    transition:
+      color            0.3s ease,
+      background-color 0.3s ease,
+      border-color     0.3s ease;
+  }
 }
 
-/* Template — copy, rename, fill with AA-verified accents, then uncomment:
-[data-release="lei-lani"] {
-  --accent:        #______;
-  --accent-bright: #______;
-  --accent-warm:   #______;
-  --accent-soft:   #______;
+/* ── Release-switcher carousel ──────────────────────────────────────
+   scroll-snap and scrollbar-hiding can't be expressed in Tailwind
+   without arbitrary variants; keeping them here keeps components clean. */
+.release-scroller {
+  scroll-snap-type: x mandatory;
+  -webkit-overflow-scrolling: touch; /* legacy iOS Safari momentum scroll */
+  scrollbar-width: none;
 }
-*/
+.release-scroller::-webkit-scrollbar { display: none; }
+
+.release-slide {
+  flex: 0 0 88%;       /* 88% width → ~12% peek of adjacent slide on each side */
+  scroll-snap-align: center;
+}
+
+/* ── Per-release palette overrides ─────────────────────────────────
+   PLACEHOLDER values — pending Qiwi Chee palette approval (2026-07-15).
+   Pairs measured against --bg #E8EBF5 (L=0.832; calibration: prune = 6.23:1 ✅).
+   Requirements: white-on-accent ≥ 4.5:1; accent-on-bg ≥ 3:1 (UI) / 4.5:1 (text).
+   accent-bright / accent-warm / accent-soft: TODO — derive after approval.
+   lullabies: NO override — site default IS the Lullabies palette (brief §4).   */
+
+[data-release="hybrid-fruit"] {
+  /* framboise — white-on-accent 5.87:1 ✅  accent-on-bg 4.93:1 ✅ */
+  --accent: #C2185B;
+}
+
+[data-release="une-derniere-chose"] {
+  /* bleu d'eau profond — white-on-accent 5.74:1 ✅  accent-on-bg 4.82:1 ✅ */
+  --accent: #1C6E8C;
+}
+
+[data-release="dilemma"] {
+  /* carmin profond — white-on-accent 7.90:1 ✅  accent-on-bg 6.64:1 ✅ */
+  --accent: #9E1B32;
+}
 
 body {
   background: var(--bg);

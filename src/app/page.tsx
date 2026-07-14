@@ -1,8 +1,6 @@
-import ExternalLink from "./components/ExternalLink";
 import AtelierGate from "@/components/AtelierGate";
-import EmbedPlayer from "./components/EmbedPlayer";
-import BrandIcon, { type BrandName } from "./components/BrandIcon";
-import type { MediaAsset } from "@/lib/media/types";
+import ReleaseSwitcher from "./components/ReleaseSwitcher";
+import { releases } from "@/data/releases";
 
 // ─────────────────────────────────────────────────────────────
 // ARTIST DATA — the ONLY block that changes per artist in the
@@ -33,44 +31,64 @@ const artist = {
   ],
 };
 
-const lullabies: MediaAsset = {
-  provider: 'youtube',
-  assetId: 'L0mHWXa2UyQ',
-  type: 'video',
-  title: 'Qiwi Chee — Lullabies (clip officiel)',
-};
-
-// schema.org MusicGroup — machine-readable identity card.
-// Server-rendered into the page so crawlers and AI agents read it directly.
+// schema.org MusicGroup — alternateName links the LEILANI back catalogue to this identity.
 const musicGroupSchema = {
   "@context": "https://schema.org",
   "@type": "MusicGroup",
   name: artist.name,
+  alternateName: "LEILANI",
   url: artist.url,
   genre: artist.genre,
   description: artist.description,
   sameAs: artist.sameAs,
 };
 
-// VideoObject JSON-LD — server-rendered; client interactivity isolated to EmbedPlayer.
-// thumbnailUrl omitted until a local still is committed to public/.
+const lullabiesEmbed = releases[0].embed // always Lullabies (canonical DOM order, fixed)
 const videoObjectSchema = {
   "@context": "https://schema.org",
   "@type": "VideoObject",
-  name: lullabies.title,
+  name: lullabiesEmbed.title,
   description: "Le clip officiel de Lullabies par Qiwi Chee.",
-  embedUrl: `https://www.youtube-nocookie.com/embed/${lullabies.assetId}`,
-  contentUrl: `https://youtu.be/${lullabies.assetId}`,
+  embedUrl: `https://www.youtube-nocookie.com/embed/${lullabiesEmbed.assetId}`,
+  contentUrl: `https://youtu.be/${lullabiesEmbed.assetId}`,
 };
 
-const nameToIcon: Record<string, BrandName> = {
-  'Spotify':     'spotify',
-  'Apple Music': 'applemusic',
-  'Deezer':      'deezer',
-  'YouTube':     'youtube',
-  'Bandcamp':    'bandcamp',
-  'Instagram':   'instagram',
-}
+// MusicAlbum / MusicRecording per release — byArtist always the same MusicGroup.
+// Dilemma: byArtist carries alternateName so search/AI can merge LEILANI → Qiwi Chee.
+const byArtist = { "@type": "MusicGroup", name: artist.name, alternateName: "LEILANI", url: artist.url }
+const musicReleasesSchema = [
+  {
+    "@context": "https://schema.org",
+    "@type": "MusicRecording",
+    name: "Lullabies",
+    byArtist,
+    url: `https://youtu.be/${lullabiesEmbed.assetId}`,
+  },
+  {
+    "@context": "https://schema.org",
+    "@type": "MusicAlbum",
+    name: "Hybrid Fruit",
+    numTracks: 6,
+    datePublished: "2024-10-27",
+    byArtist,
+    url: "https://qiwichee.bandcamp.com/album/hybrid-fruit",
+  },
+  {
+    "@context": "https://schema.org",
+    "@type": "MusicRecording",
+    name: "Une dernière chose",
+    datePublished: "2023-03-31",
+    byArtist,
+    url: "https://qiwichee.bandcamp.com/track/une-derni-re-chose",
+  },
+  {
+    "@context": "https://schema.org",
+    "@type": "MusicAlbum",
+    name: "Dilemma",
+    byArtist,
+    url: "https://leilanigroove.bandcamp.com/album/dilemma",
+  },
+]
 
 // searchParams carries error codes forwarded from the auth callback
 type SearchParams = Promise<{ error?: string }>
@@ -88,6 +106,13 @@ export default async function Home({ searchParams }: { searchParams: SearchParam
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(videoObjectSchema) }}
       />
+      {musicReleasesSchema.map((schema) => (
+        <script
+          key={schema.name}
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }}
+        />
+      ))}
 
       <header className="border-b border-border">
         <nav
@@ -134,27 +159,7 @@ export default async function Home({ searchParams }: { searchParams: SearchParam
           <h2 id="music-heading" className="font-display text-2xl font-semibold tracking-tight">
             Music
           </h2>
-          <p className="mt-4 text-muted">Listen on your platform of choice.</p>
-          <div className="mt-6">
-            <EmbedPlayer
-              asset={lullabies}
-              posterAlt="Qiwi Chee — Lullabies, clip officiel"
-            />
-          </div>
-          <ul className="mt-6 flex flex-wrap gap-1">
-            {artist.links.map(({ name, href }) => (
-              <li key={name}>
-                <ExternalLink
-                  href={href}
-                  aria-label={`Qiwi Chee sur ${name}, nouvel onglet`}
-                  showArrow={false}
-                  className="flex items-center justify-center rounded-md p-2.5 text-muted transition-colors duration-200 hover:text-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-bg"
-                >
-                  <BrandIcon name={nameToIcon[name]} />
-                </ExternalLink>
-              </li>
-            ))}
-          </ul>
+          <ReleaseSwitcher artistLinks={artist.links} />
         </section>
 
         <section

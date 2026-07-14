@@ -36,7 +36,7 @@ export default function CitiesPicker({ value, onChange }: CitiesPickerProps) {
   return (
     <div>
       <p className="mb-1 text-sm font-medium text-text">
-        Villes <span className="text-muted">(optionnel)</span>
+        Villes
       </p>
 
       {value.length > 0 && (

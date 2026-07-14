@@ -1,9 +1,9 @@
 # Résonance — AI Context File
 > Paste/upload this at the start of any new conversation to resume instantly.
 
-**Last updated:** 2026-07-13 — **DELIVERABILITY + RESILIENCE HARDENING SESSION.** Real-world failure found: a friend's Yahoo inbox sent the magic link to SPAM despite SPF+DKIM+DMARC all passing. Root causes addressed: (1) new sender domains have NO reputation — first mails land in spam regardless of auth records; (2) the default Supabase template linked to `*.supabase.co` while the mail was FROM qiwichee.com — sender≠link is a **phishing fingerprint**. Shipped: spam-check microcopy on the gate · `/auth/confirm` route verifying `{{ .TokenHash }}` on OUR domain · BOTH email templates rebuilt (bilingual FR/EN) · Supabase **keepalive** (RPC + cron) after the free tier PAUSED the project during a holiday, which kills the gate. Release-switcher NOT started — still the next active build.
-**Status:** qiwichee.com LIVE ✅ · Atelier gate ✅ · **Magic links now 100% on qiwichee.com — zero supabase.co in any email ✅** · **Spam microcopy ✅** · **Keepalive ✅ (route verified; CRON path still to confirm)** · Lullabies palette ✅ · `[data-release]` architecture ✅ · EmbedPlayer ✅ · Insider clip ✅ LIVE · SPF+DKIM+DMARC ✅ · Event-engine SQL ✅ committed, ⛔ UNRUN
-**Next session goal (unchanged, in order):** (1) **MUSIC RELEASE-SWITCHER** = the per-release palette feature ← STILL THE NEXT ACTIVE BUILD. (2) EVENT ENGINE (run event_engine.sql + seed owners row). (3) BILINGUAL next-intl refactor (own session). **First, though: check Vercel → Cron Jobs (see OPEN VERIFICATION below).**
+**Last updated:** 2026-07-14 — **COPY FIX + RELEASE-SWITCHER DESIGN SESSION.** Shipped: removed the confusing `(optionnel)` from the cities label in `CitiesPicker.tsx` (commit ee1a0ce — user feedback: it contradicted the "helps Qiwi Chee choose where to play" microcopy). Decided: the release-switcher will be built as a **horizontal scroll-snap CAROUSEL** (mobile swipe = release selector; page accent recolours as you swipe = the signature element). Brief written → `docs/briefs/release_switcher.md`. Design rule locked: horizontal swipe = browsing SIBLINGS within one section ONLY, never navigation between sections; the Atelier gate NEVER lives behind a swipe. Analytics direction chosen: first-party `log_event` security-definer RPC (keepalive pattern) → `analytics_events` table; MS Clarity DEFERRED (session recording ⇒ GDPR consent banner the site deliberately doesn't have). Lyrics + music sheets = new backlog content types, rights review flagged.
+**Status:** qiwichee.com LIVE ✅ · Atelier gate ✅ · Magic links 100% on qiwichee.com ✅ · Spam microcopy ✅ · Keepalive ✅ (route verified; CRON path still to confirm) · Lullabies palette ✅ · `[data-release]` architecture ✅ · EmbedPlayer ✅ · Insider clip ✅ LIVE · SPF+DKIM+DMARC ✅ · Event-engine SQL ✅ committed, ⛔ UNRUN · **Cities label fixed ✅ · Release-switcher brief ✅ READY (docs/briefs/release_switcher.md)**
+**Next session goal (in order):** (1) **MUSIC RELEASE-SWITCHER** — build from `docs/briefs/release_switcher.md` (scroll-snap carousel; mind the HYDRATION TRAP + the 88%-width partial peek). (2) EVENT ENGINE (run event_engine.sql + seed owners row). (3) BILINGUAL next-intl refactor (own session). **First, though: check Vercel → Cron Jobs (see OPEN VERIFICATION below) — still open.**
 
 ---
 
@@ -52,7 +52,55 @@ Capture the relationship BEFORE sending anyone off to listen. The Atelier gate i
 
 ---
 
-## ✅ DONE THIS SESSION (2026-07-13) — DELIVERABILITY + RESILIENCE
+## ✅ DONE THIS SESSION (2026-07-14) — COPY FIX + RELEASE-SWITCHER DESIGN
+
+```
+1. CITIES LABEL FIX — shipped (commit ee1a0ce)
+├── src/components/CitiesPicker.tsx line 39: removed `(optionnel)` span from the "Villes" label.
+├── WHY: real-user feedback — "(optionnel)" contradicted the microcopy explaining the field
+│   feeds owner_city_density() ("this matters… but skip it"). Label now pulls one direction.
+└── No validation/a11y change: the field carries no `required` attr; screen readers announce
+    required-ness from markup, not label text. Field stays skippable, just stops advertising it.
+
+2. RELEASE-SWITCHER DESIGN LOCKED — horizontal scroll-snap carousel
+├── User insight: mobile fans have the left/right swipe reflex from social media. Applied to
+│   the RELEASES only (homogeneous siblings) — the pattern's documented weakness is that
+│   off-screen content gets missed, so heterogeneous must-see content stays on the vertical spine.
+├── The carousel IS the [data-release] feature: each slide wrapped in its own data-release div;
+│   swiping recolours the page accent = THE SIGNATURE ELEMENT of the page.
+├── DESIGN RULE (standing): horizontal swipe = browsing siblings WITHIN a section only. NEVER
+│   navigation between sections (fights vertical scroll; no keyboard/SR equivalent). Cross-section
+│   jumps = links/anchors inside slides. The ATELIER GATE never lives behind a swipe.
+├── Pure CSS scroll-snap, NO carousel library (telecom: passive splitter over active mux) —
+│   server-rendered slides (SEO/AI-agents), native keyboard scroll, zero dependency.
+├── ⚠️ HYDRATION TRAP identified: "featured release randomised on load" must be a CLIENT-SIDE
+│   SCROLL POSITION (useEffect + scrollTo behavior:'instant'), NEVER randomised DOM order —
+│   otherwise React hydration mismatch + crawlers see a different page each visit.
+├── Partial peek is LOAD-BEARING: slides ~88% wide so the next slide's edge shows. Do not let
+│   a cleanup pass make slides 100% and kill the affordance.
+└── FULL BRIEF: docs/briefs/release_switcher.md (scope, a11y checklist, JSON-LD MusicAlbum,
+    Claude Code handoff rules, verify list). Build from the brief, not from memory.
+
+3. ANALYTICS DIRECTION CHOSEN (not built — needs its own small brief)
+├── Q: "how do we see what real fans look at?" → TWO layers:
+├── LAYER 1 (chosen, first-party): log_event(event_type, release_slug) SECURITY-DEFINER RPC →
+│   analytics_events table, NO client grant (keepalive pattern, but INSERTs one row).
+│   Events: slide viewed >1s (the carousel's IntersectionObserver already knows), play clicked,
+│   atelier_gate_view, gate_email_submitted (the conversion pair the machine is judged on).
+│   No cookies, no consent banner, no third-party script. Dovetails with per-teaser tracked
+│   links (same table, same RPC, one system).
+└── LAYER 2 (DEFERRED): MS Clarity heatmaps/recordings ⇒ GDPR consent banner + privacy-statement
+    update. The site deliberately has no banner (only the future functional locale cookie).
+    Revisit only if watching scroll behaviour becomes necessary; accept the consent cost then.
+
+4. BACKLOG ADDITIONS: Lyrics + Music Sheets as insider/site content — new content types.
+   Rights-at-upload rule applies; she's author/composer so likely her call, but published
+   sheet music/lyrics goes on the entertainment-lawyer list alongside the /legal review.
+```
+
+---
+
+## ✅ PREVIOUS SESSION (2026-07-13) — DELIVERABILITY + RESILIENCE
 
 ```
 THE TRIGGER — a real user test, not a lab metric:
@@ -469,7 +517,8 @@ DEPLOY NOTE: preview *.vercel.app URLs are NOT on the Supabase redirect allow-li
 ```
 OS: Linux Mint · user simba · hostname ssd. Repo: /home/simba/Projects/qiwichee
 Specs/raw: /home/simba/GDrive/Resonance/02_Produit_Tech/ · Sync: ~/sync_resonance.sh
-Briefs in repo: docs/briefs/ (tiny_concert_engine.md, event_engine.sql, ★ keepalive.sql)
+Briefs in repo: docs/briefs/ (tiny_concert_engine.md, event_engine.sql, keepalive.sql,
+  ★ release_switcher.md)
   docs/templates/ (★ supabase_emails.md) · docs/BRIEF_embed_player.md
 Node v22.22.3 · Next.js 16.2.4 · TS · Tailwind 4 (CSS-first @theme) · @supabase/ssr
 Apple keyboard. VS Code integrated terminal: View > Terminal.
@@ -525,6 +574,8 @@ GOTCHA: Next.js 16 rejects og:type "music.musician" at runtime → use "website"
   Supabase Pro) → CRESS IDF / Les Scop IDF on the critical path once charging.
 - user_id/owner ALWAYS from the auth session, never the request body. Zod on every route.
 - Claude Code briefs: scoped, no auto-commit, show `git status` + full files. Review the FULL diff.
+- ★ Horizontal swipe = browsing SIBLINGS within a section only (releases, later photos). NEVER
+  navigation between sections. Cross-section jumps = links/anchors. The gate never behind a swipe.
 - Never suggest Telegram (WhatsApp links). Flag geographic/institutional risks neutrally.
 - Remind to consult the entertainment lawyer before the /legal module.
 - End of session: ask if instructions need updating; offer an updated CONTEXT_FOR_AI; remind
@@ -560,9 +611,17 @@ GOTCHA: Next.js 16 rejects og:type "music.musician" at runtime → use "website"
     carry {{ .ConfirmationURL }} and will leak supabase.co the day a flow fires them. Known, parked.
 [ ] ★ Consider a dead-man's-switch monitor (Healthchecks.io / UptimeRobot) — alert on the ABSENCE of
     the keepalive ping. Converts "I think it's working" into "I'd be told if it stopped."
-[ ] (NEXT BUILD) Music release-switcher = the [data-release] feature. Release selector → EmbedPlayer
-    per release (Bandcamp full lead) → section recolours; featured release randomised on load;
-    click-to-play, no autoplay. Build the per-release palettes (hand-picked, AA-verified) here.
+[ ] (NEXT BUILD) Music release-switcher = the [data-release] feature, as a HORIZONTAL SCROLL-SNAP
+    CAROUSEL — build from docs/briefs/release_switcher.md. Key traps written in the brief:
+    HYDRATION (random featured = client-side scroll position, never DOM order) and the ~88%-width
+    partial peek (load-bearing affordance). Per-release palettes hand-picked + AA-verified here.
+    Bandcamp full-audio leads; click-to-play; no autoplay; gate never inside the carousel.
+[ ] ★ Analytics layer 1 brief — analytics_events table + log_event security-definer RPC (keepalive
+    pattern, INSERT one row, no client grant). Events: slide view / play click / gate view / gate
+    submit. Also carries the per-teaser tracked links (same table, same RPC). Clarity DEFERRED
+    (GDPR consent banner). Build after (or alongside) the carousel — the IntersectionObserver
+    the carousel needs anyway is the emitter.
+[ ] Lyrics + music sheets as content types — PARKED behind rights review (lawyer list).
 [ ] (THEN) Event engine — run docs/briefs/event_engine.sql → seed owners row → owner UI + RSVP flow.
 [ ] (THEN, own session) Bilingual next-intl refactor — [locale] segments, fr/en.json, toggle, hreflang.
     ALSO IN SCOPE: the Send Email Hook (the only way to make auth emails locale-aware).
@@ -580,8 +639,8 @@ GOTCHA: Next.js 16 rejects og:type "music.musician" at runtime → use "website"
 ```
 
 ---
-*Updated 2026-07-13 · Deliverability + resilience session. A real Yahoo inbox found what mail-tester
-9.5/10 could not. Magic links now live entirely on qiwichee.com; both email templates rebuilt; the
-free-tier pause that silently kills the gate is now mitigated by a daily keepalive. Two things remain
-UNVERIFIED and are written down as such: the cron's actual path to the route, and {{ .SiteURL }}.
-NEXT BUILD = music release-switcher.*
+*Updated 2026-07-14 · Copy fix + release-switcher design session. Cities label de-confused (real
+user feedback). The release-switcher is now fully specified as a scroll-snap carousel — swipe
+between releases, page recolours, hydration trap and partial-peek written into the brief. Analytics
+answered first-party (log_event RPC, keepalive pattern); Clarity deferred behind the consent
+decision. Cron verification STILL open. NEXT BUILD = the carousel, from docs/briefs/release_switcher.md.*

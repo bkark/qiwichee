@@ -160,3 +160,121 @@ canonical profile list in CONTEXT_FOR_AI.
 - View-source (not DevTools DOM): all releases present in the raw server HTML.
 - `prefers-reduced-motion: reduce` emulated: no animated recolour, no smooth scroll.
 - Lighthouse a11y pass on the homepage after the change.
+# APPENDIX — Release-Switcher DATA BLOCK (verified)
+> Append to `docs/briefs/release_switcher.md`. Assembled 2026-07-14 with Bassim.
+> Everything here is VERIFIED from a canonical source. Claude Code must NOT invent,
+> guess, or "improve" any value below. If something is missing, STOP and ask.
+
+---
+
+## 1. RELEASES — canonical DOM order (newest first, FIXED — see HYDRATION TRAP)
+
+| # | slug | title | type | lead embed | date |
+|---|---|---|---|---|---|
+| 1 | `lullabies` | Lullabies | single (MV) | YouTube `L0mHWXa2UyQ` | — |
+| 2 | `hybrid-fruit` | Hybrid Fruit | album (6 titres) | Bandcamp `album=2331494883` | 27 oct 2024 |
+| 3 | `une-derniere-chose` | Une dernière chose | single | Bandcamp `track=2132072682` | 31 mars 2023 |
+| 4 | `dilemma` | Dilemma | album | Bandcamp `album=2503435136` | LEILANI era |
+
+**Canonical URLs (source: browser address bar / Bandcamp embed dialog, 2026-07-14):**
+```
+qiwichee.bandcamp.com/album/hybrid-fruit
+qiwichee.bandcamp.com/track/une-derni-re-chose
+leilanigroove.bandcamp.com/album/dilemma      <- different account (LEILANI)
+youtu.be/L0mHWXa2UyQ                          <- Lullabies official MV
+```
+
+**Bandcamp iframe src pattern (verified):**
+```
+https://bandcamp.com/EmbeddedPlayer/album=<ID>/size=large/bgcol=<hex>/linkcol=<hex>/tracklist=false/transparent=true/
+```
+⚠️ `bgcol` / `linkcol` are **URL parameters for a third party**, not component styles. They
+are the ONE legitimate place a hex appears outside `globals.css`. Feed them from the release's
+palette values and **leave a code comment saying so**, or a future hex-grep will flag a false
+positive.
+
+---
+
+## 2. DILEMMA / LEILANI — identity decision (settled)
+
+Qiwi Chee is **not** burying the LEILANI name — it is simply a former artist name.
+Therefore:
+- Dilemma ships as a **full slide**, not hidden.
+- JSON-LD: the existing `MusicGroup` gains **`"alternateName": "LEILANI"`**.
+- Dilemma's `MusicAlbum` → `byArtist` → **the same MusicGroup** (same person, prior name).
+  This lets search engines and AI agents merge the two identities instead of treating
+  LEILANI as a stranger — the back catalogue starts feeding the fan machine.
+- Slide descriptor should carry the context so a new fan doesn't blink, e.g.
+  *"Dilemma — sorti sous le nom LEILANI"*. **Copy is Qiwi Chee's voice → she confirms wording.**
+
+---
+
+## 3. ARTWORK — files on disk
+
+Staging root (NEW — the old `~/GDrive/...` path is dead, see session notes):
+`/media/Main_HDD/GDrive/Resonance/04_Qiwichee/`
+
+| slug | file | dims | status |
+|---|---|---|---|
+| `lullabies` | `Lullabies/Lullabies.png` | 1366×768 | ⚠️ **PLACEHOLDER** — 16:9 YouTube screenshot, not cover art |
+| `hybrid-fruit` | `Hybrid Fruit/Hybrid Fruit.jpg` | 350×350 | ⚠️ **PLACEHOLDER** — Bandcamp thumbnail, blurry at 2× |
+| `une-derniere-chose` | `Une dernière chose-Photo/une derniere chose-IMG-20250608-WA0002.jpg` | 1600×1600 | ✅ good |
+| `dilemma` | `Dilemma/Dilemma-cover~3.jpg` | 1200×1200 | ✅ good |
+
+**PENDING WHATSAPP ASK → Qiwi Chee:** square Lullabies cover (the Spotify/Deezer one) +
+Hybrid Fruit source file. Both are drop-in replacements in `public/` — **no code change**.
+Do NOT let the placeholders quietly become permanent.
+
+**Prep before `public/`:** rename to slug-based ASCII filenames (no spaces/accents), convert
+the PNG to JPG/WebP (photographic content in PNG is pure waste), keep square crops.
+Meaningful `alt` per image. `next/Image`, local files only — NO third-party CDN fetch.
+
+*(Note: the other six `IMG-2026...` files in the Une-dernière-chose folder are the photo batch
+for the PARKED bio/images build. Out of scope here. Don't touch.)*
+
+---
+
+## 4. PALETTES — one accent per release
+
+### `lullabies` → **NO OVERRIDE** (deliberate)
+The site's default accent **prune `#7A3B8C`** was itself extracted from the Lullabies MV.
+So Lullabies **is** the base palette. Its `[data-release]` div carries no accent overrides —
+swiping to it returns the page to base colour. Zero new tokens, zero new AA checks.
+
+### The three overrides (PROPOSED — Qiwi Chee's veto stands, same as prune-vs-periwinkle)
+
+| slug | accent | reading | white-on-accent |
+|---|---|---|---|
+| `hybrid-fruit` | `#C2185B` framboise | the artwork's hot magenta-fuchsia vortex | **5.40:1** ✅ |
+| `une-derniere-chose` | `#1C6E8C` bleu d'eau profond | the water's deep petrol undertone (the pale blue is too light to be an accent) | **5.74:1** ✅ |
+| `dilemma` | `#9E1B32` carmin profond | the cover's red half — purple is already the site identity, so Dilemma takes the other side of the dilemma | **7.90:1** ✅ |
+
+Carousel spread: purple → pink → blue → red. No two neighbours alike.
+
+### ⚠️ AA VERIFICATION IS NOT DONE — Claude Code MUST re-verify
+- The **white-on-accent** ratios above are exact.
+- The **accent-on-bg** ratios were *derived* (back-calculated from prune's recorded 6.23:1),
+  **not measured against the real `--bg` token.**
+- **RE-COMPUTE ALL SIX PAIRS against the actual token values in `globals.css`** before writing
+  anything. Required: white-on-accent ≥ 4.5:1; accent-on-bg ≥ 3:1 as UI colour, ≥ 4.5:1 as text.
+- Record every measured ratio in a CSS comment next to the override — same convention as
+  `#7A3B8C`. If a pair fails, darken the accent and say so; do not ship an unverified colour.
+- STRUCTURE tokens (bg/surface/text/border/border-strong) stay **constant**. Accent roles only.
+
+---
+
+## 5. PLATFORM LINKS PER SLIDE ("Aussi sur →")
+
+Use the existing **`artist.links`** array ONLY (six verified URLs: Spotify, Apple Music, Deezer,
+YouTube, Bandcamp, Instagram). `ExternalLink` component. **NEVER insert an unverified ID or URL.**
+No per-release Spotify/Apple deep links exist in verified form yet — if a slide wants one, it is a
+NEW verified value and must be sourced from the browser address bar first. Don't guess it.
+
+---
+
+## 6. STILL OPEN — do not let these vanish
+
+- [ ] WhatsApp Qiwi Chee: square Lullabies cover + Hybrid Fruit source file.
+- [ ] WhatsApp Qiwi Chee: approve/veto the three accent colours (send swatches + covers).
+- [ ] WhatsApp Qiwi Chee: confirm the Dilemma/LEILANI slide descriptor wording.
+- [ ] Replace both placeholder images once received.

@@ -61,12 +61,47 @@
   scroll-snap-type: x mandatory;
   -webkit-overflow-scrolling: touch; /* legacy iOS Safari momentum scroll */
   scrollbar-width: none;
+  /* Prevent overscroll past the last slide creating blank white space */
+  overscroll-behavior-x: contain;
 }
 .release-scroller::-webkit-scrollbar { display: none; }
 
 .release-slide {
   flex: 0 0 88%;       /* 88% width → ~12% peek of adjacent slide on each side */
   scroll-snap-align: center;
+}
+
+/* Desktop prev/next arrows — hidden on touch (pointer:coarse), revealed on fine pointer.
+   Absolutely positioned over carousel edges; full-height tap target (≥44px satisfied
+   by stretching top:0 bottom:0). Do NOT add display:flex here — media query handles it. */
+.carousel-arrow {
+  display: none;
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  z-index: 1;
+  min-width: 44px;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg);
+  color: var(--text);
+  border: none;
+  cursor: pointer;
+  padding: 0;
+}
+.carousel-arrow:disabled {
+  opacity: 0.25;
+  pointer-events: none;
+}
+.carousel-arrow:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 2px var(--accent), 0 0 0 4px var(--bg);
+}
+.carousel-arrow--prev { left: 0; }
+.carousel-arrow--next { right: 0; }
+
+@media (pointer: fine) {
+  .carousel-arrow { display: flex; }
 }
 
 /* ── Per-release palette overrides ─────────────────────────────────

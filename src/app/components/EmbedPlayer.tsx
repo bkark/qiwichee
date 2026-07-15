@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useRef, useCallback, useEffect } from 'react'
 import Image, { type StaticImageData } from 'next/image'
 import { getEmbedUrl } from '@/lib/media/mediaService'
 import type { MediaAsset } from '@/lib/media/types'
@@ -12,6 +12,11 @@ interface EmbedPlayerProps {
   locked?: boolean
   lockedLabel?: string
   caption?: string
+  // Controlled mode (optional): pass BOTH to enable single-active-player behaviour.
+  // Omitting both preserves the existing uncontrolled behaviour (Atelier clip, standalone use).
+  isActive?: boolean
+  onActivate?: () => void
+  onDeactivate?: () => void
 }
 
 function PosterArea({
@@ -50,14 +55,41 @@ export default function EmbedPlayer({
   locked = false,
   lockedLabel,
   caption,
+  isActive,
+  onActivate,
+  onDeactivate,
 }: EmbedPlayerProps) {
-  const [playing, setPlaying] = useState(false)
+  const [internalPlaying, setInternalPlaying] = useState(false)
+  const isControlled = isActive !== undefined && onActivate !== undefined
+  // In controlled mode the parent drives the playing state; uncontrolled = local state.
+  const playing = isControlled ? (isActive ?? false) : internalPlaying
+  const iframeRef = useRef<HTMLIFrameElement>(null)
+
+  const handleReset = useCallback(() => {
+    if (isControlled) onDeactivate?.()
+    else setInternalPlaying(false)
+  }, [isControlled, onDeactivate])
+
+  // Best-effort iframe error + offline→online resilience (brief §4).
+  // Cross-origin internal errors are unobservable; we catch load errors and network recovery.
+  useEffect(() => {
+    if (!playing) return
+    const iframe = iframeRef.current
+    if (!iframe) return
+    iframe.addEventListener('error', handleReset)
+    window.addEventListener('online', handleReset)
+    return () => {
+      iframe.removeEventListener('error', handleReset)
+      window.removeEventListener('online', handleReset)
+    }
+  }, [playing, handleReset])
 
   return (
     <figure className="w-full">
       <div className="relative aspect-video w-full overflow-hidden rounded-lg border border-border">
         {playing && !locked ? (
           <iframe
+            ref={iframeRef}
             src={getEmbedUrl(asset)}
             title={asset.title}
             className="absolute inset-0 h-full w-full"
@@ -80,7 +112,7 @@ export default function EmbedPlayer({
         ) : (
           <button
             type="button"
-            onClick={() => setPlaying(true)}
+            onClick={() => { if (isControlled) onActivate!(); else setInternalPlaying(true) }}
             aria-label={`Lire : ${asset.title}`}
             className="group absolute inset-0 w-full focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-bg"
           >

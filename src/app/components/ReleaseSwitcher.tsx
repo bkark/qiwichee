@@ -81,7 +81,7 @@ export default function ReleaseSwitcher({ artistLinks }: ReleaseSwitcherProps) {
   return (
     <section aria-label="Musique — parcourir les sorties" className="mt-6">
       {/* Relative wrapper lets arrow buttons be absolutely positioned over carousel edges */}
-      <div className="relative">
+      <div className="relative w-full max-w-full min-w-0 overflow-hidden">
         {/* Scroll-snap container — tabIndex=0 enables arrow-key scrolling */}
         <div
           ref={scrollerRef}

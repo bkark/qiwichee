@@ -39,7 +39,7 @@ export default async function AtelierPage() {
             Contenu
           </h2>
           <p className="mt-3 text-muted">
-            L&rsquo;Atelier arrive — contenu en route ✦
+            L’Atelier arrive — contenu en route ✦
           </p>
         </section>
       </main>

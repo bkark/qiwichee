@@ -32,7 +32,7 @@ export default function WelcomeForm() {
       return
     }
 
-    // RLS ensures this only touches the authenticated user's own row.
+    // RLS ensures this only touches the row owned by the authenticated user.
     // Assumes fans.id = auth.users.id (standard Supabase pattern).
     const { error: updateError } = await supabase
       .from('fans')
@@ -86,7 +86,7 @@ export default function WelcomeForm() {
           disabled={saving}
           className="rounded-md bg-accent px-5 py-2 text-sm font-medium text-accent-contrast hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-2 focus:ring-offset-bg disabled:opacity-50"
         >
-          {saving ? 'Sauvegarde…' : "Entrer dans l'Atelier"}
+          {saving ? 'Sauvegarde…' : 'Accéder à l’Atelier'}
         </button>
         <button
           type="button"

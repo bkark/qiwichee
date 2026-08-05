@@ -171,7 +171,7 @@ export default async function Home({ searchParams }: { searchParams: SearchParam
             About
           </h2>
           <p className="mt-4 max-w-xl text-muted">
-            Placeholder bio. Replace this with Qiwi Chee&rsquo;s real story once
+            Placeholder bio. Replace this with Qiwi Chee’s real story once
             the structure is confirmed.
           </p>
         </section>

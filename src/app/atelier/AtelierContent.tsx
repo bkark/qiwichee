@@ -88,8 +88,8 @@ export default function AtelierContent({ initialNickname, initialCities, status 
               asset={insiderClip}
               poster="/qiwichee_atelier_cover_80s.jpg"
               posterAlt="Qiwi Chee en concert, bannière peinte « Release + Decay »"
-              lockedLabel="Bientôt — réservé à l'Atelier"
-              caption="Un extrait qui n'existe nulle part ailleurs."
+              lockedLabel="Bientôt — réservé à l’Atelier"
+              caption="Un extrait qui n’existe nulle part ailleurs."
             />
           </div>
         </section>
@@ -114,7 +114,7 @@ export default function AtelierContent({ initialNickname, initialCities, status 
               value={nickname}
               onChange={(e) => { setNickname(e.target.value); setSaveStatus('idle') }}
               maxLength={30}
-              placeholder="Le nom que voient les autres dans l'Atelier."
+              placeholder="Le nom que voient les autres dans l’Atelier."
               className="max-w-xs rounded-md border border-border bg-surface px-3 py-2 text-sm text-text placeholder:text-muted focus:outline-none focus:ring-2 focus:ring-accent"
             />
           </div>

@@ -17,7 +17,7 @@ function md5(input: string): string {
 }
 
 // Called after magic-link verification — email ownership is already proven by Supabase,
-// so we use status_if_new:"subscribed" (not "pending") to skip Mailchimp's own confirmation mail.
+// so we use status_if_new:"subscribed" (not "pending") to skip the Mailchimp confirmation mail.
 export async function subscribeFan(email: string): Promise<void> {
   const dc = datacenter()
   const normalised = email.toLowerCase().trim()

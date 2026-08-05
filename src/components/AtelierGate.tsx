@@ -50,12 +50,12 @@ export default function AtelierGate({ initialError }: AtelierGateProps) {
           id="gate-heading"
           className="font-display text-2xl font-semibold tracking-tight text-text"
         >
-          L&rsquo;Atelier
+          Atelier
         </h2>
         <p className="mt-3 text-muted">
-          Entre dans l&rsquo;Atelier — les versions inédites, l&rsquo;accès en
+          Entre dans l’Atelier — les versions inédites, l’accès en
           avant-première aux mini-concerts, et ton mot à dire sur la suite.
-          C&rsquo;est ici, pas sur Spotify.
+          C’est ici, pas sur Spotify.
         </p>
 
         <form onSubmit={handleSubmit} noValidate className="mt-6 flex flex-col gap-4">
@@ -97,18 +97,18 @@ export default function AtelierGate({ initialError }: AtelierGateProps) {
             disabled={busy}
             className="self-start rounded-md bg-accent px-5 py-2 text-sm font-medium text-accent-contrast hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-2 focus:ring-offset-bg disabled:opacity-50"
           >
-            {status === 'submitting' ? 'Envoi…' : "Rejoindre l'Atelier"}
+            {status === 'submitting' ? 'Envoi…' : 'Accéder à l’Atelier'}
           </button>
 
           <div aria-live="polite" aria-atomic="true" className="min-h-[1.25rem] text-sm">
             {status === 'sent' && (
               <p className="text-accent">
-                Vérifie ta boîte mail — ton lien vers l&rsquo;Atelier arrive ✦
+                Vérifie ta boîte mail — ton lien vers l’Atelier arrive ✦
               </p>
             )}
             {status === 'sent' && (
               <p className="mt-2 text-xs text-muted">
-                Pas d&rsquo;e-mail dans ta boîte de réception&nbsp;? Regarde dans tes spams&nbsp;/
+                Pas d’e-mail dans ta boîte de réception&nbsp;? Regarde dans tes spams&nbsp;/
                 indésirables — et marque-le comme &laquo;&nbsp;non spam&nbsp;&raquo; pour recevoir les
                 prochains directement.
               </p>

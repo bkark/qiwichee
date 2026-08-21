@@ -1,374 +1,151 @@
 # Résonance — AI Context File
 > Paste/upload this at the start of any new conversation to resume instantly.
 
-**Last updated:** 2026-08-04 — **PRODUCT MODEL SESSION. NO CODE SHIPPED. FIVE STANDING RULES ADDED.**
-This session was strategy + naming, triggered by an external (Kimi) conversation that was imported,
-de-conflicted and folded in. Nothing was built. What changed is **the rules everything else obeys**:
-(1) **“L’Atelier” → “Atelier”** as the product name (artist’s decision); (2) **curved apostrophe `’`
-everywhere in French display text**; (3) **fan-facing labels must be epicene**; (4) the Phase-1 money
-rule was **re-framed from timing to custody** — Résonance never *holds* fans’ money, but Stripe
-Connect direct charges are viable much earlier than previously written; (5) **ONE SHARED SUPABASE
-PROJECT — DECIDED**, which makes every table multi-tenant from line one and puts the **Send Email
-Hook on the critical path**.
-**Status:** qiwichee.com LIVE ✅ · Atelier gate ✅ · Magic links ✅ · Keepalive CRON VERIFIED ✅ ·
-Release-switcher carousel LIVE ✅ · SPF+DKIM+DMARC ✅ · Event-engine SQL ✅ committed, ⛔ UNRUN
-**(and now DELIBERATELY HELD — it needs new columns, see LADDER & SEASONS)** ·
-Storage: ONE tree, backed up nightly ✅
-**Next session goal (in order):** (1) **NAMING/COPY PASS** — Atelier rename + “Accéder à l’Atelier”
-+ curved apostrophes, site **and both Supabase email templates** (one brief, mechanical, do it first
-so nothing else inherits the old strings). (2) **DESIGN PASS — carousel v2** (song-per-slide +
-credits + Bandcamp UX). (3) **DESIGN PASS — ladder & seasons** (blocks the event engine).
-(4) EVENT ENGINE (run the *revised* SQL + seed owners row). (5) BILINGUAL next-intl + Send Email Hook.
+**Last updated:** 2026-08-21 — **SESSION DE BUILD. MODULE BIO LIVRÉ. PREMIÈRE TABLE MULTI-TENANT RÉELLE.**
+Session mixte : tri d’un document importé (Kimi), passe LADDER partielle, puis construction complète
+du module BIO — de la table au composant déployé. Ce qui change structurellement :
+(1) **`artists` existe** — la décision « un seul projet Supabase » a enfin une ancre ;
+(2) **les droits sont un état PAR USAGE**, pas par photo — deux booléens, pas un ;
+(3) la règle épicène devient une **méthode de réécriture** au lieu d’une chasse au bon mot ;
+(4) **`tier` va sur `atelier_members`**, pas sur `fans` (correction d’une note antérieure) ;
+(5) nouvelle leçon dure : **code écrit ≠ code servi**.
+**Status:** qiwichee.com LIVE ✅ · Atelier gate ✅ · Magic links ✅ · Keepalive CRON ✅ ·
+Release-switcher ✅ · **Section BIO LIVE ✅** · SPF+DKIM+DMARC ✅ · Site en français, `lang="fr"` ✅ ·
+Event-engine SQL ⛔ TOUJOURS UNRUN (et doit maintenant pointer vers `artists`)
+**Commits du jour :** `8d0eb1b` (schéma bio + photos) · `12834d1` (composant + copie FR)
+**Next session goal (in order):** (1) **BILINGUE next-intl** — demandé pour la bêta, et il touche
+`bio_blocks` (colonnes de traduction : décision de schéma). (2) LADDER & SEASONS — finir la passe.
+(3) `fans` MULTI-TENANT MIGRATION. (4) EVENT ENGINE révisé. (5) CAROUSEL V2.
 
 ---
 
-## 🏷️ NAMING — CHANGED 2026-08-04 (artist’s decision; propagate everywhere)
+## 🖼️ MODULE BIO — LIVRÉ 2026-08-21
 
 ```
-THE NAME IS:  Atelier          (NOT “L’Atelier”. The article is no longer part of the name.)
+CE QUE C’EST : des couples texte/photo, ordonnés à la main, en carrousel horizontal.
+DEUX RENDUS SUR LA MÊME SOURCE : le carrousel web (fait) et le PRESS KIT PDF (à venir).
+Un press kit n’est pas un second module — c’est une seconde vue des mêmes lignes.
 
-BUT French grammar keeps the article in running prose — same as “Louvre” / “aller au Louvre”:
-  Standalone (nav, headings, wordmark, page title, JSON-LD name):  Atelier
-  In a sentence:                                                   l’Atelier  (capital A kept)
-  Examples:  “Accéder à l’Atelier”  ·  “Bienvenue dans l’Atelier”  ·  “Atelier” (nav item)
+SCHÉMA (docs/briefs/bio_blocks.sql — ✅ LANCÉ ET VÉRIFIÉ, pas seulement committé) :
+  artists      id · slug · name · created_at          ← ANCRE MULTI-TENANT
+  bio_blocks   artist_id (NOT NULL, FK) · slug · sort_order · title · body ·
+               image_path · image_hd_path · image_alt (NOT NULL) ·
+               credits jsonb [{role,name}] ·
+               rights_web_confirmed · rights_press_confirmed · rights_note ·
+               usage_scope ('web'|'presskit'|'both') · is_published
+  get_bio_blocks(p_artist_slug, p_usage)  security definer, execute → anon + authenticated
 
-CTA COPY CHANGED:  “Accéder à l’Atelier”
-  REPLACES: “Rejoindre l’Atelier” (wrong — you join once, you access repeatedly)
-  REPLACES: “Entrer dans L’Atelier” (the current string in BOTH Supabase email templates)
+★ LA BARRIÈRE DE DROITS EST DANS LE RPC, PAS DANS LE CLIENT.
+  Un bloc n’est renvoyé que si le droit correspondant à l’usage DEMANDÉ est vrai.
+  Le futur rendu press kit ne PEUT PAS publier une photo non autorisée — ce n’est pas
+  une consigne qu’un dev pourrait oublier, c’est une impossibilité côté base.
+  (Télécom : on filtre sur le routeur, pas sur le poste client.)
+  VÉRIFIÉ : web → 7 · presskit → 0 · artiste inconnu → 0.
 
-⚠️ THE EMAIL TEMPLATES ARE PART OF THIS. If the site says “Accéder” and the first-contact mail
-   says “Entrer dans L’Atelier”, the two disagree at the exact moment of first contact.
+CONTENU : 7 blocs, photos de MAËLYS JIBIDAR (série « Une dernière chose »).
+  1 qui-je-suis · 2 entre-quatre-villes (Honolulu, San Diego, Alger, Paris) ·
+  3 britney-et-elliott · 4 ce-que-je-n-aime-pas · 5 ce-que-j-aime ·
+  6 avant-il-y-a-eu-boston (zoo de Boston) · 7 une-derniere-chose (guitare, saxo, cerf-volant)
+  usage_scope : 1,2,3,6 = both · 4,5,7 = web (trop intimes pour un dossier professionnel)
+  ★ C’EST LE CONTENU RÉEL QUI A TRANCHÉ `usage_scope`, pas la théorie. Toujours dans ce sens.
 
-FILES CARRYING THE OLD STRINGS (grep before assuming this list is complete):
-  src/…/AtelierGate.tsx · src/…/AtelierContent.tsx · page copy · nav · metadata/JSON-LD ·
-  docs/templates/supabase_emails.md · BOTH LIVE Supabase templates (Confirm signup + Magic Link)
+COMPOSANTS : src/app/components/BioSection.tsx (serveur : RPC + Zod + console.error)
+             src/app/components/BioSwitcher.tsx (client : carrousel)
+             src/lib/constants.ts (ARTIST_SLUG)
+  Départ TOUJOURS sur le premier bloc (une bio a un début — contrairement au carrousel
+  musique qui démarre au hasard). PAS de recoloration par slide (signature de la musique).
 
-FIXED BRAND STRINGS (never translated, FR or EN): “Atelier” · “Qiwi Chee” · “Résonance”
-```
-
----
-
-## ✍️ FRENCH TYPOGRAPHY — CURVED APOSTROPHE (standing rule, added 2026-08-04)
-
-```
-USE  ’  (U+2019 RIGHT SINGLE QUOTATION MARK)   NOT  '  (U+0027 APOSTROPHE)
-in ALL French display text. “l’Atelier”, “d’écoute”, “aujourd’hui”.
-
-WHY IT ALSO HELPS TECHNICALLY (three free wins, not just typography):
-  - Silences eslint react/no-unescaped-entities (that rule flags ' and ", not ’).
-  - 'l’Atelier' does NOT break a single-quoted JS/TS string — no escaping needed.
-  - Sidesteps the bash '\'' escaping gymnastics in heredocs and sed.
-
-⛔ WHERE IT MUST NEVER GO (machine text stays straight, or has no apostrophe at all):
-  slugs · filenames · URLs · email addresses · DB column/table/enum values · SQL identifiers ·
-  CSS class names · sed patterns · env var names · JSON keys.
-  RULE OF THUMB: if a human reads it, ’ . If a machine matches it, ' or nothing.
-
-ENFORCEMENT GREP (same discipline as the hex-token grep — run it in every copy review):
-  grep -rn "[A-Za-zÀ-ÿ]'[A-Za-zÀ-ÿ]" src/ --include=*.tsx --include=*.ts
-
-TYPING IT (Linux Mint, Apple keyboard): Ctrl+Shift+U → 2019 → Enter in GTK apps.
-  In VS Code that shortcut does NOT work — define a snippet or set a Compose key. Do this once.
-
-PARKED (real French typography, not enforced yet): narrow no-break space before : ; ! ?
-  and inside « ». Interacts with line-breaking and copy-paste. Revisit in the bilingual session.
+⚠️ DROITS PHOTO — ÉTAT RÉEL :
+  Usage WEB : accordé oralement par Maëlys Jibidar (août 2026). Consigné dans rights_note.
+  Usage PRESSE : NON DEMANDÉ. Mail rédigé, à envoyer — de préférence SIGNÉ PAR QIWI CHEE
+    (une photographe répond à l’artiste ; un tiers déclenche une grille tarifaire).
+  FICHIERS HD : N’EXISTENT NULLE PART. Les 7 fichiers plafonnent à 1600 px (compression
+    WhatsApp), y compris la copie « archive » du Drive. Si le disque de Maëlys tombe,
+    la séance est perdue. image_hd_path reste null. → DEMANDE URGENTE.
+  Transfert à demander par LIEN (WeTransfer/SwissTransfer/Drive), JAMAIS par WhatsApp,
+    Instagram ou iMessage « format réduit » : les trois recompressent en silence.
 ```
 
 ---
 
-## 🎚️ ENGAGEMENT LADDER & SEASONS — THE PRODUCT (new 2026-08-04, DESIGN PASS PENDING)
+## 🎚️ ENGAGEMENT LADDER — PASSE PARTIELLE 2026-08-21
 
 ```
-THE PRODUCT INSIGHT (Bassim, this session): THE ARTIST MUST NOT HAVE TO INVENT THE RULES.
-Résonance ships the PROGRAM — the levels, the rhythm, the milestones. The artist supplies content.
-That is what makes it a tool and not a blank CMS. Without it, the gate produces a DEAD EMAIL
-DATABASE: the failure mode this whole layer exists to prevent.
+★ RÈGLE ÉPICÈNE — REFORMULÉE EN MÉTHODE (remplace « trouve un mot épicène », qui échoue
+  par construction puisqu’il demande de deviner) :
 
-THE LADDER (three tiers — deliberately few, must be explainable in one sentence):
-┌───────────┬──────────────┬────────────────────────────────────────────┬──────────┐
-│ Visiteur  │ no gate      │ bio, music, links                          │ LIVE ✅  │
-│ Membre    │ magic link   │ Atelier, insider content, RSVP, city pin   │ LIVE ✅  │
-│ Abonné    │ paid (Stripe)│ online concerts, priority RSVP, votes,     │ DESIGN   │
-│           │              │ season arc, producer credits               │          │
-└───────────┴──────────────┴────────────────────────────────────────────┴──────────┘
-Tier 1 and 2 ALREADY EXIST. Only tier 3 is new. Say this out loud when scoping — it is much
-less work than the strategy documents make it sound.
+  1. Le libellé désigne-t-il une PERSONNE ? → il a un féminin → RÉÉCRIS.
+  2. Réécris en : NOM ABSTRAIT · GROUPE NOMINAL · ADJECTIF INVARIABLE · VERBE.
 
-BEHAVIOURAL BADGES sit INSIDE tier 2, driven by visit_count (touch_fan already increments it —
-the first rung is built). FIRST BADGE NAMED: “Fidèle à l’écoute”.
-  ⛔ REPLACES “Habitué” — gendered. See the EPICENE rule below.
+  Un abstrait n’a pas de genre social. C’est épicène PAR CONSTRUCTION, pas par chance.
+  (« Archiviste » était correct par accident — rien dans l’ancienne méthode ne le garantissait.)
 
-SEASONS — the container (strongest idea of the session, and it is STRUCTURAL, not cosmetic):
-  A season = a 3–4 month arc with a start, a fixed ritual rhythm (predictable weekly beats),
-  a collective milestone, and a FINALE (the concert). Events therefore DO NOT STAND ALONE —
-  an event belongs to a season. This is a schema fact, not a marketing frame.
+  ⛔ PASSEUR → ✅ BOUCHE-À-OREILLE   (passeur/passeuse ; le badge dit « amène d’autres fans »)
+  ✅ Fidèle à l’écoute · Présence constante · Mémoire de l’Atelier · De la première heure
+  ❌ Créateur · Ambassadeur · Habitué · Passeur
 
-PRIORITY ACCESS, NOT SEAT MAPS (simplification — take this one):
-  “Better seats for high-level fans” ships as a PRIORITY RSVP WINDOW: tier 3 opens 48h before
-  tier 2. ONE TIMESTAMP COLUMN instead of a seating engine, and in a tiny venue it delivers
-  exactly the same felt privilege. Do not build seat selection.
+  NOTE : une artiste qui se décrit à la 1ʳᵉ personne (« passeuse entre les cultures »)
+  n’est PAS concernée. La règle vise les libellés que LA PLATEFORME applique à des fans.
 
-COLLECTIVE MILESTONE (“40 subscribers = a show”): threshold on RSVP COUNT, money external.
-  Same fan psychology, no escrow exposure. If the mechanic doesn’t work free, it won’t work paid.
+TROIS PALIERS — et un seul mot restait à trouver :
+  visiteur  → jamais affiché (état « pas de gate »). Rien à corriger.
+  membre    → déjà épicène. Rien à corriger.
+  abonne    → SEUL vrai sujet, et c’est le seul palier qui n’existe pas encore.
+  ★ VALEURS DB : 'visiteur' | 'membre' | 'abonne' — texte machine, règle épicène NON applicable.
+  ★ LIBELLÉ AFFICHÉ : une seule constante de copy. Ne bloque AUCUN développement.
+    Candidat : « Complice ». Alternative : ne pas nommer du tout — l’abonnement reste un
+    ÉTAT du membre, pas une identité. Décision de Qiwi Chee.
 
-⚠️ THE REAL BLOCKER ON TIER 3 IS NOT CODE. The artist needs a legal way to RECEIVE the money.
-   A fan subscription paid to an artist with no structure is income they cannot invoice cleanly —
-   the CAE / billing-provider problem. TIER 3 SHIPS WHEN THE ARTIST HAS A STATUS, not when Stripe
-   is wired. → Check where Qiwi Chee stands. This may be the actual critical path.
+BADGES : DÉRIVÉS de visit_count et joined_at à la lecture, JAMAIS STOCKÉS.
+  Une table de badges attribués est un état dupliqué qui diverge de son propre compteur,
+  et changer un seuil obligerait à rejouer l’historique. (On ne stocke pas la table de
+  routage, on la calcule depuis les états d’adjacence.)
+  Seuils validés : 5 · 15 · 30 visites.
 
-STILL TO DESIGN (the pass that blocks event_engine.sql):
-  - Final tier names + the full badge set (every label passes the EPICENE test).
-  - Season object shape, ritual rhythm, what a finale is in data.
-  - ⚠️ OPEN FORK: can one fan belong to SEVERAL artists’ Ateliers? If yes, `fans` becomes a join
-    on (auth user, artist) rather than one row per person. Decide IN this pass — it is load-bearing
-    for the multi-tenant schema. Do not decide it in passing.
-```
+SAISONS — objet minimal :
+  seasons  id · artist_id · slug · title · subtitle · starts_at · ends_at · status ·
+           finale_event_id · created_at
+  ⛔ PAS de currentPhase/phases Json : la progressive revelation se DÉRIVE de l’état réel.
+  ⛔ PAS de table `rituals` : un rituel qui se répète est une RÈGLE, pas une ligne.
 
----
+RYTHME RITUEL — corrigé à la baisse par rapport au document importé :
+  1×/semaine  un signe de vie (texte court, photo d’atelier)     ~10 min
+  1×/mois     un rendez-vous vivant (live ou vote)               ~1 h
+  1×/saison   la finale (le concert)
+  ★ Kimi proposait 3 rendez-vous/semaine — rythme d’équipe éditoriale, pas d’artiste seule.
+    Un battement hebdomadaire TENU vaut mieux que trois annoncés et deux honorés. On peut
+    densifier plus tard ; on ne peut pas raréfier sans que ça se lise comme un abandon.
 
-## 💶 MONEY — RULE RE-FRAMED 2026-08-04 (custody, not timing) ⚠️ SUPERSEDES “NO MONEY IN PHASE 1”
-
-```
-OLD RULE (retired): “Phase 1 = no money through the platform.”  Timing was a PROXY for the real risk.
-
-THE RULE NOW:  RÉSONANCE NEVER HOLDS OR REDISTRIBUTES FANS’ MONEY.
-  Holding and redistributing is what makes you a PAYMENT INTERMEDIARY in the EU (DSP2 / ACPR).
-  That is the line. Everything else is a product decision, not a legal one.
-
-✅ ALLOWED, AND EARLIER THAN PREVIOUSLY WRITTEN — STRIPE CONNECT, DIRECT CHARGES:
-   The fan’s card is charged to THE ARTIST’S OWN Stripe account. Stripe does KYC on the artist.
-   Résonance takes an `application_fee_amount`. Funds never touch us. This is the ordinary
-   SaaS-marketplace pattern, NOT payment intermediation. → Stripe is the right start.
-   Phase-2 “partner with a company already set up to pay artists” stays a fallback, likely not
-   needed to launch subscriptions.
-
-⛔ STILL OUT — TICKET ESCROW / PRE-BUY PENDING A THRESHOLD:
-   Holding fans’ money for weeks means charging + refunding ⇒ chargebacks and refund liability
-   land on the platform. And a card AUTHORIZATION only holds a few days, not a campaign.
-   → Thresholds run on RSVP COUNT. Ticketing stays EXTERNAL. Crowdfunding stays EXTERNAL LINKS.
-
-MONETIZATION OPTIONS (A/B/C + the new D — DECIDE BEFORE PHASE 2, not now):
-   B (leaning): free machine, paid paperwork.
-   D (new, from the Kimi import): TAKE-RATE ON FAN REVENUE instead of a fixed artist fee.
-     Lowest barrier to entry AND the heaviest legally — it is the model that most tempts you
-     toward intermediation. Keep it open; do not resolve it in a build session.
-
-⚖️ OPEN QUESTION FOR THE LAWYER + CRESS IDF / Les Scop IDF — REFER vs OPERATE:
-   Does Résonance ever EMPLOY anyone, or does it only REFER and PRE-FILL?
-     - Referring artists to a billing partner (Coopaname / Oxalis / Appuy Culture) and pre-filling
-       GUSO/CDDU = software = the documented plan = fine.
-     - Actually employing artists so they accrue intermittence rights = coopérative de production /
-       portage spectacle = an EMPLOYER activity, and organising/employing for shows raises the
-       LICENCE D’ENTREPRENEUR DE SPECTACLES question. Precedent already in the research file:
-       SMart’s French intermittence function was curtailed after a Pôle Emploi dispute.
-   The answer shapes the V2 structure choice (SAS-ESS vs SCIC). NOT to be answered from notes.
+★ MODE DÉGRADÉ (retenu du document Kimi) : si l’artiste ne confirme pas sa présence 2 h
+  avant un rituel, le système envoie une annulation stylisée. Dead-man’s switch appliqué
+  à l’engagement : la promesse au fan ne meurt jamais en silence.
 ```
 
 ---
 
-## 🏗️ RÉSONANCE vs ATELIER — TWO PRODUCTS (clarified 2026-08-04)
+## 📥 DOCUMENT KIMI — TRIAGE 2026-08-21
 
 ```
-ATELIER   = the FAN AREA product. A fan-engagement space an artist can buy on its own and link
-            from an existing website they already have. Sellable standalone. This is a real wedge.
-RÉSONANCE = the PLATFORM that sells it — subscription gets you Atelier + website + (later)
-            the paperwork layer.
+GARDÉ : la bibliothèque d’activités + le rythme rituel (matière de la passe ladder) ·
+        le mode dégradé · privacyLevel sur le fan (RGPD dès le modèle) ·
+        la confirmation indépendante du split fan/membership.
 
-⛔ NEVER use “Atelier” to mean the platform. (The imported Kimi document did this throughout —
-   it was written without the full concept. Fixed on import. Same reason you don’t reuse a VLAN
-   ID on two segments and hope the trunk sorts it out.)
+JETÉ : Prisma (perte de la RLS — un `where artistId` oublié = fuite cross-artiste ;
+       la RLS Postgres ne s’oublie pas) · NextAuth · Next 14 · Cloudflare R2 · OpenAI ·
+       les 6 paliers anglais non épicènes · l’habillage Tolkien (Fellowship/Red Book/runes :
+       choix créatif appartenant à l’artiste, et vocabulaire adjacent à une IP défendue).
 
-CONSEQUENCE: because Atelier ships standalone to MANY artists, the Supabase question is closed —
-see below. A standalone product cannot carry one Supabase project per customer.
-```
+⛔ DEUX DRAPEAUX ROUGES :
+  1. `Treasury` avec status='distributed' + vote des fans sur les allocations = Résonance
+     DÉTIENT ET REDISTRIBUE l’argent des fans. C’est la définition de l’intermédiation
+     (DSP2/ACPR). Version acceptable : Treasury en LECTURE SEULE, miroir descriptif du
+     compte Stripe DE L’ARTISTE. Aucun solde chez nous.
+  2. La billetterie du « Mois 3 » fait tomber l’exemption microentreprise de l’EAA
+     (WCAG AA devient une obligation légale) ET rouvre la licence d’entrepreneur de
+     spectacles. Plus chargebacks et responsabilité de remboursement.
 
----
-
-## 🗄️ SUPABASE ARCHITECTURE — ★ DECIDED 2026-08-04: ONE SHARED PROJECT
-
-```
-DECISION: ONE SHARED RÉSONANCE SUPABASE PROJECT. ARTISTS ARE ROWS. (Closes the open decision
-that was flagged “decide before artist #3”.) It is the only shape in which standalone Atelier works.
-
-CONSEQUENCE 1 — MULTI-TENANT FROM LINE ONE:
-  EVERY table gets a tenant column (artist_id / owner_id) at creation. RLS partitions on it.
-  This includes the UNRUN event_engine.sql — which is exactly why it is still unrun. Good.
-
-CONSEQUENCE 2 — `fans` NEEDS A MIGRATION, AND IT IS LIVE WITH REAL ROWS:
-  `fans` has no tenant column. Migration: add artist_id nullable → backfill every existing row to
-  Qiwi Chee → set NOT NULL → rewrite RLS to (own row AND artist scope).
-  CHEAP TODAY. UGLY AT 200 FANS. Do it before the event engine, not after.
-
-CONSEQUENCE 3 — ⚠️ THE SEND EMAIL HOOK IS NOW ON THE CRITICAL PATH (this is the big one):
-  Supabase AUTH CONFIG IS PER-PROJECT, NOT PER-ARTIST. One shared project ⇒ ONE Site URL,
-  ONE set of email templates, and ONE custom SMTP sender.
-  But the whole deliverability design depends on the OPPOSITE: mail sent from the ARTIST’S OWN
-  mailbox, with the link on the ARTIST’S OWN domain — because sender-domain ≠ link-domain is the
-  phishing fingerprint that put the first magic link in a Yahoo spam folder (2026-07-13).
-  ❌ {{ .SiteURL }} DOES NOT RESCUE THIS — in a shared project it resolves to one shared URL for
-     everybody. Close the “test {{ .SiteURL }}” action item: the shared decision makes it moot.
-  ✅ THE ANSWER IS THE SEND EMAIL HOOK: take over sending. Look up which artist the fan belongs to,
-     send via THAT artist’s SMTP, build the link on THAT artist’s domain, and localise in the same
-     place. Previously scoped as a bilingual-session nicety; it is now **what unblocks artist #2**.
-     It grew a tenant lookup. Budget for it accordingly.
-
-STILL TRUE MEANWHILE: qiwichee is currently a single-tenant project in practice. Nothing breaks
-today. The cost of the decision is paid at artist #2, and the schema work is paid NOW (free).
-```
-
----
-
-## 🗺️ TOUR BUILDER — the named destination for owner_city_density (added 2026-08-04)
-
-```
-ROADMAP ITEM (Bassim confirmed: real, not parked). Fans drop pins / pick cities; density unlocks a
-city’s tour date. THE SIGNAL IS ALREADY BEING COLLECTED — the Atelier gate’s multi-city picker
-feeds owner_city_density. Tour Builder is the VISIBLE SURFACE of a silent signal.
-
-TWO CONSEQUENCES:
-1. The parked CITY-PICKER MICROCOPY fix (clarify the field asks where they would want to ATTEND a
-   concert) is no longer cosmetic — it is load-bearing. PROMOTED.
-2. SCHEMA: is `city` free text or normalised? A map needs coordinates ⇒ Géoplateforme geocoding
-   https://data.geopf.fr/geocodage/search   (⚠️ the old api-adresse.data.gouv.fr is DECOMMISSIONED —
-   see RESEARCH_SUMMARY). Free-text cities will need cleaning later. Decide in the ladder pass.
-```
-
----
-
-## 🎠 CAROUSEL V2 — NEXT DESIGN PASS (decided 2026-07-15; +1 item 2026-08-04)
-
-```
-1. ONE SLIDE PER SONG: the SONG is the atomic unit; “album” becomes a LABEL on a song
-   (“Album · Hybrid Fruit · 2/6”), not a container slide. Each song eventually carries its own
-   artwork + clip; fans participate in creating/choosing per-song art; later per-song crowdfunding
-   (EXTERNAL LINKS ONLY) can finance a clip or artwork.
-   CONSEQUENCES: 4 slides → ~9 (Hybrid Fruit = 6 songs) — do dots scale? visual grouping of album
-   siblings? per-song Bandcamp track IDs each verified from its embed dialog; JSON-LD shifts to
-   MusicRecording-per-song with inAlbum; fan co-creation touches the RIGHTS-AT-UPLOAD gate.
-2. CREDITS LINE per song (video/photo/artwork credits), length-independent.
-   ★ CHANGED 2026-08-04: STORE CREDITS AS STRUCTURED RECORDS `{role, name}[]`, NOT A FORMATTED
-   STRING. Reason: the ladder’s PRODUCER CREDITS (fans earning credits on releases) are the same
-   field with a different author. Structured now = rows later; string now = a text-parsing problem
-   later. Costs nothing today.
-   ⚠️ Bassim proposed a slow auto-scrolling marquee — flagged honestly: continuous auto-motion
-   collides with the no-autoplay/motion principles (WCAG 2.2.2 pause-stop-hide +
-   prefers-reduced-motion). Alternatives to present: static truncation + expand-on-tap; marquee
-   ONLY behind prefers-reduced-motion:no-preference AND pausable; or credits in the slide flow.
-3. BANDCAMP TWO-CLICK + STOP AFFORDANCE: click 1 loads Bandcamp’s iframe (our poster consent),
-   click 2 is BANDCAMP’S OWN play button. Keep the two-step but make it LEGIBLE (“Charger le
-   lecteur”) + a visible labelled STOP on the active card (unmount-to-poster — true pause inside a
-   cross-origin iframe is unreachable). Do NOT render iframes without click-consent; do NOT fetch
-   Bandcamp audio into our own <audio> (rights/ToS).
-   All three fold into ONE design pass → one brief → Claude Code.
-```
-
----
-
-## 🎠 RELEASE-SWITCHER CAROUSEL — LIVE (commits caf0938 → 7eed377 → 9178230)
-
-```
-Horizontal CSS scroll-snap carousel in the Music section, no library. Slides 88% wide (partial peek
-= load-bearing affordance). Signature element: swiping recolours the page accent per release.
-4 slides, canonical DOM order (newest first): lullabies → hybrid-fruit → une-derniere-chose →
-dilemma. Fixed order server-rendered; “random featured” = CLIENT-SIDE SCROLL POSITION ONLY
-(useEffect + scrollTo behavior:'instant') — hydration-safe, no console warning.
-Files: src/app/components/ReleaseSwitcher.tsx · src/data/releases.ts · 4 covers in public/ ·
-globals.css carousel + palette blocks.
-EmbedPlayer: poster prop per slide + CONTROLLED MODE (isActive/onActivate/onDeactivate — BOTH
-isActive+onActivate required; omitting them preserves uncontrolled behaviour so the Atelier insider
-clip is untouched). SHARED COMPONENT — any change gets extra diff review.
-SINGLE ACTIVE PLAYER: carousel owns activeEmbedSlug; play on B unmounts A’s iframe to poster.
-Iframe teardown IS the stop mechanism.
-Desktop arrows: real <button>s, aria-labels, ≥44px, disabled at hard ends (NO wrap), CSS-only
-visibility via @media (pointer: fine). Dots remain (buttons, aria-current, 44px).
-mediaService: Bandcamp EmbeddedPlayer URL with bgcol/linkcol from asset.embedOptions.
-  ⚠️ THIRD-PARTY URL PARAMS = the ONE legitimate hex outside globals.css (commented; grep-exempt).
-JSON-LD: MusicAlbum/MusicRecording per release, byArtist → MusicGroup; MusicGroup carries
-  "alternateName": "LEILANI" (Dilemma = LEILANI era; an ID change, not a burial).
-Card alignment: releases without a date render an invisible aria-hidden placeholder line.
-Iframe resilience (best-effort): error event + offline→online → unmount to poster.
-
-PAGE-LEVEL OVERFLOW BUG + FIX (9178230) — THE FLEXBOX MIN-WIDTH TRAP:
-  A plain <div class="relative"> between max-w-3xl and the scroller was pushed to content width
-  (~2249px vs 811px viewport) because wrappers default to min-width:auto — the WHOLE PAGE scrolled
-  sideways. overflow-x:auto only clips when the box’s width is CONSTRAINED.
-  FIX: "relative w-full max-w-full min-w-0 overflow-hidden".
-  DIAGNOSIS RECIPE (reusable) — DevTools console:
-    document.body.scrollWidth + ' vs ' + window.innerWidth
-    [...document.querySelectorAll('*')].filter(el => el.scrollWidth >
-      document.documentElement.clientWidth).map(el => el.className || el.tagName)
-  overscroll-behavior-x:contain only stops SCROLL CHAINING — it treated a symptom.
-
-VERIFIED ON REAL DEVICE (Android Chrome, 2026-07-15): swipe + recolour + peek ✅ · one player at a
-time ✅ · alignment ✅ · Bandcamp plays IN-PAGE ✅ · overflow gone ✅.
-```
-
----
-
-## 🎵 RELEASE DATA — VERIFIED (2026-07-14, from Bandcamp embed dialogs / canonical URLs)
-
-```
-lullabies            YouTube  L0mHWXa2UyQ                    (official MV)
-hybrid-fruit         Bandcamp album=2331494883   27 oct 2024 (album, 6 titres)
-une-derniere-chose   Bandcamp track=2132072682   31 mars 2023 (single)
-dilemma              Bandcamp album=2503435136              (LEILANI era)
-Canonical: qiwichee.bandcamp.com/album/hybrid-fruit · /track/une-derni-re-chose ·
-           leilanigroove.bandcamp.com/album/dilemma
-Bandcamp embed IDs come ONLY from the release page’s Partager/Intégrer dialog (not the URL slug).
-NEVER insert an unverified ID; per-song track IDs for the v2 restructure must EACH be pulled
-from that dialog.
-
-PALETTES (globals.css, [data-release] accent-only overrides; structure tokens constant):
-  lullabies          NO OVERRIDE — site default prune #7A3B8C WAS extracted from this MV;
-                     swiping to Lullabies = returning to base colour. Deliberate.
-  hybrid-fruit       #C2185B framboise        white-on-accent 5.87:1 ✅  on-bg 4.93:1 ✅
-  une-derniere-chose #1C6E8C bleu d’eau       white-on-accent 5.74:1 ✅  on-bg 4.82:1 ✅
-  dilemma            #9E1B32 carmin profond   white-on-accent 7.90:1 ✅  on-bg 6.64:1 ✅
-  Ratios MEASURED (WCAG formula vs --bg #E8EBF5, cross-checked against prune 6.23:1).
-  Colours remain PLACEHOLDER pending Qiwi Chee’s artistic approval only.
-
-ARTWORK in public/: dilemma-cover.jpg 1200² ✅ · une-derniere-chose-cover.jpg 1600² ✅ ·
-  hybrid-fruit-cover.jpg ⚠️ 350px Bandcamp thumbnail PLACEHOLDER · lullabies-cover.jpg ⚠️ 1368×768
-  16:9 YouTube screenshot PLACEHOLDER. Remaining photo batch (6× IMG-2026…) in 04_Qiwichee =
-  parked bio/images build. Don’t touch.
-```
-
----
-
-## ⚠️ OPEN — PENDING QIWI CHEE (piecemeal drop-ins)
-
-```
-[ ] Square Lullabies cover (Spotify/Deezer artwork) → drop-in replaces public/ placeholder.
-[ ] Hybrid Fruit hi-res source (Bandcamp original: cover URL suffix _0.jpg trick, or her file).
-[ ] Approve/veto the 3 accent colours (send swatches + covers; her artistic veto stands).
-[ ] Confirm Dilemma slide descriptor wording (currently: “Album — sorti sous le nom LEILANI”).
-[ ] ★ NEW: her legal status for receiving subscription income (CAE / auto-entrepreneur / none).
-    This gates TIER 3, not the code. Ask early.
-[✓] Product name: “Atelier”, not “L’Atelier”. DECIDED by her, 2026-08-04.
-```
-
----
-
-## 🗄️ STORAGE — SINGLE SOURCE OF TRUTH (unchanged since 2026-07-15)
-
-```
-THE ONE TRUE TREE:  /media/Main_HDD/GDrive/
-  ├── Resonance/                     (00_Claude_Projects … 04_Qiwichee)
-  │   ├── 02_Produit_Tech/Specs/     (context files — the sync source)
-  │   ├── 04_Qiwichee/               (artist assets)
-  │   └── sync_resonance.sh          (the REAL script; SPECS= points at Main_HDD)
-  └── Dropbox/                       (personal archive, incl. rescued Amine/)
-
-BACKED UP NIGHTLY by /home/simba/automation/scripts/backup_gdrive.sh (rclone, cron.daily, as root):
-Main_HDD/GDrive → gdrive:Laptop_Sync/GDrive with --backup-dir time-machine archiving. Also backs up
-~/Projects (excl. node_modules/.git/.next) and ~/automation. ONE-WAY local→cloud. Email alert on fail.
-
-DEAD PATHS (do not resurrect): ~/GDrive/… and ~/Documents/GDrive/…
-LAUNCHER: ~/sync_resonance.sh → bash /media/Main_HDD/GDrive/Resonance/sync_resonance.sh
-
-LESSON (standing): “WHICH folder is backed up?” is answered by the BACKUP SCRIPT’S SOURCE PATH,
-not by notes. cat the script; make the machine name the truth. A one-way backup means cloud-side
-additions are invisible locally — know your sync direction per tree.
+★ Et le tier 3 est placé au « Mois 1 » alors qu’il est bloqué non par Stripe mais par
+  le STATUT LÉGAL de Qiwi Chee pour encaisser ce revenu. Toujours sans réponse.
 ```
 
 ---
@@ -376,191 +153,193 @@ additions are invisible locally — know your sync direction per tree.
 ## 🔑 HARD-WON LEARNINGS (standing)
 
 ```
-1. THE BACKUP SCRIPT’S SOURCE PATH IS THE ONLY TRUTH about what is backed up.
-2. WHEN TWO COMPUTATIONS OF THE SAME NUMBER DISAGREE, RE-DERIVE FROM THE FORMULA before deciding
-   which to distrust. Verify-don’t-assume includes your own earlier arithmetic.
-3. FLEXBOX MIN-WIDTH TRAP: a plain wrapper between a width constraint and a flex scroller gets
-   pushed wide (min-width:auto) → overflow-x:auto never engages. Fix at the wrapper: min-w-0 /
-   max-w-full. overscroll-behavior only stops chaining; it is not a width constraint.
-4. A file cut at EXACTLY a power-of-two size (1 MiB) is a truncated interrupted copy.
-5. Quarantine-then-delete beats direct rm: reversible, and breaks hidden dependencies LOUDLY.
-6. Vercel cron invocations ARE logged with status + external API calls under Observability →
-   Cron Jobs. The apex→www 308 did NOT eat the cron: Vercel invokes the deployment directly.
-★ 7. (2026-08-04) IMPORTED STRATEGY DOCUMENTS CARRY FOREIGN VOCABULARY. The Kimi document used
-   “Atelier” to mean the platform. Read imports as INPUT, not spec; de-conflict names BEFORE the
-   file reaches the Specs folder, or every downstream brief inherits the ambiguity.
-★ 8. (2026-08-04) A RULE STATED AS TIMING IS USUALLY A PROXY FOR A RULE ABOUT STRUCTURE.
-   “No money in Phase 1” really meant “never take custody of fans’ money”. Once restated as
-   custody, subscriptions became available immediately and escrow stayed correctly excluded.
-   When a rule blocks something that feels right, check whether the rule is the proxy or the thing.
-★ 9. (2026-08-04) PLATFORM-LEVEL CONFIG IS PER-PROJECT, NOT PER-TENANT. Supabase Site URL,
-   email templates and custom SMTP are all one-per-project. Any “one shared project” decision must
-   be checked against every per-project setting BEFORE it is called cheap.
+1. LE CHEMIN SOURCE DU SCRIPT DE BACKUP est la seule vérité sur ce qui est sauvegardé.
+2. QUAND DEUX CALCULS DU MÊME NOMBRE DIVERGENT, re-dériver depuis la formule.
+3. FLEXBOX MIN-WIDTH TRAP : wrapper entre contrainte de largeur et scroller flex →
+   min-w-0 / max-w-full. overscroll-behavior ne contraint pas une largeur.
+4. Un fichier coupé à une taille exactement en puissance de deux = copie interrompue.
+5. Quarantaine-puis-suppression bat rm direct.
+6. Les invocations de cron Vercel SONT loguées sous Observability → Cron Jobs.
+7. LES DOCUMENTS DE STRATÉGIE IMPORTÉS PORTENT UN VOCABULAIRE ÉTRANGER. Input, pas spec.
+8. UNE RÈGLE ÉNONCÉE COMME UN TIMING EST SOUVENT UN PROXY POUR UNE RÈGLE DE STRUCTURE.
+9. LA CONFIG PLATEFORME EST PAR PROJET, PAS PAR TENANT (Site URL, templates, SMTP).
+
+★ 10. (2026-08-21) **CODE ÉCRIT ≠ CODE SERVI.** Trois heures perdues sur un carrousel qui
+   ne défilait pas. Cause réelle : Next.js bloque le hot-reload en cross-origin. Le site
+   était testé depuis 192.168.1.5:3000 au lieu de localhost:3000, donc le navigateur
+   servait le CSS compilé AVANT les modifications. Trois corrections successives ont été
+   appliquées à un code qui n’avait aucun problème.
+   ⚠️ L’AVERTISSEMENT ÉTAIT DANS LES LOGS DU SERVEUR DÈS LE PREMIER DÉMARRAGE
+   (« Blocked cross-origin request to /_next/webpack-hmr »). On a lu le CSS, le DOM et le JS —
+   jamais la sortie du serveur.
+   MÊME FAMILLE QUE : « committé ≠ appliqué » (SQL) et « env var enregistrée ≠ déployée » (Vercel).
+   L’ARTEFACT ET SA LIVRAISON SONT DEUX CHOSES DISTINCTES.
+   RÈGLE : quand le comportement observé contredit le code lu, vérifier que le code lu est
+   bien celui qui est servi — AVANT de corriger quoi que ce soit.
+   Corollaire : dev = localhost. Test mobile depuis l’IP = redémarrer le serveur à chaque
+   modification, ou ajouter allowedDevOrigins dans next.config.js (⚠️ IP en DHCP, elle change).
+
+★ 11. (2026-08-21) QUAND DEUX CHOSES IDENTIQUES SE COMPORTENT DIFFÉREMMENT, ce n’est pas le
+   code qui diffère — c’est ce qui est réellement servi. BioSwitcher et ReleaseSwitcher
+   étaient structurellement identiques ; l’un défilait, l’autre non. La comparaison
+   structurelle a été le moment où le diagnostic a basculé.
+   ★ ET : ON AVAIT UN CARROUSEL QUI MARCHE À TROIS FICHIERS DE DISTANCE, ON NE L’A PAS LU.
+     Lire le code qui fonctionne AVANT de déboguer celui qui ne fonctionne pas.
+
+★ 12. (2026-08-21) `position` EST UN MOT-CLÉ POSTGRES à géométrie variable : accepté comme
+   NOM DE COLONNE, refusé comme PARAMÈTRE DE SORTIE d’une fonction (`returns table`).
+   Erreur 42601. Renommé en `sort_order`. Le sed a utilisé \b pour protéger l’index dont
+   le nom contenait `position` entre underscores.
+   ★ La leçon générale : ne pas spéculer sur un mot-clé — LANCER et lire l’erreur.
+
+★ 13. (2026-08-21) LES DROITS NE SONT PAS UN ÉTAT DE L’ŒUVRE, MAIS UN ÉTAT PAR USAGE.
+   Un booléen `rights_confirmed` unique force à choisir entre bloquer un usage accordé et
+   autoriser un usage qui ne l’est pas. CE BUG NE PLANTE PAS — IL PUBLIE. C’est le pire type.
+   → Un booléen par usage, et la vérification dans le RPC, pas dans le client.
+
+★ 14. (2026-08-21) LE RÉSUMÉ DE CLAUDE CODE N’EST PAS LE DIFF — confirmé deux fois dans la
+   même session : sur demande explicite des fichiers complets, il a répondu par une
+   description de trois lignes en concluant « tout est conforme ». Et il a proposé de
+   committer alors que la consigne « ne commite pas » était dans le brief.
+   → `cat` et `git --no-pager diff` soi-même. C’est plus rapide que d’insister.
 ```
 
 ---
 
-## ⚡ THE PIVOT (unchanged — overrides older sequencing)
-
-The product is a **machine in the artist’s hands to get fans to sign up and organize tiny
-concerts**. PHASE 1 = fan machine (gate → Atelier → tiny concerts → tracked links → in-page media).
-PHASE 2 = paperwork layer (GUSO/CDDU/intermittence — the upsell). Capture the relationship BEFORE
-sending anyone off to listen. If the gate’s email doesn’t arrive or the DB is paused, the machine
-does not exist — deliverability + uptime ARE the product.
-★ 2026-08-04 addition: and if the machine has no LADDER, the gate produces a dead email database.
-The engagement program is not decoration on the fan machine; it is the reason the artist pays.
-
----
-
-## 🚀 PER-ARTIST ONBOARDING — required infra steps (STANDING CHECKLIST)
+## 🗄️ SUPABASE ARCHITECTURE — UN SEUL PROJET PARTAGÉ
 
 ```
-1. Domain DNS → Vercel (apex A + www CNAME).
-2. Supabase: redirect allow-list, Site URL, magic link on, Confirm email on.
-   ⚠️ REVISED by the shared-project decision — items 2/3/5 collapse into the Send Email Hook
-   once artist #2 exists. Until then this checklist is single-tenant reality.
-3. Custom SMTP from the artist’s own mailbox.
-4. SPF + DKIM at the registrar/mail host; DMARC p=none after 48h stable.
-5. EMAIL TEMPLATES: BOTH “Confirm signup” (type=email) AND “Magic Link” (type=magiclink) →
-   <artist-domain>/auth/confirm?token_hash={{ .TokenHash }}&type=… Never {{ .ConfirmationURL }}.
-   After saving, confirm & wasn’t escaped to &amp;. CTA copy = “Accéder à l’Atelier”.
-6. KEEPALIVE: run docs/briefs/keepalive.sql; CRON_SECRET env; vercel.json cron; VERIFY the cron log.
-7. Every raw-SQL table → grant to authenticated (secret tables = exception). Plus artist_id + RLS.
-8. TELL THE FAN ABOUT SPAM (sent-state microcopy) — non-optional on a fresh domain.
-9. Release data: embed IDs from each release’s Bandcamp dialog; palettes hand-picked + AA-measured.
+DÉCIDÉ 2026-08-04, ANCRÉ 2026-08-21 : `artists` existe enfin (id, slug, name).
+Toutes les tables créées à partir de maintenant portent artist_id NOT NULL → artists(id).
+
+⚠️ CONFLIT À RÉSOUDRE AVANT DE LANCER LE MOTEUR D’ÉVÉNEMENTS :
+  event_engine.sql (committé, non lancé) crée une table `owners`. `artists` existe
+  désormais. DEUX TABLES D’ANCRAGE = deux VLAN portant le même segment sur un trunk.
+  → DÉCIDER : soit event_engine pointe vers `artists`, soit on renomme. Ne pas lancer avant.
+  (Nommage retenu : « owner » décrit un RÔLE d’autorisation ; « artist » décrit l’ENTITÉ.
+   La règle « titres communautaires ≠ rôles d’autorisation » plaide pour les séparer.)
+
+⚠️ `fans` N’A TOUJOURS PAS DE artist_id. L’écart se creuse : les nouvelles tables sont
+  propres, `fans` ne l’est pas. Migration : add nullable → backfill Qiwi Chee → NOT NULL → RLS.
+
+★ CORRECTION D’UNE NOTE ANTÉRIEURE : `tier` va sur **atelier_members**, PAS sur `fans`.
+  `fans` = une personne. `atelier_members` = une relation fan↔artiste. Un abonnement est
+  une propriété de LA RELATION — sinon un abonné chez Qiwi Chee serait abonné partout.
+
+SEND EMAIL HOOK : toujours sur le chemin critique, toujours ce qui débloque l’artiste #2.
 ```
 
 ---
 
-## 🛑 STANDING DB RULE — GRANTS ON RAW-SQL TABLES
+## 🎠 CAROUSELS — DEUX, ET ILS DOIVENT RESTER JUMEAUX
 
 ```
-Postgres checks TABLE-LEVEL grants BEFORE RLS — missing grant = same 42501 as RLS. Every table the
-app writes to → grant select, insert, update to authenticated. EXCEPTION: secret tables (e.g.
-event_access) get NO client grant, reachable only via security-definer RPC. ANON has no grant on ANY
-app table — anything anon triggers goes through a security-definer RPC that reads nothing (keepalive
-pattern). Read error BODIES. Committed .sql ≠ built schema — check information_schema.tables.
-★ ADDED 2026-08-04: every new table also carries a TENANT COLUMN and RLS partitions on it.
-```
+ReleaseSwitcher (musique)  : départ ALÉATOIRE (client-side), recoloration par slide,
+                             source = src/data/releases.ts, lecteur audio.
+BioSwitcher (bio)          : départ TOUJOURS au premier, PAS de recoloration,
+                             source = RPC Supabase, pas de lecteur.
 
----
+MÉCANISME COMMUN (identique, volontairement) : scroll-snap CSS, slides 88 % + snap center,
+  scrollToSlide via target.offsetLeft, flèches .carousel-arrow partagées, wrapper
+  "relative w-full max-w-full min-w-0 overflow-hidden", pas de boucle, pas d’auto-scroll.
 
-## ✅ EARLIER BUILD STATE (still current)
-
-```
-THEME TOKENS + LULLABIES PALETTE: semantic tokens in globals.css :root, Tailwind 4 @theme inline,
-  ZERO raw hex in components (Bandcamp URL-param exception documented). ACCENT prune #7A3B8C
-  (white-on 7.42:1, on-bg 6.23:1). --border-strong #6671A8. @theme naming asymmetry: --text →
-  class text-text but --text-muted → class text-muted. Check globals.css, don’t infer.
-[data-release] ARCHITECTURE: accent-only overrides; structure tokens constant; gate NEVER wrapped.
-  Recolour transition behind prefers-reduced-motion: no-preference.
-ATELIER GATE: magic-link login, nickname + multi-city picker (owner_city_density signal — now the
-  Tour Builder input), visit_count via touch_fan (now the badge/ladder input), Mailchimp sync,
-  spam-check microcopy in sent state. New-fan onboarding renders IN PLACE at /atelier.
-AUTH: /auth/confirm = verifyOtp({type, token_hash}) on OUR domain, NO next param (open-redirect).
-  /auth/callback kept for old links. BOTH email templates bilingual FR/EN, one link per mail.
-EMBEDPLAYER: lazy/consent poster→iframe, keyboard accessible, locked variant, + controlled mode.
-  Insider clip (unlisted Ashg6NO8azo) LIVE behind the gate — uncontrolled mode.
-EMAIL: hello@qiwichee.com OVH Email Pro pro2.mail.ovh.net; booking@ alias; SPF+DKIM+DMARC(p=none).
-EVENT ENGINE SQL: docs/briefs/event_engine.sql committed ⛔ UNRUN — and now DELIBERATELY HELD
-  pending the ladder/season pass + multi-tenant columns. Correct state.
+★ RÈGLE : la CLASSE CSS de flèche se partage (apparence) ; le COMPOSANT ne se partage pas
+  (comportement). Deux carrousels doivent avoir des flèches identiques ; ils ne doivent pas
+  avoir la même logique. Un composant qui porte deux récits finit par mal servir les deux.
 ```
 
 ---
 
-## 🎟️ EVENT ENGINE — REVISED SCOPE (do NOT run the SQL as committed)
+## 🇫🇷 COPIE — PASSE FRANÇAISE 2026-08-21
 
 ```
-The committed event_engine.sql predates the ladder, seasons and the shared-project decision.
-It now needs, BEFORE it runs (all free now, a migration later):
-  - artist_id / owner_id on EVERY table + RLS partitioning        (shared-project decision)
-  - seasons table, or at minimum season_id on events              (seasons are structural)
-  - target_count on events                                        (collective milestone)
-  - min_tier on events                                            (which tier may RSVP)
-  - rsvp_opens_at per tier                                        (priority access window)
-  - tier on fans                                                  (subscription state gets its own
-                                                                   table later; the column belongs now)
-UNCHANGED from the original design: one event object, 3 types (stream/cocreate/physical); announce
-wide, entry only via the gate; event_access secret join-link table (no client grant,
-security-definer get_event_access); seed ONE owners row post-SQL; magic links = transactional (OVH),
-blasts = Mailchimp draft; rights_confirmed blocks Announce; money = external chip_in_url only.
-```
+Site entièrement en français. `lang="fr"` corrigé (il valait "en" alors que og:locale
+disait déjà fr_FR — contradiction silencieuse, lecteur d’écran en voix anglaise).
+  nav : Musique · À propos        h2 : À propos · Musique
+  hero : « Autrice-compositrice-interprète indépendante. Pop alternative, en français
+         et en anglais. »
+  meta/JSON-LD (description longue, garde le référencement local) :
+    « Autrice-compositrice-interprète indépendante, basée à Paris. Pop alternative
+      franco-algérienne-américaine, en français et en anglais. »
+  genre : « Hybrid Pop » → « Pop alternative » (le point PARKÉ est débloqué, 3 endroits).
+  titres : « Qiwi Chee — Pop alternative »
+ORDRE DES SECTIONS : hero → AtelierGate → À propos (bio) → Musique.
+  ★ La porte de l’Atelier reste AU-DESSUS de la bio : capter la relation avant de raconter.
 
----
+⚠️ DETTE A11Y — CHAÎNES ANGLAISES INVISIBLES À L’ŒIL MAIS LUES PAR LES LECTEURS D’ÉCRAN :
+  aria-label="Primary" (nav) · <label>Website</label> (honeypot, sr-only).
+  Jamais repérées en relecture visuelle. → passe accessibilité.
 
-## 🌍 BILINGUAL / 🎬 MEDIA / 🔐 RIGHTS / ⚖️ LEGAL / 👥 ROLES
-
-```
-BILINGUAL: Accept-Language first visit → locale route; cookie toggle after; next-intl [locale]
-  segments; fixed strings “Atelier”/“Qiwi Chee”/“Résonance”; SEND EMAIL HOOK now in scope for TWO
-  reasons (locale AND multi-tenant sender/domain). Functional cookie → no consent banner, but goes
-  in the privacy statement. Curved apostrophes apply to every FR string in the message files.
-MEDIA POLICY: in-page plays, site captures traffic; lead full-audio on her turf (Bandcamp/YouTube),
-  streaming = “aussi sur” links; lazy-load every embed; NO AUTOPLAY / NO auto-cycling / NO
-  auto-advance; unlisted YouTube for insider; posters local only; VIDEO never in the repo.
-RIGHTS-AT-UPLOAD: every upload carries a rights record; uncleared → private + flag; assists never
-  advises. Lyrics + music sheets parked behind rights review. ★ Fan co-creation (fan-designed
-  artwork, a ladder feature) lands squarely on this gate — design it as an upload, not a perk.
-LEGAL: V1 = cultural CAE entrepreneur-salarié (IP portable BY CONTRACT); V2 = SAS-ESS (BPI ICC lane)
-  or SCIC — never found a SCIC early. EAA: microenterprise exemption likely covers today; stops
-  being optional at ticketing/e-commerce → entertainment lawyer at V2.
-  ★ NEW lawyer question: REFER vs OPERATE (see MONEY). Shapes the V2 choice.
-ROLES: OWNER via is_owner()/owners table · COLLABORATOR (no financial/legal) · MEMBER (Atelier,
-  own-row RLS) · ANON (no table grants; RPC only).
-  ★ STANDING RULE 2026-08-04: COMMUNITY TITLES ≠ AUTHORIZATION ROLES. A fan badged “Designer” or
-  “Archiviste” must NEVER inherit COLLABORATOR grants. Different axes, different tables. The only
-  legitimate bridge is that a contributing fan’s upload hits the rights-at-upload gate.
+⚠️ BILINGUE : demandé pour la bêta. Touche bio_blocks (colonnes de traduction OU table
+  de traductions — décision de schéma à prendre DANS cette session). La version française
+  actuelle deviendra fr.json. Plus la dépréciation middleware→proxy qui s’affiche à
+  chaque démarrage du serveur.
 ```
 
 ---
 
-## ⛔ FORBIDDEN “IMPROVEMENTS” (standing)
+## OPEN DECISIONS / NEXT ACTIONS
 
 ```
-- AUTOPLAY in any form: auto-advance on ended, radio mode, carousel auto-slide.
-- INFINITE LOOP / CLONED SLIDES in the carousel (duplicate DOM = SEO poison + hydration trap).
-- Engagement popups triggered by listening behaviour (“join after 3 songs”) — requires listen
-  tracking (analytics deferred behind the consent decision) and cheapens the gate.
-- Fetching Bandcamp audio into our own <audio> / custom chrome around their content (rights/ToS).
-- Server-side device sniffing. The architecture is client-side capability negotiation.
-★ - RÉSONANCE TAKING CUSTODY OF FANS’ MONEY (escrow, pooled wallets, pay-outs from our balance).
-★ - “Netflix for artists / the platform takes a percentage” as EXTERNAL vocabulary. Internally fine.
-    To the RIF / ESS world it is exactly the extractive-startup framing they screen for. Keep the
-    vision, keep TWO vocabularies: outil coopératif, mutualisation.
-★ - Behavioural fan SCORING built on tracking before the analytics/consent decision. visit_count via
-    touch_fan is a first-party counter and defensible; a behavioural scoring engine is a much harder
-    privacy-statement argument. Badges may use visit_count today; nothing more.
-```
+[x] ★★ MODULE BIO — schéma lancé + composant déployé (8d0eb1b, 12834d1). CLOSED.
+[x] ★★ TABLE `artists` — ancre multi-tenant créée. CLOSED.
+[x] ★ RÈGLE ÉPICÈNE reformulée en méthode · Passeur → Bouche-à-oreille. CLOSED.
+[x] ★ `tier` sur atelier_members, pas sur fans. CLOSED.
+[x] ★ Genre « Hybrid Pop » → « Pop alternative ». CLOSED (était parké).
 
----
-
-## 🗄️ SUPABASE — PROJECT FACTS
-
-```
-ref cieefpigrwlhklkkqmdb · eu-west-1 · FREE tier (pauses after 7 idle days — mitigated by the
-VERIFIED daily keepalive cron; Supabase Pro when real RSVPs depend on the gate).
-AUTH: magic link + Confirm email ON (⇒ two templates) · Site URL https://qiwichee.com ·
-redirect allow-list (+www, +.fr, +localhost:3000). SMTP: OVH hello@, 30/hr.
-TABLES: fans (RLS own-row, granted to authenticated, NOT anon — ⚠️ needs artist_id migration).
-FUNCTIONS: touch_fan · keepalive (security definer, anon execute, touches nothing).
-UNRUN: owners · events · event_access · rsvps (+ seasons, to be added).
+[ ] ★★ ENVOYER LE MAIL À MAËLYS JIBIDAR : fichiers HD + autorisation presse.
+    Signé par Qiwi Chee de préférence. AUCUNE COPIE HD N’EXISTE — priorité.
+[ ] ★★ BILINGUE FR/EN next-intl — demandé pour la bêta. Inclut la décision de schéma
+    sur la traduction de bio_blocks, et middleware→proxy.
+[ ] ★★ RÉSOUDRE `owners` vs `artists` avant de lancer event_engine.sql.
+[ ] ★★ `fans` MULTI-TENANT MIGRATION.
+[ ] ★★ LADDER — finir : libellé du tier 3 (Qiwi Chee), jeu de badges complet.
+[ ] ★★ SEND EMAIL HOOK — débloque l’artiste #2.
+[ ] ★ PRESS KIT PDF — second rendu de bio_blocks. Bloqué sur les fichiers HD, pas sur le code.
+[ ] ★ CAROUSEL V2 (song-per-slide + credits structurés + Bandcamp two-click).
+[ ] ★ ASK QIWI CHEE : statut légal pour encaisser un revenu d’abonnement (gate tier 3) ·
+    libellé du tier 3 · covers Lullabies/Hybrid Fruit · 3 accents · descripteur Dilemma.
+[ ] ★ A11Y : aria-label="Primary" · <label>Website</label> · tab-order des slides hors écran.
+[ ] ★ LAWYER + CRESS IDF / Les Scop IDF : REFER vs OPERATE · licence d’entrepreneur.
+[ ] ★ Templates Supabase restants (Invite/Change email/Reset password) — fuient supabase.co.
+[ ] ★ Dead-man’s-switch sur le keepalive. Parké.
+[ ] ★ Analytics layer 1 (log_event RPC). Clarity DEFERRED (consentement).
+[ ] Lyrics / partitions — PARKÉ (droits). Tour Builder — roadmap.
 ```
 
 ---
 
-## INFRASTRUCTURE FACTS (verified, don’t re-derive)
+## INSTRUCTIONS FOR THIS AI
 
 ```
-DNS — Vercel: apex A 216.198.79.1; www CNAME 42d7eef65754d8a8.vercel-dns-017.com; .fr → redirect.
-  qiwichee.com 308→www (matters for anything carrying an Authorization header — but NOT the cron,
-  which is invoked against the deployment directly: verified).
-VERCEL Hobby: cron 1/day max, UTC; runtime logs 1 HOUR; Observability → Cron Jobs keeps invocation
-  history + status + external API calls. ENV VARS ARE INERT UNTIL A DEPLOY
-  (git commit --allow-empty after rotating a secret).
-ENV: NEXT_PUBLIC_SUPABASE_URL/ANON_KEY · NEXT_PUBLIC_SANITY_* · NEXT_PUBLIC_MAILCHIMP_AUDIENCE_ID ·
-  MAILCHIMP_API_KEY · CRON_SECRET (server-only).
-SERVICES: github.com/bkark/qiwichee → Vercel auto-deploy from main · Sanity bayrhx8r · OVH.
-Preview *.vercel.app not on Supabase allow-list → gated flows test on localhost or prod only.
+- Expliquer chaque commande + POURQUOI (analogies télécom). Une étape, attendre confirmation.
+- ★ VÉRIFIER LA LIVRAISON AVANT DE CORRIGER LE CODE. Si le comportement contredit le code lu :
+  le code servi est-il bien le code écrit ? (hot-reload, cache, déploiement, SQL appliqué).
+  Et LIRE LES LOGS DU SERVEUR — les avertissements ne sont pas du bruit.
+- ★ LIRE LE CODE QUI MARCHE avant de déboguer celui qui ne marche pas.
+- ★ MESURER AVANT DE PROPOSER. Une hypothèse non vérifiée coûte un aller-retour ; trois
+  hypothèses coûtent une session.
+- ★ LA RÈGLE ÉPICÈNE EST UNE MÉTHODE : si le libellé désigne une personne, réécrire en nom
+  abstrait, groupe nominal, adjectif invariable ou verbe. Ne pas chercher « le bon mot ».
+- ★ LES DROITS SONT UN ÉTAT PAR USAGE. La barrière va dans le RPC, jamais dans le client.
+- ★ NAMING : « Atelier » (standalone) / « l’Atelier » (en phrase). CTA « Accéder à l’Atelier ».
+  « Atelier » = le produit fan-area. « Résonance » = la plateforme. Jamais l’un pour l’autre.
+- ★ TYPOGRAPHIE : apostrophe courbe ’ dans tout texte affiché ; droite ou rien dans slugs,
+  fichiers, URLs, valeurs DB, identifiants.
+- ★ RÉSONANCE NE DÉTIENT NI NE REDISTRIBUE L’ARGENT DES FANS. Stripe Connect direct charges.
+- ★ TITRES COMMUNAUTAIRES ≠ RÔLES D’AUTORISATION. Un badge n’accorde jamais une permission.
+- ★ UN SEUL PROJET SUPABASE, ARTISTES = LIGNES. Toute table porte artist_id dès la création.
+- Verify-don’t-assume : filesystem/git/DB/logs avant les notes. Un résumé de Claude Code est
+  une AFFIRMATION, pas une preuve — `cat` et `git --no-pager diff` soi-même.
+- Toute table raw-SQL → grant à authenticated ; anon uniquement via RPC security definer.
+- Thème par tokens ; params d’URL Bandcamp = seule exception hex.
+- Chaque page : SEO + WCAG AA + JSON-LD. PAS d’autoplay/auto-advance/boucle/popups.
+- user_id/owner depuis la session auth, jamais le body. Zod partout. Pas de param `next`.
+- Claude Code : briefs scopés, PAS de commit, revue du diff complet, composants partagés signalés.
+- Jamais Telegram (liens WhatsApp). Signaler les risques géographiques/institutionnels.
+- Rappeler : avocat avant /legal (et REFER vs OPERATE) ; CRESS IDF + Les Scop IDF.
+- Fin de session : demander si les instructions doivent évoluer ; proposer le CONTEXT_FOR_AI
+  à jour ; rappeler la sync (cp vers Main_HDD Specs D’ABORD, puis ~/sync_resonance.sh).
 ```
 
 ---
@@ -569,119 +348,21 @@ Preview *.vercel.app not on Supabase allow-list → gated flows test on localhos
 
 ```
 Linux Mint · user simba · host ssd · Apple keyboard. Repo /home/simba/Projects/qiwichee.
-★ ASSETS/SPECS: /media/Main_HDD/GDrive/Resonance/ (~/GDrive is DEAD).
-Sync: ~/sync_resonance.sh → Main_HDD script. cp updated context to
-  /media/Main_HDD/GDrive/Resonance/02_Produit_Tech/Specs/ FIRST, then run (script copies Specs →
-  repo, then commits + pushes; then manually re-upload CONTEXT_FOR_AI to the four Claude Projects:
-  Resonance Dev / Strategy / Research / Qiwichee).
-Node v22 · Next.js 16.2.4 (⚠️ middleware→proxy deprecation pending — the next-intl session) · TS ·
-Tailwind 4 @theme · @supabase/ssr.
-Briefs: docs/briefs/ (release_switcher.md · carousel_fixes.md · event_engine.sql · keepalive.sql ·
-  tiny_concert_engine.md) · docs/templates/supabase_emails.md.
-
-WORKFLOW QUIRKS (all still true):
-  - Long files: download-then-cp, never paste heredocs. `git --no-pager diff`.
-  - NEW FILES don’t show in `git diff` — use `git status`. Grep from src, not src/app.
-  - `sed -i` with `|` delimiter for slash-heavy text; escape `*` as `\*`; apostrophes inside single
-    quotes: '\''  ★ (largely avoided now that display text uses ’ instead of ').
-  - `>>` appends, `>` destroys. Never paste <placeholder> angle brackets.
-  - Claude Code briefs: scoped, NO auto-commit, `git status` + FULL files at end, review the ENTIRE
-    diff incl. shared components, hex grep, ★ apostrophe grep, AA re-verify. Bassim commits manually.
-    ★ Claude Code’s SUMMARY is not the diff — verify its claims against the filesystem.
-  - DevTools console: read-only measurement lines are fine; Chrome asks to type “allow pasting” once.
-  - DEBUG: read error BODIES; temporarily surface, diagnose, revert.
-GOTCHA: Next.js 16 rejects og:type “music.musician” → use “website”; MusicGroup JSON-LD carries it.
+★ TÉLÉCHARGEMENTS : /home/simba/Downloads (nom ANGLAIS, pas ~/Téléchargements).
+★ ASSETS/SPECS : /media/Main_HDD/GDrive/Resonance/ (~/GDrive est MORT).
+Sync : cp vers .../02_Produit_Tech/Specs/ PUIS ~/sync_resonance.sh, puis re-upload manuel
+  du CONTEXT_FOR_AI dans les 4 Claude Projects (Dev / Strategy / Research / Qiwichee).
+Node v22 · Next.js 16.2.4 (⚠️ middleware→proxy) · TS · Tailwind 4 @theme · @supabase/ssr.
+★ DEV = http://localhost:3000. L’IP réseau bloque le hot-reload (voir learning 10).
+Presse-papier : xclip -selection clipboard < fichier   (le flag est obligatoire).
+Vignettes nommées : montage -label '%f' *.jpg -tile 4x2 -geometry 320x320+10+10 ...
+Fichiers longs : télécharger puis cp, JAMAIS de heredoc collé.
+`git diff` ne montre PAS les fichiers non suivis — utiliser `git status`.
+Grep depuis src/, pas src/app/. POSIX [[:alpha:]] au lieu de [A-Za-zÀ-ÿ].
 ```
 
 ---
-
-## INSTRUCTIONS FOR THIS AI
-
-```
-- Explain every command + WHY (telecom analogies help). One step, wait for confirmation.
-- BUILD SEQUENCE: …carousel shipped ✅ → (NEXT) NAMING/COPY PASS (Atelier + “Accéder à l’Atelier” +
-  curved apostrophes, site AND both email templates) → carousel v2 design pass → LADDER & SEASONS
-  design pass → revised event-engine SQL (multi-tenant + seasons + thresholds) → bilingual next-intl
-  + Send Email Hook. THEN Phase 2 GUSO/CDDU.
-- ★ NAMING: the product is “Atelier”, not “L’Atelier”. Standalone = “Atelier”; in a French sentence
-  the article is grammatical and the A stays capital = “l’Atelier”. CTA = “Accéder à l’Atelier”.
-- ★ “Atelier” = the fan-area product. “Résonance” = the platform that sells it. NEVER use Atelier
-  for the platform.
-- ★ TYPOGRAPHY: curved apostrophe ’ (U+2019) in ALL French display text; straight ' or none in
-  slugs, filenames, URLs, DB values, identifiers. Grep before every copy commit.
-- ★ FAN-FACING LABELS MUST BE EPICENE — identical in both genders by construction. No “Habitué·e”
-  mid-dot forms (they read badly to screen readers). “Fidèle à l’écoute” ✅ · “Passeur” ✅ ·
-  “Archiviste” ✅ · “Créateur” ❌ · “Ambassadeur” ❌. Test every new label.
-- ★ RÉSONANCE NEVER HOLDS OR REDISTRIBUTES FANS’ MONEY. Stripe Connect DIRECT CHARGES to the
-  artist’s own account + application_fee. No escrow, no pooled wallets, no pay-outs from our balance.
-- ★ COMMUNITY TITLES ≠ AUTHORIZATION ROLES. A badge never grants a permission.
-- ★ ONE SHARED SUPABASE PROJECT, ARTISTS AS ROWS. Every table carries a tenant column from line one.
-- Verify-don’t-assume: filesystem/git/DB over notes; the backup script over memory; re-derive
-  disputed numbers from the formula. A Claude Code summary is a claim, not evidence.
-- Every raw-SQL table → grant to authenticated; anon via security-definer RPC only.
-- Theme via tokens; Bandcamp URL params are the sole hex exception (must carry the comment).
-- Every page: SEO + WCAG AA + JSON-LD. NO autoplay/auto-advance/infinite-loop/engagement popups.
-  Horizontal swipe = siblings within a section only; the gate never behind a swipe.
-- user_id/owner from auth session, never request body. Zod everywhere. No `next` URL params.
-- Claude Code: scoped briefs, no auto-commit, full-diff review, shared-component changes flagged.
-- Never suggest Telegram (WhatsApp links). Flag geographic/institutional risks neutrally.
-- Remind: entertainment lawyer before /legal (now also: REFER vs OPERATE); CRESS IDF + Les Scop IDF
-  before the first euro — and to ask them the artist-status question that gates tier 3.
-- Imported strategy documents are INPUT, not spec. De-conflict vocabulary before filing them.
-- End of session: ask if instructions need updating; offer updated CONTEXT_FOR_AI; remind the sync
-  (cp to Main_HDD Specs FIRST, then ~/sync_resonance.sh).
-```
-
----
-
-## OPEN DECISIONS / NEXT ACTIONS
-
-```
-[x] ★ CRON VERIFIED — keepalive end-to-end proven. CLOSED.
-[x] ★ STORAGE CONSOLIDATED — one tree on Main_HDD, backed up; launcher + SPECS repointed.
-[x] ★ RELEASE-SWITCHER SHIPPED (caf0938 + 7eed377 + 9178230). Verified on real device.
-[x] ★★ SUPABASE ARCHITECTURE DECIDED — ONE SHARED PROJECT, artists as rows. (2026-08-04)
-[x] ★ NAME DECIDED — “Atelier”, CTA “Accéder à l’Atelier”, curved apostrophes. (2026-08-04)
-[x] ★ MONEY RULE RE-FRAMED — custody, not timing. Stripe direct charges in; escrow out. (2026-08-04)
-[x] ★ Test {{ .SiteURL }} in email templates — MOOT, closed by the shared-project decision.
-    (Superseded by the Send Email Hook.)
-
-[ ] ★★ NAMING/COPY PASS (do FIRST — mechanical, and everything downstream inherits the strings):
-    Atelier rename · “Accéder à l’Atelier” · curved apostrophes · site copy + BOTH live Supabase
-    templates + docs/templates/supabase_emails.md. Run the apostrophe grep as the acceptance check.
-[ ] ★★ CAROUSEL V2 DESIGN PASS: song-per-slide + credits as {role,name}[] + Bandcamp two-click/stop.
-[ ] ★★ LADDER & SEASONS DESIGN PASS — BLOCKS the event engine. Tier names, badge set (epicene),
-    season object, ritual rhythm, and the OPEN FORK: one fan across several artists’ Ateliers?
-[ ] ★★ `fans` MULTI-TENANT MIGRATION: add artist_id → backfill to Qiwi Chee → NOT NULL → RLS.
-    Cheap now, ugly at 200 fans. Before the event engine.
-[ ] ★★ REVISE event_engine.sql (tenant column, seasons, target_count, min_tier, rsvp_opens_at,
-    fans.tier) THEN run it + seed the owners row.
-[ ] ★★ SEND EMAIL HOOK — now what unblocks artist #2 (per-artist SMTP + per-artist link domain +
-    locale). Scope it in the bilingual session but know it is no longer optional.
-[ ] ★ TOUR BUILDER — roadmap item. Promote the city-picker microcopy fix; decide free-text vs
-    normalised city (Géoplateforme geocoding if a map is real).
-[ ] ★ ASK QIWI CHEE: her legal status for receiving subscription income. Gates tier 3.
-[ ] ★ PENDING QIWI CHEE (piecemeal): Lullabies square cover · Hybrid Fruit hi-res · 3 accent
-    approvals · Dilemma descriptor wording.
-[ ] ★ LAWYER + CRESS IDF / Les Scop IDF: REFER vs OPERATE on intermittence/employment.
-    Also the licence d’entrepreneur de spectacles question. Shapes the V2 structure.
-[ ] ★ MONETIZATION A/B/C/D — leaning B; D (take-rate on fan revenue) added, deliberately unresolved.
-[ ] ★ Fix remaining Supabase templates (Invite/Change email/Reset password) — still leak
-    supabase.co when they fire. Known, parked.
-[ ] ★ Dead-man’s-switch monitor (Healthchecks.io/UptimeRobot) on the keepalive. Optional, parked.
-[ ] ★ A11Y DEBT (own pass): keyboard tab-order drags through all off-screen slides’ links (~28
-    stops) — roving tabindex or inert on non-active slides.
-[ ] ★ Analytics layer 1 brief (log_event RPC, keepalive pattern). Clarity DEFERRED (consent banner).
-[ ] Promote insiderClip const → insider_media table when a 2nd clip arrives.
-[ ] Gate a11y: input aria-describedby + error-state colour.
-[ ] Watch visit_count double-fire (mail scanner pre-fetch). Interstitial-button fix ONLY if it bites.
-[ ] Genre “Hybrid pop” → “Alternative Pop” — PARKED. Lyrics/sheets — PARKED (rights).
-[ ] Document Qiwi Chee’s journey publicly (build-in-public).
-[ ] ★ Verify the quarantine folder /home/simba/_TO_DELETE_after_2026-07-16 was actually deleted.
-```
-
----
-*Updated 2026-08-04 · A strategy session, not a build session — but the rules changed underneath
-everything. The product now has a shape: three tiers, seasons, a collective milestone, and money
-that never touches us. The name lost its article and the apostrophes got their curve. The event
-engine stayed unrun, which turned out to be luck worth keeping.*
+*Updated 2026-08-21 · Une session de build, et la première où une table est née pour porter
+plusieurs artistes. Le module bio est en ligne, les droits sont gardés par la base plutôt que
+par la bonne volonté, et trois heures ont été perdues sur un bug qui n’existait pas — la
+meilleure leçon de la journée.*

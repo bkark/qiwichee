@@ -18,10 +18,10 @@ export const metadata: Metadata = {
   metadataBase: new URL("https://qiwichee.com"),
   title: {
     template: "%s | Qiwi Chee",
-    default: "Qiwi Chee — Hybrid Pop Artist",
+    default: "Qiwi Chee — Pop alternative",
   },
   description:
-    "Franco-Algerian-American singer-songwriter based in Paris. Hybrid pop in French and English.",
+    "Autrice-compositrice-interprète indépendante, basée à Paris. Pop alternative franco-algérienne-américaine, en français et en anglais.",
   alternates: {
     canonical: "https://qiwichee.com",
   },
@@ -29,9 +29,9 @@ export const metadata: Metadata = {
     type: "website",
     locale: "fr_FR",
     siteName: "Qiwi Chee",
-    title: "Qiwi Chee — Hybrid Pop Artist",
+    title: "Qiwi Chee — Pop alternative",
     description:
-      "Franco-Algerian-American singer-songwriter based in Paris. Hybrid pop in French and English.",
+      "Autrice-compositrice-interprète indépendante, basée à Paris. Pop alternative franco-algérienne-américaine, en français et en anglais.",
     url: "https://qiwichee.com",
   },
 };
@@ -42,7 +42,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={`${bricolage.variable} ${inter.variable}`}>
+    <html lang="fr" className={`${bricolage.variable} ${inter.variable}`}>
       <body className="antialiased">{children}</body>
     </html>
   );

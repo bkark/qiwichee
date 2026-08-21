@@ -1,5 +1,6 @@
 import AtelierGate from "@/components/AtelierGate";
 import ReleaseSwitcher from "./components/ReleaseSwitcher";
+import BioSection from "./components/BioSection";
 import { releases } from "@/data/releases";
 
 // ─────────────────────────────────────────────────────────────
@@ -9,9 +10,9 @@ import { releases } from "@/data/releases";
 const artist = {
   name: "Qiwi Chee",
   url: "https://qiwichee.com",
-  genre: "Hybrid Pop",
+  genre: "Pop alternative",
   description:
-    "Franco-Algerian-American singer-songwriter based in Paris. Hybrid pop in French and English.",
+    "Autrice-compositrice-interprète indépendante, basée à Paris. Pop alternative franco-algérienne-américaine, en français et en anglais.",
   // sameAs = verified official profiles. Identity-linking for search + AI.
   sameAs: [
     "https://open.spotify.com/artist/4Bu89sfVzy14qW0dK8Ugbs",
@@ -123,12 +124,12 @@ export default async function Home({ searchParams }: { searchParams: SearchParam
           <ul className="flex gap-6 text-sm">
             <li>
               <a className="hover:underline" href="#music">
-                Music
+                Musique
               </a>
             </li>
             <li>
               <a className="hover:underline" href="#about">
-                About
+                À propos
               </a>
             </li>
           </ul>
@@ -144,23 +145,11 @@ export default async function Home({ searchParams }: { searchParams: SearchParam
             Qiwi Chee
           </h1>
           <p className="mt-4 max-w-xl text-lg text-muted">
-            Franco-Algerian-American singer-songwriter based in Paris. Hybrid pop
-            in French and English.
+            Autrice-compositrice-interprète indépendante. Pop alternative, en français et en anglais.
           </p>
         </section>
 
         <AtelierGate initialError={error} />
-
-        <section
-          id="music"
-          className="border-t border-border py-16"
-          aria-labelledby="music-heading"
-        >
-          <h2 id="music-heading" className="font-display text-2xl font-semibold tracking-tight">
-            Music
-          </h2>
-          <ReleaseSwitcher artistLinks={artist.links} />
-        </section>
 
         <section
           id="about"
@@ -168,12 +157,20 @@ export default async function Home({ searchParams }: { searchParams: SearchParam
           aria-labelledby="about-heading"
         >
           <h2 id="about-heading" className="font-display text-2xl font-semibold tracking-tight">
-            About
+            À propos
           </h2>
-          <p className="mt-4 max-w-xl text-muted">
-            Placeholder bio. Replace this with Qiwi Chee’s real story once
-            the structure is confirmed.
-          </p>
+          <BioSection />
+        </section>
+
+        <section
+          id="music"
+          className="border-t border-border py-16"
+          aria-labelledby="music-heading"
+        >
+          <h2 id="music-heading" className="font-display text-2xl font-semibold tracking-tight">
+            Musique
+          </h2>
+          <ReleaseSwitcher artistLinks={artist.links} />
         </section>
       </main>
 

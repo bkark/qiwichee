@@ -104,6 +104,23 @@
   .carousel-arrow { display: flex; }
 }
 
+/* ── Bio carousel ───────────────────────────────────────────────────
+   Mirrors release-switcher scroll-snap; kept separate so music
+   carousel CSS can evolve independently. Arrow buttons reuse
+   .carousel-arrow (identical visual treatment). */
+.bio-scroller {
+  scroll-snap-type: x mandatory;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+  overscroll-behavior-x: contain;
+}
+.bio-scroller::-webkit-scrollbar { display: none; }
+
+.bio-slide {
+  flex: 0 0 88%;
+  scroll-snap-align: center;
+}
+
 /* ── Per-release palette overrides ─────────────────────────────────
    PLACEHOLDER values — pending Qiwi Chee palette approval (2026-07-15).
    Pairs measured against --bg #E8EBF5 (L=0.832; calibration: prune = 6.23:1 ✅).

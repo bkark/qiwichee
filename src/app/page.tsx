@@ -137,7 +137,7 @@ export default async function Home({ searchParams }: { searchParams: SearchParam
       </header>
 
       <main className="mx-auto max-w-3xl px-6">
-        <section className="py-20" aria-labelledby="hero-heading">
+        <section className="py-10" aria-labelledby="hero-heading">
           <h1
             id="hero-heading"
             className="font-display text-4xl font-semibold tracking-tight sm:text-5xl"
@@ -153,7 +153,7 @@ export default async function Home({ searchParams }: { searchParams: SearchParam
 
         <section
           id="about"
-          className="border-t border-border py-16"
+          className="border-t border-border py-8"
           aria-labelledby="about-heading"
         >
           <h2 id="about-heading" className="font-display text-2xl font-semibold tracking-tight">
@@ -164,7 +164,7 @@ export default async function Home({ searchParams }: { searchParams: SearchParam
 
         <section
           id="music"
-          className="border-t border-border py-16"
+          className="border-t border-border py-8"
           aria-labelledby="music-heading"
         >
           <h2 id="music-heading" className="font-display text-2xl font-semibold tracking-tight">

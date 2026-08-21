@@ -53,7 +53,7 @@ export default function BioSwitcher({ blocks }: BioSwitcherProps) {
   }, [blocks.length])
 
   return (
-    <section aria-label="Bio — parcourir les blocs" className="mt-6">
+    <section aria-label="Bio — parcourir les blocs" className="mt-4">
       <div className="relative w-full max-w-full min-w-0 overflow-hidden">
         <div
           ref={scrollerRef}
@@ -69,13 +69,13 @@ export default function BioSwitcher({ blocks }: BioSwitcherProps) {
               data-bio={block.slug}
               role="group"
               aria-label={`${block.title}, ${idx + 1} sur ${blocks.length}`}
-              className="bio-slide flex flex-col gap-4 pb-4"
+              className="bio-slide flex flex-col gap-3 pb-2"
             >
               <h3 className="font-display text-xl font-semibold tracking-tight text-text">
                 {block.title}
               </h3>
 
-              <div className="relative w-full h-[clamp(200px,40vh,360px)] rounded-sm">
+              <div className="relative w-full h-[clamp(160px,30vh,300px)] rounded-sm">
                 <Image
                   src={block.image_path}
                   alt={block.image_alt}
@@ -127,7 +127,7 @@ export default function BioSwitcher({ blocks }: BioSwitcherProps) {
       <div
         role="group"
         aria-label="Navigation par bloc"
-        className="mt-4 flex justify-center gap-2"
+        className="mt-2 flex justify-center gap-2"
       >
         {blocks.map((block, idx) => (
           <button

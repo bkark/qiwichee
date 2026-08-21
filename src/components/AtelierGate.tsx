@@ -44,7 +44,7 @@ export default function AtelierGate({ initialError }: AtelierGateProps) {
   }
 
   return (
-    <section aria-labelledby="gate-heading" className="border-t border-border py-16">
+    <section aria-labelledby="gate-heading" className="border-t border-border py-8">
       <div className="max-w-xl">
         <h2
           id="gate-heading"

@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Bricolage_Grotesque, Inter } from "next/font/google";
 import "./globals.css";
+import SiteFooter from "./components/SiteFooter";
 
 const bricolage = Bricolage_Grotesque({
   subsets: ["latin"],
@@ -43,7 +44,10 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="fr" className={`${bricolage.variable} ${inter.variable}`}>
-      <body className="antialiased">{children}</body>
+      <body className="antialiased">
+{children}
+ <SiteFooter />
+</body>
     </html>
   );
 }

@@ -174,11 +174,6 @@ export default async function Home({ searchParams }: { searchParams: SearchParam
         </section>
       </main>
 
-      <footer className="border-t border-border">
-        <div className="mx-auto max-w-3xl px-6 py-8 text-sm text-muted">
-          <p>&copy; {new Date().getFullYear()} Qiwi Chee. All rights reserved.</p>
-        </div>
-      </footer>
     </div>
   );
 }

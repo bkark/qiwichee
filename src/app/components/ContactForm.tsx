@@ -31,6 +31,8 @@ const MAX_MESSAGE = 5000
 const copy = {
   nameLabel: 'Ton nom',
   emailLabel: 'Ton adresse email',
+  phoneLabel: 'Ton téléphone (facultatif)',
+  phoneHint: 'Utile pour un rappel rapide — tu peux laisser vide.',
   subjectLabel: 'Objet',
   subjectConcert: 'Concert / booking',
   subjectPresse: 'Presse',
@@ -48,6 +50,7 @@ const copy = {
   // Erreurs PAR CHAMP — chacune dit quoi faire, pas seulement ce qui ne va pas.
   errName: 'Indique ton nom (2 caractères minimum).',
   errEmail: 'Cette adresse email ne semble pas valide.',
+  errPhone: 'Ce numéro ne semble pas valide (chiffres, espaces, + et - seulement).',
   errSubject: 'Choisis un objet.',
   errMessage: `Ton message est trop court — ${MIN_MESSAGE} caractères minimum.`,
   errMessageLong: `Ton message dépasse ${MAX_MESSAGE} caractères.`,
@@ -59,11 +62,12 @@ const copy = {
 } as const
 
 type Status = 'idle' | 'sending' | 'sent' | 'error'
-type FieldErrors = Partial<Record<'name' | 'email' | 'subject' | 'message', string>>
+type FieldErrors = Partial<Record<'name' | 'email' | 'phone' | 'subject' | 'message', string>>
 
 export default function ContactForm() {
   const [name, setName] = useState('')
   const [email, setEmail] = useState('')
+  const [phone, setPhone] = useState('')
   const [subject, setSubject] = useState('concert')
   const [message, setMessage] = useState('')
   const [website, setWebsite] = useState('')   // honeypot
@@ -77,6 +81,13 @@ export default function ContactForm() {
     const errs: FieldErrors = {}
     if (name.trim().length < 2) errs.name = copy.errName
     if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email.trim())) errs.email = copy.errEmail
+    // ★ FACULTATIF : un champ vide n'est PAS une erreur. C'est la seule
+    //   vérification conditionnelle du formulaire — ne pas l'aligner sur
+    //   les autres, qui portent des champs obligatoires.
+    const p = phone.trim()
+    if (p.length > 0 && (p.length < 6 || p.length > 32 || !/^[+0-9][0-9 ().-]*$/.test(p))) {
+      errs.phone = copy.errPhone
+    }
     if (!['concert', 'presse', 'collaboration', 'autre'].includes(subject)) {
       errs.subject = copy.errSubject
     }
@@ -109,7 +120,7 @@ export default function ContactForm() {
       const res = await fetch('/api/contact', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name, email, subject, message, website, locale: 'fr' }),
+        body: JSON.stringify({ name, email, phone, subject, message, website, locale: 'fr' }),
       })
 
       const data = await res.json()
@@ -128,6 +139,7 @@ export default function ContactForm() {
         for (const f of data.fields) {
           if (f === 'name') map.name = copy.errName
           if (f === 'email') map.email = copy.errEmail
+          if (f === 'phone') map.phone = copy.errPhone
           if (f === 'subject') map.subject = copy.errSubject
           if (f === 'message') map.message = copy.errMessage
         }
@@ -216,6 +228,35 @@ export default function ContactForm() {
             {fieldErrors.email}
           </p>
         )}
+      </div>
+
+      {/* --- Téléphone (facultatif) --- */}
+      <div className="flex flex-col gap-1">
+        <label htmlFor="contact-phone" className="text-sm font-medium text-text">
+          {copy.phoneLabel}
+        </label>
+        <input
+          id="contact-phone"
+          name="phone"
+          type="tel"
+          inputMode="tel"
+          maxLength={32}
+          autoComplete="tel"
+          value={phone}
+          onChange={(e) => setPhone(e.target.value)}
+          disabled={busy}
+          aria-invalid={!!fieldErrors.phone}
+          aria-describedby="contact-phone-hint"
+          className={fieldClass(fieldErrors.phone)}
+        />
+        {/* ★ Indication TOUJOURS visible (motif du champ message) : ce qu'il faut
+            savoir en premier, c'est qu'on peut laisser vide. */}
+        <p
+          id="contact-phone-hint"
+          className={`text-sm ${fieldErrors.phone ? 'text-red-700' : 'text-muted'}`}
+        >
+          {fieldErrors.phone ?? copy.phoneHint}
+        </p>
       </div>
 
       {/* --- Objet --- */}

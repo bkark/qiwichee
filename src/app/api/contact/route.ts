@@ -39,6 +39,19 @@ const ContactSchema = z.object({
   email: z.string().trim().toLowerCase().email().max(254),
   subject: z.enum(['concert', 'presse', 'collaboration', 'autre']),
   message: z.string().trim().min(10).max(5000),
+    // ★ TÉLÉPHONE : FACULTATIF. Bornes IDENTIQUES à celles du RPC — si elles
+  //   divergent, le visiteur voit une erreur générique au lieu du champ fautif.
+  // ★ `.or(z.literal(''))` est INDISPENSABLE : un champ non rempli poste ''
+  //   et non `undefined`. Sans ça, laisser le champ vide serait une erreur
+  //   de validation sur un champ optionnel — exactement l'inverse du but.
+  phone: z
+    .string()
+    .trim()
+    .min(6)
+    .max(32)
+    .regex(/^[+0-9][0-9 ().-]*$/)
+    .optional()
+    .or(z.literal('')),
   locale: z.string().regex(/^[a-z]{2}(-[A-Z]{2})?$/).default('fr'),
   // Honeypot. Doit rester VIDE : un humain ne voit pas le champ.
   website: z.string().max(0).optional().or(z.literal('')),
@@ -105,7 +118,7 @@ export async function POST(req: Request) {
     return Response.json({ ok: false, error: 'invalid_input', fields }, { status: 400 })
   }
 
-  const { name, email, subject, message, locale } = parsed.data
+  const { name, email, phone, subject, message, locale } = parsed.data
 
   // --- 2. PERSISTER (la vérité) ---------------------------------------------
   const supabase = await createClient()
@@ -118,6 +131,9 @@ export async function POST(req: Request) {
     p_message: message,
     p_locale: locale,
     p_ip_hash: hashIp(clientIp(req)),
+        // '' → null : on n'envoie pas une chaîne vide à la base. Le RPC a son
+    // propre nullif, mais on ne s'appuie pas sur le filet de l'autre couche.
+    p_phone: phone || null,
   })
 
   if (error) {
@@ -173,6 +189,7 @@ export async function POST(req: Request) {
         `Objet   : ${labels[subject] ?? subject}`,
         `Nom     : ${name}`,
         `Email   : ${email}`,
+        `Tél.    : ${phone || '—'}`,
         `Langue  : ${locale}`,
         '',
         message,

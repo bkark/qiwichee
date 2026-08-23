@@ -1,23 +1,119 @@
 # Résonance — AI Context File
 > Paste/upload this at the start of any new conversation to resume instantly.
 
-**Last updated:** 2026-08-22 — **CANAL DE CONTACT PRO LIVRÉ. PREMIÈRE PORTE NON-FAN DU SITE.**
-Le site avait une porte fan (l’Atelier) et AUCUNE porte pro : un programmateur n’avait aucun
-moyen d’écrire depuis qiwichee.com. Livré de bout en bout, vérifié en production. Ce qui change
-structurellement :
-(1) **STORE-AND-FORWARD** — la ligne en base est la vérité, le mail n’est qu’une notification ;
-(2) **`contact_messages` = première table du PROJECT JOURNAL**, pas un formulaire jetable ;
-(3) **décision bilingue tranchée** : contenu sortant → table de traductions, saisie entrante → colonne `locale` ;
-(4) **URLs par langue** (FR racine, EN sous `/en`) — un cookie seul ne donne qu’une URL, donc pas d’indexation EN ;
-(5) nouvelle leçon dure : **`tsc` valide un fichier VALIDE, pas le BON fichier**.
+**Last updated:** 2026-08-23 — **CHAMP TÉLÉPHONE LIVRÉ. MIGRATION FAITE PENDANT QU'ELLE ÉTAIT ENCORE GRATUITE.**
+Rien de spectaculaire côté fonctionnalité — un champ facultatif de plus. Ce qui compte est
+la MÉTHODE, et elle est réutilisable telle quelle pour toute évolution de RPC :
+(1) **lire la running-config AVANT d'éditer** (`pg_proc`, pas le fichier `.sql` du repo) ;
+(2) **`drop function` EMPORTE LES GRANTS** — le vrai risque d'un changement de signature ;
+(3) **paramètre optionnel en dernier ⇒ RÉTRO-COMPATIBLE**, donc la base a migré 2 h avant
+la route, sans fenêtre cassée ; (4) **une barrière ne se prouve que par un REFUS** ;
+(5) le formulaire a été fait par Claude Code sur brief scopé, la route à la main —
+et c'était le bon partage.
 **Status:** qiwichee.com LIVE ✅ · Atelier gate ✅ · Magic links ✅ · Keepalive CRON ✅ ·
-Release-switcher ✅ · Section BIO ✅ · **CONTACT PRO LIVE ✅** · SPF+DKIM+DMARC ✅ ·
-Event-engine SQL ⛔ TOUJOURS UNRUN (et doit pointer vers `artists`)
-**Commit du jour :** `56cab9e` (contact store-and-forward, 11 fichiers, déployé Ready 23 s)
-**Next session goal (in order):** (1) **CHAMP TÉLÉPHONE** — décidé, non fait ; table encore
-quasi vide donc gratuit MAINTENANT. (2) **MENTIONS LÉGALES + CONFIDENTIALITÉ** — bloquant légal.
-(3) **BILINGUE next-intl** (décisions déjà prises, voir plus bas). (4) NAV DANS LE LAYOUT.
-(5) LADDER & SEASONS. (6) `fans` MULTI-TENANT.
+Release-switcher ✅ · Section BIO ✅ · CONTACT PRO LIVE ✅ · **CHAMP TÉL. ✅** ·
+SPF+DKIM+DMARC ✅ · Event-engine SQL ⛔ TOUJOURS UNRUN (et doit pointer vers `artists`)
+**Commits du jour :** `4361c08` (route) + formulaire (ContactForm), poussés et vérifiés en prod
+**Next session goal (in order):** (1) **MENTIONS LÉGALES + CONFIDENTIALITÉ** — désormais LE
+bloquant, et la rétention porte maintenant aussi un NUMÉRO DE TÉLÉPHONE. (2) **BILINGUE
+next-intl** (décisions prises) **AVEC la nav dans le layout**. (3) LADDER & SEASONS.
+(4) `fans` MULTI-TENANT. (5) SEND EMAIL HOOK.
+
+---
+
+## ☎️ CHAMP TÉLÉPHONE — LIVRÉ 2026-08-23
+
+```
+POURQUOI MAINTENANT ET PAS PLUS TARD : la table était quasi vide (1 ligne réelle).
+  Un ALTER TABLE + un changement de signature de RPC sur une table vide coûtent zéro.
+  Sur 500 lignes et un formulaire en production mis en avant, c'est une migration.
+  ★ LA FENÊTRE DE GRATUITÉ EST UNE RESSOURCE QUI SE PÉRIME. C'est le seul item de la
+    liste dont le coût AUGMENTAIT en attendant — d'où sa priorité sur des sujets
+    objectivement plus importants (les mentions légales).
+
+CHAÎNE COMPLÈTE, QUATRE COUCHES, MÊMES BORNES PARTOUT :
+  colonne `phone text NULL` → RPC 8 params → route (Zod) → formulaire
+  Forme validée : 6–32 caractères, ^[+0-9][0-9 ().-]*$ · vide → NULL
+  ★ ON VALIDE LA FORME, PAS LE PLAN DE NUMÉROTATION. +213, +1, 06 12 34 56 78 sont
+    tous légitimes (parcours franco-algérien-américain, fans aux USA). Un regex strict
+    rejetterait de vrais programmateurs — et UN PROGRAMMATEUR REJETÉ NE RÉESSAIE PAS,
+    IL RENONCE. Même logique que le BCP-47 de `locale` : la forme, jamais la liste.
+  ★ SI LES BORNES DIVERGENT ENTRE LES COUCHES, le visiteur voit « tout est bon » et le
+    serveur refuse quand même. Elles sont identiques caractère pour caractère, à vérifier
+    à chaque modification de l'une des trois.
+
+★★ `drop function` EMPORTE LES GRANTS. C'EST LE VRAI RISQUE.
+  Changer la signature d'un RPC impose un `drop` + `create` (voir ci-dessous). Le drop
+  supprime l'ACL avec la fonction. Sans `revoke`/`grant execute to anon, authenticated`
+  DANS LA MÊME TRANSACTION, le formulaire renvoie 403 au premier envoi suivant — et
+  seulement à ce moment-là, donc potentiellement des heures après la migration.
+  (Télécom : on ne remplace pas une interface sans remettre ses ACL dans le même commit.)
+
+★★ PARAMÈTRE OPTIONNEL EN DERNIER ⇒ RÉTRO-COMPATIBILITÉ ⇒ PAS DE FENÊTRE CASSÉE.
+  Postgres interdit un paramètre sans défaut après des paramètres avec défaut, donc
+  `p_phone text default null` DEVAIT aller en dernier. Cette contrainte est un cadeau :
+  PostgREST appelle par ARGUMENTS NOMMÉS, donc l'ancienne route (6 arguments, aucun
+  `p_phone`) reste parfaitement valide contre la nouvelle fonction.
+  ⇒ La base a migré à 23 h, la route à 1 h, le formulaire à 2 h. À AUCUN MOMENT la
+    production n'a été cassée. VÉRIFIÉ par un appel à 6 arguments nommés, pas supposé.
+  ★ GÉNÉRALISABLE : toute évolution de RPC doit viser cette propriété. Ajouter en fin
+    de signature avec un défaut = déploiement en deux temps possible. Insérer au milieu
+    ou changer un type = big-bang obligatoire.
+
+★ `create or replace` NE REMPLACE QUE SI LA SIGNATURE EST IDENTIQUE.
+  Ajouter un paramètre crée une SURCHARGE, et PostgREST ne sait plus laquelle appeler.
+  → `drop function public.submit_contact_message(text,text,text,text,text,text,text);`
+    avec les types EXACTS relevés dans pg_proc, jamais devinés.
+
+★ LIRE LA RUNNING-CONFIG, PAS LE FICHIER DU REPO.
+  La signature et le corps ont été relevés dans pg_proc AVANT d'éditer :
+    select p.oid::regprocedure, pg_get_function_identity_arguments(p.oid),
+           pg_get_functiondef(p.oid)
+    from pg_proc p join pg_namespace n on n.oid = p.pronamespace
+    where n.nspname='public' and p.proname='submit_contact_message';
+  `pg_get_functiondef` rend le corps RÉEL. docs/briefs/*.sql est l'INTENTION.
+  (Corollaire de « committé ≠ appliqué ».) Vérification qui compte : UNE SEULE LIGNE.
+  Deux lignes = surcharge déjà présente, tout le plan change.
+
+★ UNE BARRIÈRE NE SE PROUVE QUE PAR UN REFUS.
+  Trois tests, dont DEUX devaient échouer : rétro-compat (ok), numéro valide (ok),
+  `appelle-moi` → {"ok":false,"reason":"invalid_phone"}. Puis LECTURE DE LA TABLE :
+  la ligne refusée est ABSENTE. Une validation qui retourne false mais écrit quand même
+  est pire que pas de validation — elle a l'air de marcher.
+  ★ Le retour du RPC dit ce qu'il PRÉTEND avoir fait ; la table dit ce qui s'est passé.
+
+★ NULLIF EST INDISPENSABLE DES DEUX CÔTÉS.
+  Un champ HTML non rempli poste `''`, pas `undefined`/null. Sans conversion on stocke
+  des chaînes vides : ni absentes ni présentes, et chaque requête future doit tester les
+  deux cas. Route : `p_phone: phone || null`. RPC : `nullif(btrim(...), '')`.
+  On ne s'appuie pas sur le filet de l'autre couche. VÉRIFIÉ : envoi sans téléphone → null.
+
+★ CÔTÉ FORMULAIRE, TROIS DÉCISIONS ET UN PIÈGE :
+  1. « (facultatif) » est DANS LE LIBELLÉ, pas dans le style. Un astérisque ou un gris
+     plus clair n'est PAS lu par un lecteur d'écran : l'information disparaîtrait pour
+     ceux qui en ont le plus besoin.
+  2. L'indication suit le motif du champ MESSAGE (toujours visible, devient rouge et
+     affiche l'erreur), pas celui du champ EMAIL (<p> rendu seulement en cas de faute).
+     Ce qu'un visiteur doit savoir EN PREMIER, c'est qu'il peut laisser vide.
+     ⇒ `aria-describedby` INCONDITIONNEL, jamais un ternaire.
+  3. `type="tel"` + `inputMode="tel"` : pavé numérique sur mobile. `type="tel"` ne valide
+     RIEN côté navigateur (contrairement à `type="email"`) — voulu, la forme est à nous.
+  ⚠️ PIÈGE : les quatre champs existants sont obligatoires, donc TOUTES les vérifications
+     de validate() sont inconditionnelles. Copier ce motif rend le téléphone OBLIGATOIRE
+     — l'inverse exact de la demande — ET `tsc` PASSE AU VERT. La vérification doit être
+     conditionnelle : `if (p.length > 0 && (...))`.
+
+VÉRIFIÉ EN PRODUCTION (2026-08-23) depuis DEUX RÉSEAUX (laptop + téléphone) :
+  vide → null en base · numéro → stocké · invalide → erreur sous le champ + focus ·
+  mail reçu sur hello@ avec la ligne `Tél.` (— si absent : jamais de ligne muette).
+  ★ Un tiret cadratin explicite vaut mieux qu'une ligne absente : « demandé, non fourni »
+    au lieu de « est-ce que le champ est cassé ? ».
+
+⚠️ CONSÉQUENCE RGPD IMMÉDIATE : un numéro de téléphone est une donnée personnelle.
+  La politique de confidentialité (déjà bloquante) doit maintenant couvrir AUSSI ce champ,
+  même rétention 24 mois. Commentaire posé sur la colonne en base — le drapeau vit à côté
+  de la donnée, pas seulement dans un document qui n'existe pas encore.
+```
 
 ---
 
@@ -25,127 +121,86 @@ quasi vide donc gratuit MAINTENANT. (2) **MENTIONS LÉGALES + CONFIDENTIALITÉ**
 
 ```
 POURQUOI : deux publics, deux besoins. Le fan veut appartenir (Atelier, déjà fait).
-  Le PRO (programmateur, presse, collab) veut joindre l’artiste SANS COMPTE.
+  Le PRO (programmateur, presse, collab) veut joindre l'artiste SANS COMPTE.
   ⛔ PAS de canal fan→artiste ouvert : charge de modération quotidienne, et ça double
-     l’Atelier. Le canal pro était le seul manquant. UNE seule adresse, pas trois.
-  `hello@qiwichee.com` existait déjà (OVH Email Pro) — c’était de la CONFIG manquante,
-  pas de l’infra manquante.
+     l'Atelier. Le canal pro était le seul manquant. UNE seule adresse, pas trois.
 
 ★ ARCHITECTURE : STORE-AND-FORWARD, PAS CUT-THROUGH.
   1. Valider (Zod + honeypot)  2. PERSISTER (RPC)  3. Répondre  4. Notifier via after()
   Un formulaire qui appelle SMTP directement est du cut-through : le lien tombe, la trame
-  est perdue, PERSONNE ne le sait. L’expéditeur voit « merci », l’artiste ne reçoit rien.
-  C’est le pire mode de panne : il ne plante pas, il PERD EN SILENCE.
-  Ici l’échec d’envoi devient un log rejouable, jamais une disparition.
-  (Corollaire maison : les données d’abord dans Supabase, les fournisseurs ensuite.)
+  est perdue, PERSONNE ne le sait. L'expéditeur voit « merci », l'artiste ne reçoit rien.
+  C'est le pire mode de panne : il ne plante pas, il PERD EN SILENCE.
+  (Corollaire maison : les données d'abord dans Supabase, les fournisseurs ensuite.)
 
 SCHÉMA (docs/briefs/contact_messages.sql — ✅ LANCÉ ET VÉRIFIÉ) :
   contact_messages  artist_id (NOT NULL, FK → artists) · sender_name · sender_email ·
+                    phone (2026-08-23, nullable) ·
                     subject ('concert'|'presse'|'collaboration'|'autre') · message ·
                     locale · status ('new'|'read'|'replied'|'archived') · handled_at ·
                     ip_hash · created_at
-  submit_contact_message(slug, name, email, subject, message, locale, ip_hash)
+  submit_contact_message(slug, name, email, subject, message, locale, ip_hash, phone)
     security definer · returns jsonb · execute → anon + authenticated
+  ⚠️ 8 PARAMÈTRES depuis le 2026-08-23. `p_phone` en DERNIER, default null.
 
-★ IL NE LÈVE PAS D’EXCEPTION, IL RETOURNE UN VERDICT {ok, reason}.
+★ IL NE LÈVE PAS D'EXCEPTION, IL RETOURNE UN VERDICT {ok, reason}.
   Une exception dans un security definer ressort par PostgREST en erreur Postgres brute :
-  illisible côté route, et ça fuite l’implémentation. Un jsonb se mappe sur un code HTTP.
+  illisible côté route, et ça fuite l'implémentation. Un jsonb se mappe sur un code HTTP.
 
 ★ RATE-LIMIT DANS LE RPC : 3/h par ip_hash, 30/h par artiste.
-  VÉRIFIÉ PAR UN REFUS (3 succès puis {"ok":false,"reason":"rate_limited"}).
-  Le chemin heureux seul ne prouve PAS que la barrière existe.
-  ⚠️ ip_hash est un PARAMÈTRE de l’appelant : un attaquant qui appelle le RPC directement
+  VÉRIFIÉ PAR UN REFUS. Le chemin heureux seul ne prouve PAS que la barrière existe.
+  ⚠️ ip_hash est un PARAMÈTRE de l'appelant : un attaquant qui appelle le RPC directement
      peut le varier et contourner le plafond IP. Le plafond PAR ARTISTE est le vrai filet.
-     Acceptable ici, insuffisant à fort trafic. Ne pas prétendre que c’est étanche.
   ⚠️ 3/h est probablement TROP STRICT pour du booking (un festival = plusieurs personnes
      derrière une même IP). À rediscuter.
+  ★ Le plafond se DÉRIVE de la table (count sur la dernière heure) : supprimer des lignes
+    de test libère le quota immédiatement. Même principe que les badges dérivés.
 
-★ RLS ACTIVE, AUCUNE POLICY = DENY-ALL, ET C’EST DÉLIBÉRÉ.
-  Une policy de lecture dirait « cet utilisateur peut lire les messages de SON artiste ».
-  Or LE LIEN COMPTE↔ARTISTE N’EXISTE PAS : `artists` porte id/slug/name, rien qui rattache
-  un compte auth. L’écrire aujourd’hui = inventer ce lien dans une clause WHERE, le pire
+★ RLS ACTIVE, AUCUNE POLICY = DENY-ALL, ET C'EST DÉLIBÉRÉ.
+  LE LIEN COMPTE↔ARTISTE N'EXISTE PAS : `artists` porte id/slug/name, rien qui rattache
+  un compte auth. L'écrire aujourd'hui = inventer ce lien dans une clause WHERE, le pire
   endroit pour le définir. Lecture via dashboard (service role) en attendant.
   → MÊME FAMILLE QUE `owners` vs `artists`. À trancher ensemble.
 
-★ ip_hash : SHA-256 AVEC SEL (IP_HASH_SALT), jamais l’IP en clair.
-  Sans sel, un hash d’IPv4 se casse en secondes (4 milliards de possibilités) — ce serait
-  un déguisement, pas une protection. Le sel ne se fait PAS tourner : le changer rend les
-  anciens hashs INCOMPARABLES (pas invalides). Il se documente, il ne se gère pas.
+★ ip_hash : SHA-256 AVEC SEL (IP_HASH_SALT), jamais l'IP en clair.
+  Le sel ne se fait PAS tourner : le changer rend les anciens hashs INCOMPARABLES.
+  Il se documente, il ne se gère pas.
 
 FICHIERS :
-  src/lib/mailService.ts              abstraction fournisseur (OVH aujourd’hui, Brevo demain)
+  src/lib/mailService.ts              abstraction fournisseur (OVH aujourd'hui, Brevo demain)
   src/app/api/contact/route.ts        runtime='nodejs' + dynamic='force-dynamic'
   src/app/contact/page.tsx            mailto visible + JSON-LD ContactPoint
   src/app/components/ContactForm.tsx  validation par champ, copie en objet plat
   src/app/components/SiteFooter.tsx   dans le LAYOUT → présent partout
 
-★ FROM = LA BOÎTE AUTHENTIFIÉE, TOUJOURS. REPLY-TO = L’EXPÉDITEUR RÉEL.
-  Mettre l’adresse du visiteur en From casse SPF/DKIM (qiwichee.com n’autorise pas
-  gmail.com à envoyer en son nom) → spam ou rejet. Même raisonnement que les templates
-  Supabase sur le domaine de l’artiste.
-
-★ 587 = STARTTLS ⇒ secure:false + requireTLS:true. secure:true est pour le 465 (TLS
-  implicite) et fait échouer la poignée de main avec une erreur illisible. Piège classique.
-  VÉRIFIÉ dans la trace : OVH n’annonce AUTH LOGIN qu’APRÈS le chiffrement.
-
-★ TIMEOUTS 10 s MALGRÉ UN PLAFOND VERCEL À 300 s.
-  Le plafond généreux ne supprime pas le besoin de timeout, il en CHANGE LA RAISON :
-  ce n’est plus « ne pas se faire couper », c’est « NE PAS PENDRE » (une fonction
-  facturée 5 min pour un mail déjà mort).
-
-★ after() DÉPLACE LA LATENCE, IL NE GARANTIT PAS LA LIVRAISON.
-  Natif dans Next 15.1+ (`import { after } from 'next/server'`), pas de @vercel/functions.
-  Les promesses héritent du timeout de la fonction. Si l’envoi échoue, le visiteur a déjà
-  lu « envoyé » → d’où le log avec l’id. Ces deux propriétés sont souvent confondues.
-
-★ LE HONEYPOT EST VÉRIFIÉ CÔTÉ SERVEUR (celui d’AtelierGate est CLIENT-ONLY).
-  `if (honeypot) return` dans React ne voit jamais un bot qui poste sur /api/contact.
-  Si le seul champ en faute est `website` → on répond 200 « envoyé » SANS RIEN ÉCRIRE :
-  lui dire qu’il a échoué l’aiderait à s’adapter.
-  Convention partagée avec AtelierGate : name="website", tabIndex={-1}, autoComplete="off".
-  ⚠️ AtelierGate combine sr-only ET aria-hidden — CONTRADICTOIRE (« visible pour les
-     lecteurs d’écran » + « invisible pour eux »). Ça marche par accident. Le nouveau
-     formulaire masque par CSS explicite. À corriger dans AtelierGate.
-
-★ UN CRAWLER NE REMPLIT PAS DE FORMULAIRE.
-  En choisissant le formulaire on gagne l’intake structuré et on PERD la découvrabilité.
-  D’où mailto visible + ContactPoint JSON-LD server-rendered. Coût assumé : l’adresse est
-  moissonnable. Mais une adresse de booking cachée est une adresse inutile.
-  ⚠️ page.tsx SURCHARGE alternates.canonical : le layout en déclare un EN DUR vers la
-     racine, donc sans surcharge /contact se déclarerait canonique vers l’accueil et ne
-     serait jamais indexée. VÉRIFIER CE PIÈGE SUR CHAQUE NOUVELLE PAGE.
-
-VÉRIFIÉ EN PRODUCTION (le 2026-08-22) : ligne en base + mail reçu sur hello@,
-  rate-limit déclenché au 4e envoi. OVH accepte les connexions SMTP depuis Vercel —
-  cette inconnue est levée (une box qui marche ne prouve pas qu’un datacenter marche).
-  created_at en UTC (`+00`) : normal et voulu. Conversion à l’AFFICHAGE, pas au stockage —
-  seul choix qui tienne avec des fans aux USA.
+★ FROM = LA BOÎTE AUTHENTIFIÉE, TOUJOURS. REPLY-TO = L'EXPÉDITEUR RÉEL.
+★ 587 = STARTTLS ⇒ secure:false + requireTLS:true. secure:true est pour le 465.
+★ TIMEOUTS 10 s MALGRÉ UN PLAFOND VERCEL À 300 s : « NE PAS PENDRE », pas « ne pas être coupé ».
+★ after() DÉPLACE LA LATENCE, IL NE GARANTIT PAS LA LIVRAISON. D'où le log avec l'id.
+★ LE HONEYPOT EST VÉRIFIÉ CÔTÉ SERVEUR (celui d'AtelierGate est CLIENT-ONLY).
+  Si le seul champ en faute est `website` → 200 « envoyé » SANS RIEN ÉCRIRE.
+  ⚠️ AtelierGate combine sr-only ET aria-hidden — CONTRADICTOIRE. À corriger.
+★ UN CRAWLER NE REMPLIT PAS DE FORMULAIRE → mailto visible + ContactPoint JSON-LD.
+  ⚠️ page.tsx SURCHARGE alternates.canonical. VÉRIFIER CE PIÈGE SUR CHAQUE NOUVELLE PAGE.
 
 ⛔ BLOQUANT AVANT TOUTE MISE EN AVANT (pas avant le code) :
   MENTIONS LÉGALES (LCEN — obligatoires sur tout site public, et SUBSTANTIELLES dès la
-  SASU : dénomination, SIREN, capital, siège, directeur de publication, hébergeur) ·
-  POLITIQUE DE CONFIDENTIALITÉ liée sous le bouton d’envoi, portant la RÉTENTION 24 MOIS.
-  Pas de cron de purge : on n’automatise pas la suppression de lignes qui n’existent pas.
-  Le footer ne porte AUCUN lien légal aujourd’hui — un lien mort est pire que pas de lien.
+  SASU) · POLITIQUE DE CONFIDENTIALITÉ liée sous le bouton d'envoi, RÉTENTION 24 MOIS,
+  COUVRANT LE TÉLÉPHONE. Pas de cron de purge : on n'automatise pas la suppression de
+  lignes qui n'existent pas. Le footer ne porte AUCUN lien légal aujourd'hui.
 
 ⛔ ET : `hello@` DOIT ÊTRE RELEVÉ SUR LE TÉLÉPHONE DE QIWI CHEE (IMAP pro2.mail.ovh.net,
   993 SSL, notifications actives). Un formulaire qui classe dans une boîte que personne
-  n’ouvre RECONSTRUIT LE SILENCE, en plus cher. Bassim relève aussi.
+  n'ouvre RECONSTRUIT LE SILENCE, en plus cher. Bassim relève aussi.
 
 À FAIRE (décidé, non fait) :
-  · CHAMP TÉLÉPHONE optionnel. Touche 4 endroits (ALTER TABLE, RPC, route, form).
-    ⚠️ `create or replace function` ne remplace QUE si la signature est identique :
-       ajouter un paramètre crée une SURCHARGE et PostgREST ne sait plus laquelle appeler.
-       → `drop function` explicite AVANT de recréer.
-    ⚠️ Un numéro est une donnée personnelle : même rétention, même politique.
-    ★ Table quasi vide aujourd’hui = migration GRATUITE. Dans deux mois, non.
-  · NAV ABSENTE SUR /contact → cul-de-sac. Palliatif posé : lien « ← Qiwi Chee » en haut
-    et dans l’écran de succès. LA VRAIE CORRECTION est de remonter la nav dans le LAYOUT
-    (comme le footer), en transformant #music/#about en /#music//#about.
+  · NAV ABSENTE SUR /contact → cul-de-sac. Palliatif : lien « ← Qiwi Chee ».
+    LA VRAIE CORRECTION est de remonter la nav dans le LAYOUT, #music → /#music.
     ⚠️ À faire AVEC le bilingue : le sélecteur de langue vit dans la nav.
-  · AUTOFILL : Chrome remplit le nom, pas l’email. TESTÉ : même comportement sur d’autres
-    sites → profil Chrome, PAS notre code. Le déplacement du honeypot en fin de formulaire
-    n’a rien changé (gardé quand même, sans effet négatif). NE PAS Y REPASSER DE TEMPS.
+  · ORDRE DES CHAMPS : le téléphone est entre Email et Objet, ce qui repousse le message.
+    Cohérent (coordonnées ensemble, même ordre que le mail) mais si le formulaire paraît
+    long sur mobile, c'est CE champ qu'on descend sous Objet. Noté, pas urgent.
+  · AUTOFILL : Chrome remplit le nom, pas l'email. TESTÉ : profil Chrome, PAS notre code.
+    NE PAS Y REPASSER DE TEMPS.
 ```
 
 ---
@@ -157,45 +212,38 @@ CONTEXTE : Qiwi Chee a demandé une version anglaise — elle a des fans aux USA
 Trilingue possible (arabe) vu le parcours franco-algérien-américain.
 
 ★ RÈGLE QUI DÉCIDE TOUT : AJOUTER UNE LANGUE DOIT ÊTRE DES LIGNES, PAS UNE MIGRATION.
-  C’est « ajouter une plateforme = une ligne » appliqué aux langues. Ça DISQUALIFIE le
-  pattern colonnes (title_fr, title_en) : il marche à deux langues, coûte un ALTER TABLE
-  + un déploiement à la troisième, et oblige chaque requête à connaître la liste.
+  Ça DISQUALIFIE le pattern colonnes (title_fr, title_en) : il marche à deux langues,
+  coûte un ALTER TABLE + un déploiement à la troisième.
 
 1. CONTENU SORTANT (bio_blocks) → TABLE DE TRADUCTIONS, une ligne par (bloc, langue).
-   ⇒ LA DÉCISION DE SCHÉMA PARKÉE SUR bio_blocks EST TRANCHÉE.
-2. SAISIE ENTRANTE (contact_messages) → COLONNE `locale`. Un message a UNE langue et le
-   traduire n’a aucun sens ; ce qu’on veut savoir c’est DANS QUELLE LANGUE RÉPONDRE.
-   ★ Les deux se ressemblent et sont OPPOSÉS. Les confondre = une table de traductions
-     vide sur 100 % des messages.
-3. PAS de check (locale in ('fr','en')) : on valide la FORME (regex BCP-47 `^[a-z]{2}
-   (-[A-Z]{2})?$`), pas la liste. L’arabe = zéro ALTER TABLE. Déjà appliqué.
-4. URLS PAR LANGUE : FR à la racine (URLs actuelles INCHANGÉES, rien à ré-indexer),
-   EN sous /en, plus les balises hreflang.
-   ★ UNE BASCULE PAR COOKIE / Accept-Language SEULE NE DONNE QU’UNE URL : Google et les
-     agents n’indexent qu’une version, et l’anglaise N’EXISTE PAS dans les résultats.
-     Traduire sans URL distincte ne rend PAS l’artiste trouvable aux USA — c’était tout
-     l’objet de la demande. La détection navigateur devient une redirection à la PREMIÈRE
-     visite, pas le mécanisme de fond.
+2. SAISIE ENTRANTE (contact_messages) → COLONNE `locale`. Un message a UNE langue.
+   ★ Les deux se ressemblent et sont OPPOSÉS.
+3. PAS de check (locale in ('fr','en')) : on valide la FORME (regex BCP-47), pas la liste.
+   ★ MÊME RÈGLE APPLIQUÉE AU TÉLÉPHONE le 2026-08-23. C'est devenu un motif maison :
+     valider la forme, jamais l'énumération, dès qu'un domaine peut s'élargir.
+4. URLS PAR LANGUE : FR à la racine (URLs actuelles INCHANGÉES), EN sous /en, + hreflang.
+   ★ UNE BASCULE PAR COOKIE SEULE NE DONNE QU'UNE URL : l'anglaise N'EXISTE PAS dans les
+     résultats de recherche. Traduire sans URL distincte ne rend PAS l'artiste trouvable
+     aux USA — c'était tout l'objet de la demande.
 5. FORME DE LA COPIE, DÉJÀ APPLIQUÉE dans ContactForm/SiteFooter : un seul objet plat en
-   haut du composant, clés anglaises, valeurs françaises. Ce n’est pas next-intl, c’est la
-   FORME qu’il attend → se déplace dans fr.json par copier-coller, zéro chaîne à extraire.
+   haut du composant, clés anglaises, valeurs françaises → se déplace dans fr.json par
+   copier-coller. ★ Les 3 clés du téléphone respectent déjà cette forme.
 
-⚠️ NON VÉRIFIÉ : next-intl passe par le middleware, et Next 16 affiche déjà l’avertissement
-   middleware→proxy. À vérifier AU MOMENT de l’installer, pas à supposer.
-⚠️ SI ARABE UN JOUR : ce n’est pas un problème de traduction mais de LAYOUT RTL (dir="rtl",
-   miroir des flèches de carrousel). Ne se prépare pas aujourd’hui, mais SE SAIT aujourd’hui :
-   ne jamais coder « flèche suivante = à droite » en dur.
+⚠️ NON VÉRIFIÉ : next-intl passe par le middleware, et Next 16 affiche déjà l'avertissement
+   middleware→proxy. À vérifier AU MOMENT de l'installer, pas à supposer.
+⚠️ SI ARABE UN JOUR : problème de LAYOUT RTL, pas de traduction. Ne jamais coder
+   « flèche suivante = à droite » en dur.
 ```
 
 ---
 ## 🖼️ MODULE BIO — LIVRÉ 2026-08-21
 
 ```
-CE QUE C’EST : des couples texte/photo, ordonnés à la main, en carrousel horizontal.
+CE QUE C'EST : des couples texte/photo, ordonnés à la main, en carrousel horizontal.
 DEUX RENDUS SUR LA MÊME SOURCE : le carrousel web (fait) et le PRESS KIT PDF (à venir).
-Un press kit n’est pas un second module — c’est une seconde vue des mêmes lignes.
+Un press kit n'est pas un second module — c'est une seconde vue des mêmes lignes.
 
-SCHÉMA (docs/briefs/bio_blocks.sql — ✅ LANCÉ ET VÉRIFIÉ, pas seulement committé) :
+SCHÉMA (docs/briefs/bio_blocks.sql — ✅ LANCÉ ET VÉRIFIÉ) :
   artists      id · slug · name · created_at          ← ANCRE MULTI-TENANT
   bio_blocks   artist_id (NOT NULL, FK) · slug · sort_order · title · body ·
                image_path · image_hd_path · image_alt (NOT NULL) ·
@@ -205,34 +253,26 @@ SCHÉMA (docs/briefs/bio_blocks.sql — ✅ LANCÉ ET VÉRIFIÉ, pas seulement c
   get_bio_blocks(p_artist_slug, p_usage)  security definer, execute → anon + authenticated
 
 ★ LA BARRIÈRE DE DROITS EST DANS LE RPC, PAS DANS LE CLIENT.
-  Un bloc n’est renvoyé que si le droit correspondant à l’usage DEMANDÉ est vrai.
-  Le futur rendu press kit ne PEUT PAS publier une photo non autorisée — ce n’est pas
-  une consigne qu’un dev pourrait oublier, c’est une impossibilité côté base.
+  Le futur rendu press kit ne PEUT PAS publier une photo non autorisée — ce n'est pas
+  une consigne qu'un dev pourrait oublier, c'est une impossibilité côté base.
   (Télécom : on filtre sur le routeur, pas sur le poste client.)
   VÉRIFIÉ : web → 7 · presskit → 0 · artiste inconnu → 0.
 
 CONTENU : 7 blocs, photos de MAËLYS JIBIDAR (série « Une dernière chose »).
-  1 qui-je-suis · 2 entre-quatre-villes (Honolulu, San Diego, Alger, Paris) ·
-  3 britney-et-elliott · 4 ce-que-je-n-aime-pas · 5 ce-que-j-aime ·
-  6 avant-il-y-a-eu-boston (zoo de Boston) · 7 une-derniere-chose (guitare, saxo, cerf-volant)
+  1 qui-je-suis · 2 entre-quatre-villes · 3 britney-et-elliott · 4 ce-que-je-n-aime-pas ·
+  5 ce-que-j-aime · 6 avant-il-y-a-eu-boston · 7 une-derniere-chose
   usage_scope : 1,2,3,6 = both · 4,5,7 = web (trop intimes pour un dossier professionnel)
-  ★ C’EST LE CONTENU RÉEL QUI A TRANCHÉ `usage_scope`, pas la théorie. Toujours dans ce sens.
+  ★ C'EST LE CONTENU RÉEL QUI A TRANCHÉ `usage_scope`, pas la théorie.
 
-COMPOSANTS : src/app/components/BioSection.tsx (serveur : RPC + Zod + console.error)
-             src/app/components/BioSwitcher.tsx (client : carrousel)
-             src/lib/constants.ts (ARTIST_SLUG)
-  Départ TOUJOURS sur le premier bloc (une bio a un début — contrairement au carrousel
-  musique qui démarre au hasard). PAS de recoloration par slide (signature de la musique).
+COMPOSANTS : src/app/components/BioSection.tsx · BioSwitcher.tsx · src/lib/constants.ts
+  Départ TOUJOURS sur le premier bloc. PAS de recoloration par slide.
 
 ⚠️ DROITS PHOTO — ÉTAT RÉEL :
   Usage WEB : accordé oralement par Maëlys Jibidar (août 2026). Consigné dans rights_note.
-  Usage PRESSE : NON DEMANDÉ. Mail rédigé, à envoyer — de préférence SIGNÉ PAR QIWI CHEE
-    (une photographe répond à l’artiste ; un tiers déclenche une grille tarifaire).
-  FICHIERS HD : N’EXISTENT NULLE PART. Les 7 fichiers plafonnent à 1600 px (compression
-    WhatsApp), y compris la copie « archive » du Drive. Si le disque de Maëlys tombe,
-    la séance est perdue. image_hd_path reste null. → DEMANDE URGENTE.
-  Transfert à demander par LIEN (WeTransfer/SwissTransfer/Drive), JAMAIS par WhatsApp,
-    Instagram ou iMessage « format réduit » : les trois recompressent en silence.
+  Usage PRESSE : NON DEMANDÉ. Mail rédigé, à envoyer — de préférence SIGNÉ PAR QIWI CHEE.
+  FICHIERS HD : N'EXISTENT NULLE PART. Les 7 fichiers plafonnent à 1600 px. Si le disque
+    de Maëlys tombe, la séance est perdue. image_hd_path reste null. → DEMANDE URGENTE.
+  Transfert par LIEN (WeTransfer/SwissTransfer/Drive), JAMAIS WhatsApp/Instagram/iMessage.
 ```
 
 ---
@@ -240,54 +280,30 @@ COMPOSANTS : src/app/components/BioSection.tsx (serveur : RPC + Zod + console.er
 ## 🎚️ ENGAGEMENT LADDER — PASSE PARTIELLE 2026-08-21
 
 ```
-★ RÈGLE ÉPICÈNE — REFORMULÉE EN MÉTHODE (remplace « trouve un mot épicène », qui échoue
-  par construction puisqu’il demande de deviner) :
-
+★ RÈGLE ÉPICÈNE — MÉTHODE :
   1. Le libellé désigne-t-il une PERSONNE ? → il a un féminin → RÉÉCRIS.
   2. Réécris en : NOM ABSTRAIT · GROUPE NOMINAL · ADJECTIF INVARIABLE · VERBE.
+  ⛔ PASSEUR → ✅ BOUCHE-À-OREILLE
+  ✅ Fidèle à l'écoute · Présence constante · Mémoire de l'Atelier · De la première heure
+  NOTE : une artiste qui se décrit à la 1ʳᵉ personne n'est PAS concernée.
 
-  Un abstrait n’a pas de genre social. C’est épicène PAR CONSTRUCTION, pas par chance.
-  (« Archiviste » était correct par accident — rien dans l’ancienne méthode ne le garantissait.)
-
-  ⛔ PASSEUR → ✅ BOUCHE-À-OREILLE   (passeur/passeuse ; le badge dit « amène d’autres fans »)
-  ✅ Fidèle à l’écoute · Présence constante · Mémoire de l’Atelier · De la première heure
-  ❌ Créateur · Ambassadeur · Habitué · Passeur
-
-  NOTE : une artiste qui se décrit à la 1ʳᵉ personne (« passeuse entre les cultures »)
-  n’est PAS concernée. La règle vise les libellés que LA PLATEFORME applique à des fans.
-
-TROIS PALIERS — et un seul mot restait à trouver :
-  visiteur  → jamais affiché (état « pas de gate »). Rien à corriger.
-  membre    → déjà épicène. Rien à corriger.
-  abonne    → SEUL vrai sujet, et c’est le seul palier qui n’existe pas encore.
-  ★ VALEURS DB : 'visiteur' | 'membre' | 'abonne' — texte machine, règle épicène NON applicable.
-  ★ LIBELLÉ AFFICHÉ : une seule constante de copy. Ne bloque AUCUN développement.
-    Candidat : « Complice ». Alternative : ne pas nommer du tout — l’abonnement reste un
-    ÉTAT du membre, pas une identité. Décision de Qiwi Chee.
+TROIS PALIERS : visiteur (jamais affiché) · membre (déjà épicène) · abonne (seul sujet).
+  ★ VALEURS DB : 'visiteur' | 'membre' | 'abonne' — texte machine, règle NON applicable.
+  ★ LIBELLÉ AFFICHÉ : une seule constante de copy. Candidat « Complice ». Alternative :
+    ne pas nommer du tout. Décision de Qiwi Chee.
 
 BADGES : DÉRIVÉS de visit_count et joined_at à la lecture, JAMAIS STOCKÉS.
-  Une table de badges attribués est un état dupliqué qui diverge de son propre compteur,
-  et changer un seuil obligerait à rejouer l’historique. (On ne stocke pas la table de
-  routage, on la calcule depuis les états d’adjacence.)
   Seuils validés : 5 · 15 · 30 visites.
 
-SAISONS — objet minimal :
-  seasons  id · artist_id · slug · title · subtitle · starts_at · ends_at · status ·
-           finale_event_id · created_at
-  ⛔ PAS de currentPhase/phases Json : la progressive revelation se DÉRIVE de l’état réel.
-  ⛔ PAS de table `rituals` : un rituel qui se répète est une RÈGLE, pas une ligne.
+SAISONS : seasons id · artist_id · slug · title · subtitle · starts_at · ends_at ·
+  status · finale_event_id · created_at
+  ⛔ PAS de currentPhase/phases Json. ⛔ PAS de table `rituals` (une règle, pas une ligne).
 
-RYTHME RITUEL — corrigé à la baisse par rapport au document importé :
-  1×/semaine  un signe de vie (texte court, photo d’atelier)     ~10 min
-  1×/mois     un rendez-vous vivant (live ou vote)               ~1 h
-  1×/saison   la finale (le concert)
-  ★ Kimi proposait 3 rendez-vous/semaine — rythme d’équipe éditoriale, pas d’artiste seule.
-    Un battement hebdomadaire TENU vaut mieux que trois annoncés et deux honorés. On peut
-    densifier plus tard ; on ne peut pas raréfier sans que ça se lise comme un abandon.
+RYTHME RITUEL : 1×/semaine un signe de vie · 1×/mois un rendez-vous vivant · 1×/saison la finale.
+  ★ Un battement hebdomadaire TENU vaut mieux que trois annoncés et deux honorés.
 
-★ MODE DÉGRADÉ (retenu du document Kimi) : si l’artiste ne confirme pas sa présence 2 h
-  avant un rituel, le système envoie une annulation stylisée. Dead-man’s switch appliqué
-  à l’engagement : la promesse au fan ne meurt jamais en silence.
+★ MODE DÉGRADÉ : si l'artiste ne confirme pas 2 h avant un rituel, annulation stylisée
+  automatique. Dead-man's switch appliqué à l'engagement.
 ```
 
 ---
@@ -295,26 +311,17 @@ RYTHME RITUEL — corrigé à la baisse par rapport au document importé :
 ## 📥 DOCUMENT KIMI — TRIAGE 2026-08-21
 
 ```
-GARDÉ : la bibliothèque d’activités + le rythme rituel (matière de la passe ladder) ·
-        le mode dégradé · privacyLevel sur le fan (RGPD dès le modèle) ·
-        la confirmation indépendante du split fan/membership.
-
-JETÉ : Prisma (perte de la RLS — un `where artistId` oublié = fuite cross-artiste ;
-       la RLS Postgres ne s’oublie pas) · NextAuth · Next 14 · Cloudflare R2 · OpenAI ·
-       les 6 paliers anglais non épicènes · l’habillage Tolkien (Fellowship/Red Book/runes :
-       choix créatif appartenant à l’artiste, et vocabulaire adjacent à une IP défendue).
+GARDÉ : bibliothèque d'activités · rythme rituel · mode dégradé · privacyLevel sur le fan.
+JETÉ : Prisma (perte de la RLS) · NextAuth · Next 14 · Cloudflare R2 · OpenAI ·
+       les 6 paliers anglais non épicènes · l'habillage Tolkien.
 
 ⛔ DEUX DRAPEAUX ROUGES :
-  1. `Treasury` avec status='distributed' + vote des fans sur les allocations = Résonance
-     DÉTIENT ET REDISTRIBUE l’argent des fans. C’est la définition de l’intermédiation
-     (DSP2/ACPR). Version acceptable : Treasury en LECTURE SEULE, miroir descriptif du
-     compte Stripe DE L’ARTISTE. Aucun solde chez nous.
-  2. La billetterie du « Mois 3 » fait tomber l’exemption microentreprise de l’EAA
-     (WCAG AA devient une obligation légale) ET rouvre la licence d’entrepreneur de
-     spectacles. Plus chargebacks et responsabilité de remboursement.
+  1. `Treasury` avec vote des fans = intermédiation (DSP2/ACPR). Version acceptable :
+     Treasury en LECTURE SEULE, miroir du compte Stripe DE L'ARTISTE. Aucun solde chez nous.
+  2. La billetterie fait tomber l'exemption microentreprise de l'EAA ET rouvre la licence
+     d'entrepreneur de spectacles. Plus chargebacks et responsabilité de remboursement.
 
-★ Et le tier 3 est placé au « Mois 1 » alors qu’il est bloqué non par Stripe mais par
-  le STATUT LÉGAL de Qiwi Chee pour encaisser ce revenu. Toujours sans réponse.
+★ Le tier 3 est bloqué non par Stripe mais par le STATUT LÉGAL de Qiwi Chee. Sans réponse.
 ```
 
 ---
@@ -324,8 +331,7 @@ JETÉ : Prisma (perte de la RLS — un `where artistId` oublié = fuite cross-ar
 ```
 1. LE CHEMIN SOURCE DU SCRIPT DE BACKUP est la seule vérité sur ce qui est sauvegardé.
 2. QUAND DEUX CALCULS DU MÊME NOMBRE DIVERGENT, re-dériver depuis la formule.
-3. FLEXBOX MIN-WIDTH TRAP : wrapper entre contrainte de largeur et scroller flex →
-   min-w-0 / max-w-full. overscroll-behavior ne contraint pas une largeur.
+3. FLEXBOX MIN-WIDTH TRAP : min-w-0 / max-w-full sur le wrapper.
 4. Un fichier coupé à une taille exactement en puissance de deux = copie interrompue.
 5. Quarantaine-puis-suppression bat rm direct.
 6. Les invocations de cron Vercel SONT loguées sous Observability → Cron Jobs.
@@ -333,83 +339,83 @@ JETÉ : Prisma (perte de la RLS — un `where artistId` oublié = fuite cross-ar
 8. UNE RÈGLE ÉNONCÉE COMME UN TIMING EST SOUVENT UN PROXY POUR UNE RÈGLE DE STRUCTURE.
 9. LA CONFIG PLATEFORME EST PAR PROJET, PAS PAR TENANT (Site URL, templates, SMTP).
 
-★ 10. (2026-08-21) **CODE ÉCRIT ≠ CODE SERVI.** Trois heures perdues sur un carrousel qui
-   ne défilait pas. Cause réelle : Next.js bloque le hot-reload en cross-origin. Le site
-   était testé depuis 192.168.1.5:3000 au lieu de localhost:3000, donc le navigateur
-   servait le CSS compilé AVANT les modifications. Trois corrections successives ont été
-   appliquées à un code qui n’avait aucun problème.
-   ⚠️ L’AVERTISSEMENT ÉTAIT DANS LES LOGS DU SERVEUR DÈS LE PREMIER DÉMARRAGE
-   (« Blocked cross-origin request to /_next/webpack-hmr »). On a lu le CSS, le DOM et le JS —
-   jamais la sortie du serveur.
-   MÊME FAMILLE QUE : « committé ≠ appliqué » (SQL) et « env var enregistrée ≠ déployée » (Vercel).
-   L’ARTEFACT ET SA LIVRAISON SONT DEUX CHOSES DISTINCTES.
-   RÈGLE : quand le comportement observé contredit le code lu, vérifier que le code lu est
-   bien celui qui est servi — AVANT de corriger quoi que ce soit.
-   Corollaire : dev = localhost. Test mobile depuis l’IP = redémarrer le serveur à chaque
-   modification, ou ajouter allowedDevOrigins dans next.config.js (⚠️ IP en DHCP, elle change).
+★ 10. (2026-08-21) **CODE ÉCRIT ≠ CODE SERVI.** Trois heures perdues sur un carrousel.
+   Cause : Next.js bloque le hot-reload en cross-origin (test depuis 192.168.1.5:3000).
+   L'AVERTISSEMENT ÉTAIT DANS LES LOGS DU SERVEUR DÈS LE PREMIER DÉMARRAGE.
+   RÈGLE : quand le comportement contredit le code lu, vérifier que le code lu est celui
+   qui est servi — AVANT de corriger. Corollaire : dev = localhost.
 
-★ 11. (2026-08-21) QUAND DEUX CHOSES IDENTIQUES SE COMPORTENT DIFFÉREMMENT, ce n’est pas le
-   code qui diffère — c’est ce qui est réellement servi. BioSwitcher et ReleaseSwitcher
-   étaient structurellement identiques ; l’un défilait, l’autre non. La comparaison
-   structurelle a été le moment où le diagnostic a basculé.
-   ★ ET : ON AVAIT UN CARROUSEL QUI MARCHE À TROIS FICHIERS DE DISTANCE, ON NE L’A PAS LU.
-     Lire le code qui fonctionne AVANT de déboguer celui qui ne fonctionne pas.
+★ 11. (2026-08-21) QUAND DEUX CHOSES IDENTIQUES SE COMPORTENT DIFFÉREMMENT, c'est ce qui
+   est réellement servi qui diffère. ON AVAIT UN CARROUSEL QUI MARCHE À TROIS FICHIERS DE
+   DISTANCE, ON NE L'A PAS LU. Lire le code qui fonctionne AVANT de déboguer l'autre.
 
 ★ 12. (2026-08-21) `position` EST UN MOT-CLÉ POSTGRES à géométrie variable : accepté comme
-   NOM DE COLONNE, refusé comme PARAMÈTRE DE SORTIE d’une fonction (`returns table`).
-   Erreur 42601. Renommé en `sort_order`. Le sed a utilisé \b pour protéger l’index dont
-   le nom contenait `position` entre underscores.
-   ★ La leçon générale : ne pas spéculer sur un mot-clé — LANCER et lire l’erreur.
+   nom de colonne, refusé comme paramètre de sortie (`returns table`). Erreur 42601.
+   ★ Ne pas spéculer sur un mot-clé — LANCER et lire l'erreur.
 
-★ 13. (2026-08-21) LES DROITS NE SONT PAS UN ÉTAT DE L’ŒUVRE, MAIS UN ÉTAT PAR USAGE.
-   Un booléen `rights_confirmed` unique force à choisir entre bloquer un usage accordé et
-   autoriser un usage qui ne l’est pas. CE BUG NE PLANTE PAS — IL PUBLIE. C’est le pire type.
-   → Un booléen par usage, et la vérification dans le RPC, pas dans le client.
+★ 13. (2026-08-21) LES DROITS NE SONT PAS UN ÉTAT DE L'ŒUVRE, MAIS UN ÉTAT PAR USAGE.
+   CE BUG NE PLANTE PAS — IL PUBLIE. Un booléen par usage, vérification dans le RPC.
 
-★ 14. (2026-08-21) LE RÉSUMÉ DE CLAUDE CODE N’EST PAS LE DIFF — confirmé deux fois dans la
-   même session : sur demande explicite des fichiers complets, il a répondu par une
-   description de trois lignes en concluant « tout est conforme ». Et il a proposé de
-   committer alors que la consigne « ne commite pas » était dans le brief.
-   → `cat` et `git --no-pager diff` soi-même. C’est plus rapide que d’insister.
+★ 14. (2026-08-21) LE RÉSUMÉ DE CLAUDE CODE N'EST PAS LE DIFF.
+   → `cat` et `git --no-pager diff` soi-même. C'est plus rapide que d'insister.
+   ★ MISE À JOUR 2026-08-23 : sur brief scopé et explicite, le rapport s'est révélé EXACT
+     (5 vérifications, toutes confirmées au diff) et il n'a PAS committé. La règle ne
+     change pas — on vérifie quand même — mais la QUALITÉ DU BRIEF déplace le résultat.
+     Un brief qui NOMME LE PIÈGE obtient un travail qui l'évite.
 
 ★ 15. (2026-08-22) **`tsc --noEmit` VALIDE UN FICHIER *VALIDE*, PAS LE *BON* FICHIER.**
-   Un vieux page.tsx (2 mois, une ancienne version de l’accueil) traînait dans ~/Downloads.
-   Le `cp` l’a installé dans src/app/contact/. `npx tsc --noEmit` est passé AU VERT :
-   le fichier compilait parfaitement — ce n’était simplement pas le bon. Découvert seulement
-   parce qu’un grep sur du TEXTE a remonté deux résultats au lieu d’un.
-   MÊME FAMILLE QUE : « committé ≠ appliqué », « env var enregistrée ≠ déployée »,
-   « code écrit ≠ code servi ». L’ARTEFACT ET SA LIVRAISON SONT DEUX CHOSES DISTINCTES.
-   ⚠️ AGGRAVANT : `page.tsx` et `route.ts` sont des noms GÉNÉRIQUES. Un dossier Downloads
-      en contient vite plusieurs versions, et Chrome écrase parfois au lieu de renommer.
+   Un vieux page.tsx traînait dans ~/Downloads ; le `cp` l'a installé ; tsc est passé au vert.
    RÈGLE : après tout `cp` depuis Downloads, VÉRIFIER LE FICHIER REÇU — `head -3` (le
-   chemin est en commentaire d’en-tête) ou `wc -l` contre la taille attendue. Un contrôle
-   de types n’est PAS un contrôle d’identité.
+   chemin est en commentaire d'en-tête) ou `wc -l`. Un contrôle de types n'est PAS un
+   contrôle d'identité.
+   ★ ÉLARGI 2026-08-23 : tsc ne prouve rien non plus sur la SÉMANTIQUE. Un champ optionnel
+     rendu obligatoire par une vérification non conditionnelle compile parfaitement.
+     Les points qui comptent se relisent À L'ŒIL, sur le diff. Liste explicite dans le brief.
 
 ★ 16. (2026-08-22) **CHERCHER LE TEXTE, PAS LE NOM DE FICHIER.**
-   `ls src/components/` n’a montré aucun footer, j’ai donc conclu qu’il n’y en avait pas
-   et j’en ai créé un. Il y en avait un, écrit EN DUR dans src/app/page.tsx — deux footers
-   empilés à l’écran. Un `grep -rn "rights reserved" src/` l’aurait trouvé en une seconde.
-   COROLLAIRE DE « lire le code qui marche » : encore faut-il le CHERCHER correctement.
-   Un composant global écrit dans une page ne porte pas le nom qu’on cherche.
-   ★ ET ÇA A RÉVÉLÉ UNE ASYMÉTRIE PLUS LARGE : le footer était dans une page, la nav L’EST
-     ENCORE. Tant qu’il n’y a qu’une page, ça ne se voit pas. À la deuxième page, /contact
-     s’est retrouvée SANS NAVIGATION — un cul-de-sac.
+   `ls src/components/` n'a montré aucun footer ; il y en avait un, EN DUR dans page.tsx.
+   `grep -rn "rights reserved" src/` l'aurait trouvé en une seconde.
+   ⚠️ Et le grep est CASE-SENSITIVE : chercher `phone` ne trouve pas `errPhone`.
+     Un compte de résultats n'est pas un compte de zones touchées.
 
-★ 17. (2026-08-22) **UN MESSAGE D’ERREUR EXACT PEUT ÊTRE INUTILISABLE.**
-   « Certains champs sont incomplets » était rigoureusement vrai et sans valeur : le
-   visiteur ne savait ni QUEL champ ni POURQUOI. La route renvoyait pourtant déjà la liste
-   des champs fautifs — le formulaire la JETAIT.
-   DEUX NIVEAUX, DANS CET ORDRE : (1) PRÉVENIR — afficher la contrainte AVANT l’erreur
-   (« au moins 10 caractères » + compteur) ; (2) SIGNALER — sous le champ concerné, avec
-   aria-invalid + aria-describedby + focus sur le premier fautif.
-   La meilleure erreur est celle qui n’arrive jamais. Signaler sans prévenir est un pansement.
+★ 17. (2026-08-22) **UN MESSAGE D'ERREUR EXACT PEUT ÊTRE INUTILISABLE.**
+   DEUX NIVEAUX, DANS CET ORDRE : (1) PRÉVENIR — afficher la contrainte AVANT l'erreur ;
+   (2) SIGNALER — sous le champ, avec aria-invalid + aria-describedby + focus.
+   ★ APPLIQUÉ AU TÉLÉPHONE 2026-08-23 : l'indication « tu peux laisser vide » est
+     TOUJOURS visible. Pour un champ facultatif, la prévention est le message principal.
 
 ★ 18. (2026-08-22) **DEUX DOSSIERS DE COMPOSANTS COEXISTENT** — `src/components/`
-   (AtelierGate, CitiesPicker) et `src/app/components/` (Bio*, Brand*, Embed*, External*,
-   Release*, + Contact*/SiteFooter). Non dramatique, mais ça coûtera un grep raté.
-   Choix du jour : suivre la MAJORITÉ existante (src/app/components/) plutôt que la
-   convention idéale. Unifier est un chantier PROPRE, à faire d’un coup — pas en douce
-   au milieu d’une feature.
+   (AtelierGate, CitiesPicker) et `src/app/components/` (le reste). Suivre la MAJORITÉ
+   existante. Unifier est un chantier PROPRE, à faire d'un coup.
+
+★ 19. (2026-08-23) **`drop function` EMPORTE LES GRANTS.**
+   Changer la signature d'un RPC impose drop + create ; le drop supprime l'ACL. Sans
+   `grant execute` dans LA MÊME TRANSACTION, le premier appel suivant renvoie 403 —
+   potentiellement des heures plus tard. On ne remplace pas une interface sans remettre
+   ses ACL dans le même commit.
+
+★ 20. (2026-08-23) **UN PARAMÈTRE OPTIONNEL EN FIN DE SIGNATURE = DÉPLOIEMENT EN DEUX TEMPS.**
+   PostgREST appelle par arguments NOMMÉS : l'ancienne route reste valide contre la nouvelle
+   fonction. La base a migré 2 h avant la route, sans fenêtre cassée. VÉRIFIÉ par un appel
+   à l'ancienne signature, pas supposé.
+   ⇒ Toute évolution de RPC doit VISER cette propriété : ajouter en fin avec un défaut.
+     Insérer au milieu ou changer un type = big-bang obligatoire.
+
+★ 21. (2026-08-23) **LIRE LA RUNNING-CONFIG DE LA BASE, PAS LE FICHIER DU REPO.**
+   `pg_get_functiondef(p.oid)` rend le corps RÉEL ; `docs/briefs/*.sql` est l'INTENTION.
+   Et `pg_get_function_identity_arguments` donne les types EXACTS que `drop function`
+   exige — devinés, ils créent la surcharge qu'on cherchait à éviter.
+   Vérification qui compte : UNE SEULE LIGNE dans pg_proc, avant ET après.
+
+★ 22. (2026-08-23) **LE RETOUR DU RPC DIT CE QU'IL PRÉTEND AVOIR FAIT ; LA TABLE DIT CE
+   QUI S'EST PASSÉ.** Une validation qui retourne `{ok:false}` mais écrit quand même est
+   pire que pas de validation : elle a l'air de marcher. Chaque test de refus se conclut
+   par un `select` qui prouve l'ABSENCE de la ligne.
+
+★ 23. (2026-08-23) **LA FENÊTRE DE GRATUITÉ D'UNE MIGRATION EST UNE RESSOURCE PÉRISSABLE.**
+   Le champ téléphone est passé devant les mentions légales — objectivement plus
+   importantes — parce que c'était le seul item dont le COÛT AUGMENTAIT en attendant.
+   Critère de priorisation à réutiliser : qu'est-ce qui coûte plus cher dans un mois ?
 ```
 
 ---
@@ -417,24 +423,20 @@ JETÉ : Prisma (perte de la RLS — un `where artistId` oublié = fuite cross-ar
 ## 🗄️ SUPABASE ARCHITECTURE — UN SEUL PROJET PARTAGÉ
 
 ```
-DÉCIDÉ 2026-08-04, ANCRÉ 2026-08-21 : `artists` existe enfin (id, slug, name).
+DÉCIDÉ 2026-08-04, ANCRÉ 2026-08-21 : `artists` existe (id, slug, name).
 Toutes les tables créées à partir de maintenant portent artist_id NOT NULL → artists(id).
 
-⚠️ CONFLIT À RÉSOUDRE AVANT DE LANCER LE MOTEUR D’ÉVÉNEMENTS :
+⚠️ CONFLIT À RÉSOUDRE AVANT DE LANCER LE MOTEUR D'ÉVÉNEMENTS :
   event_engine.sql (committé, non lancé) crée une table `owners`. `artists` existe
-  désormais. DEUX TABLES D’ANCRAGE = deux VLAN portant le même segment sur un trunk.
+  désormais. DEUX TABLES D'ANCRAGE = deux VLAN portant le même segment sur un trunk.
   → DÉCIDER : soit event_engine pointe vers `artists`, soit on renomme. Ne pas lancer avant.
-  (Nommage retenu : « owner » décrit un RÔLE d’autorisation ; « artist » décrit l’ENTITÉ.
-   La règle « titres communautaires ≠ rôles d’autorisation » plaide pour les séparer.)
 
-⚠️ `fans` N’A TOUJOURS PAS DE artist_id. L’écart se creuse : les nouvelles tables sont
-  propres, `fans` ne l’est pas. Migration : add nullable → backfill Qiwi Chee → NOT NULL → RLS.
+⚠️ `fans` N'A TOUJOURS PAS DE artist_id. Migration : add nullable → backfill → NOT NULL → RLS.
 
-★ CORRECTION D’UNE NOTE ANTÉRIEURE : `tier` va sur **atelier_members**, PAS sur `fans`.
-  `fans` = une personne. `atelier_members` = une relation fan↔artiste. Un abonnement est
-  une propriété de LA RELATION — sinon un abonné chez Qiwi Chee serait abonné partout.
+★ `tier` va sur **atelier_members**, PAS sur `fans`. Un abonnement est une propriété de
+  LA RELATION — sinon un abonné chez Qiwi Chee serait abonné partout.
 
-SEND EMAIL HOOK : toujours sur le chemin critique, toujours ce qui débloque l’artiste #2.
+SEND EMAIL HOOK : toujours sur le chemin critique, toujours ce qui débloque l'artiste #2.
 ```
 
 ---
@@ -447,13 +449,12 @@ ReleaseSwitcher (musique)  : départ ALÉATOIRE (client-side), recoloration par 
 BioSwitcher (bio)          : départ TOUJOURS au premier, PAS de recoloration,
                              source = RPC Supabase, pas de lecteur.
 
-MÉCANISME COMMUN (identique, volontairement) : scroll-snap CSS, slides 88 % + snap center,
-  scrollToSlide via target.offsetLeft, flèches .carousel-arrow partagées, wrapper
-  "relative w-full max-w-full min-w-0 overflow-hidden", pas de boucle, pas d’auto-scroll.
+MÉCANISME COMMUN : scroll-snap CSS, slides 88 % + snap center, scrollToSlide via
+  target.offsetLeft, flèches .carousel-arrow partagées, wrapper
+  "relative w-full max-w-full min-w-0 overflow-hidden", pas de boucle, pas d'auto-scroll.
 
 ★ RÈGLE : la CLASSE CSS de flèche se partage (apparence) ; le COMPOSANT ne se partage pas
-  (comportement). Deux carrousels doivent avoir des flèches identiques ; ils ne doivent pas
-  avoir la même logique. Un composant qui porte deux récits finit par mal servir les deux.
+  (comportement). Un composant qui porte deux récits finit par mal servir les deux.
 ```
 
 ---
@@ -461,27 +462,16 @@ MÉCANISME COMMUN (identique, volontairement) : scroll-snap CSS, slides 88 % + s
 ## 🇫🇷 COPIE — PASSE FRANÇAISE 2026-08-21
 
 ```
-Site entièrement en français. `lang="fr"` corrigé (il valait "en" alors que og:locale
-disait déjà fr_FR — contradiction silencieuse, lecteur d’écran en voix anglaise).
+Site entièrement en français. `lang="fr"` corrigé.
   nav : Musique · À propos        h2 : À propos · Musique
   hero : « Autrice-compositrice-interprète indépendante. Pop alternative, en français
          et en anglais. »
-  meta/JSON-LD (description longue, garde le référencement local) :
-    « Autrice-compositrice-interprète indépendante, basée à Paris. Pop alternative
-      franco-algérienne-américaine, en français et en anglais. »
-  genre : « Hybrid Pop » → « Pop alternative » (le point PARKÉ est débloqué, 3 endroits).
-  titres : « Qiwi Chee — Pop alternative »
+  genre : « Pop alternative ». titres : « Qiwi Chee — Pop alternative »
 ORDRE DES SECTIONS : hero → AtelierGate → À propos (bio) → Musique.
-  ★ La porte de l’Atelier reste AU-DESSUS de la bio : capter la relation avant de raconter.
+  ★ La porte de l'Atelier reste AU-DESSUS de la bio : capter la relation avant de raconter.
 
-⚠️ DETTE A11Y — CHAÎNES ANGLAISES INVISIBLES À L’ŒIL MAIS LUES PAR LES LECTEURS D’ÉCRAN :
-  aria-label="Primary" (nav) · <label>Website</label> (honeypot, sr-only).
-  Jamais repérées en relecture visuelle. → passe accessibilité.
-
-⚠️ BILINGUE : demandé pour la bêta. Touche bio_blocks (colonnes de traduction OU table
-  de traductions — décision de schéma à prendre DANS cette session). La version française
-  actuelle deviendra fr.json. Plus la dépréciation middleware→proxy qui s’affiche à
-  chaque démarrage du serveur.
+⚠️ DETTE A11Y — CHAÎNES ANGLAISES LUES PAR LES LECTEURS D'ÉCRAN :
+  aria-label="Primary" (nav) · <label>Website</label> (honeypot). → passe accessibilité.
 ```
 
 ---
@@ -489,45 +479,39 @@ ORDRE DES SECTIONS : hero → AtelierGate → À propos (bio) → Musique.
 ## OPEN DECISIONS / NEXT ACTIONS
 
 ```
-[x] ★★ MODULE BIO — schéma lancé + composant déployé (8d0eb1b, 12834d1). CLOSED.
-[x] ★★ TABLE `artists` — ancre multi-tenant créée. CLOSED.
-[x] ★ RÈGLE ÉPICÈNE reformulée en méthode · Passeur → Bouche-à-oreille. CLOSED.
-[x] ★ `tier` sur atelier_members, pas sur fans. CLOSED.
-[x] ★ Genre « Hybrid Pop » → « Pop alternative ». CLOSED (était parké).
+[x] ★★ MODULE BIO · TABLE `artists` · RÈGLE ÉPICÈNE · `tier` sur atelier_members. CLOSED.
+[x] ★★ CANAL DE CONTACT PRO — vérifié en prod (56cab9e). CLOSED.
+[x] ★★ BILINGUE : décisions de schéma + d'URL prises. CLOSED.
+[x] ★★ CHAMP TÉLÉPHONE — 4 couches, vérifié en prod depuis 2 réseaux (4361c08 + form). CLOSED.
 
-[x] ★★ CANAL DE CONTACT PRO — table + RPC + route + formulaire, vérifié en prod (56cab9e). CLOSED.
-[x] ★★ BILINGUE : décisions de schéma + d’URL prises (traductions / locale / URLs par langue). CLOSED.
-
-[ ] ★★ MENTIONS LÉGALES + POLITIQUE DE CONFIDENTIALITÉ (LCEN + RGPD, rétention 24 mois).
-    BLOQUANT avant toute mise en avant du formulaire. Substantielles dès la SASU.
-[ ] ★★ CHAMP TÉLÉPHONE optionnel — décidé. Table quasi vide = GRATUIT maintenant.
-    ⚠️ drop function avant recreate (surcharge PostgREST).
+[ ] ★★ MENTIONS LÉGALES + POLITIQUE DE CONFIDENTIALITÉ (LCEN + RGPD, rétention 24 mois,
+    COUVRANT LE TÉLÉPHONE). BLOQUANT avant toute mise en avant du formulaire.
 [ ] ★★ QIWI CHEE : hello@ sur son téléphone, notifications actives. Sinon le canal est mort.
 [ ] ★★ ENVOYER LE MAIL À MAËLYS JIBIDAR : fichiers HD + autorisation presse.
-    Signé par Qiwi Chee de préférence. AUCUNE COPIE HD N’EXISTE — priorité.
-[ ] ★★ BILINGUE FR/EN next-intl — demandé pour la bêta. Inclut la décision de schéma
-    sur la traduction de bio_blocks, et middleware→proxy.
+    Signé par Qiwi Chee de préférence. AUCUNE COPIE HD N'EXISTE — priorité.
+[ ] ★★ BILINGUE FR/EN next-intl — inclut la table de traductions bio_blocks, les URLs par
+    langue, et middleware→proxy. À FAIRE AVEC la nav dans le layout.
 [ ] ★★ RÉSOUDRE `owners` vs `artists` avant de lancer event_engine.sql.
 [ ] ★★ `fans` MULTI-TENANT MIGRATION.
 [ ] ★★ LADDER — finir : libellé du tier 3 (Qiwi Chee), jeu de badges complet.
-[ ] ★★ SEND EMAIL HOOK — débloque l’artiste #2.
+[ ] ★★ SEND EMAIL HOOK — débloque l'artiste #2.
 [ ] ★ PRESS KIT PDF — second rendu de bio_blocks. Bloqué sur les fichiers HD, pas sur le code.
 [ ] ★ CAROUSEL V2 (song-per-slide + credits structurés + Bandcamp two-click).
-[ ] ★ ASK QIWI CHEE : statut légal pour encaisser un revenu d’abonnement (gate tier 3) ·
-    libellé du tier 3 · covers Lullabies/Hybrid Fruit · 3 accents · descripteur Dilemma.
-[ ] ★ NAV DANS LE LAYOUT (comme le footer) + #music → /#music. À faire AVEC le bilingue.
+[ ] ★ ASK QIWI CHEE : statut légal pour encaisser un revenu d'abonnement · libellé tier 3 ·
+    covers Lullabies/Hybrid Fruit · 3 accents · descripteur Dilemma.
+[ ] ★ NAV DANS LE LAYOUT + #music → /#music. À faire AVEC le bilingue.
 [ ] ★ RATE-LIMIT contact 3/h par IP — probablement trop strict pour du booking. Rediscuter.
-[ ] ★ AtelierGate : sr-only + aria-hidden contradictoires sur le honeypot ; honeypot client-only.
-[ ] ★ UNIFIER src/components/ et src/app/components/ — chantier propre, d’un coup.
+[ ] ★ ORDRE DES CHAMPS du formulaire : téléphone entre Email et Objet. À revoir si le
+    formulaire paraît long sur mobile.
+[ ] ★ AtelierGate : sr-only + aria-hidden contradictoires ; honeypot client-only.
+[ ] ★ UNIFIER src/components/ et src/app/components/ — chantier propre, d'un coup.
 [ ] ★ npm audit : 7 vulns dont 4 = un seul correctif (next@16.3.2, on est en 16.2.4).
     ⛔ JAMAIS `npm audit fix --force`. `npm install next@16.3.2` puis `npm run build`.
-    Concerne directement : bypass middleware/proxy (le bilingue en écrira), cache poisoning RSC.
-[ ] ★ 2FA sur Vercel ET GitHub — Vercel contrôle le DÉPLOIEMENT : y entrer, c’est REMPLACER
-    le site de l’artiste. On protège le routeur de bordure avant le serveur.
+[ ] ★ 2FA sur Vercel ET GitHub — Vercel contrôle le DÉPLOIEMENT.
 [ ] ★ A11Y : aria-label="Primary" · <label>Website</label> · tab-order des slides hors écran.
-[ ] ★ LAWYER + CRESS IDF / Les Scop IDF : REFER vs OPERATE · licence d’entrepreneur.
+[ ] ★ LAWYER + CRESS IDF / Les Scop IDF : REFER vs OPERATE · licence d'entrepreneur.
 [ ] ★ Templates Supabase restants (Invite/Change email/Reset password) — fuient supabase.co.
-[ ] ★ Dead-man’s-switch sur le keepalive. Parké.
+[ ] ★ Dead-man's-switch sur le keepalive. Parké.
 [ ] ★ Analytics layer 1 (log_event RPC). Clarity DEFERRED (consentement).
 [ ] Lyrics / partitions — PARKÉ (droits). Tour Builder — roadmap.
 ```
@@ -541,37 +525,49 @@ ORDRE DES SECTIONS : hero → AtelierGate → À propos (bio) → Musique.
 - ★ VÉRIFIER LA LIVRAISON AVANT DE CORRIGER LE CODE. Si le comportement contredit le code lu :
   le code servi est-il bien le code écrit ? (hot-reload, cache, déploiement, SQL appliqué).
   Et LIRE LES LOGS DU SERVEUR — les avertissements ne sont pas du bruit.
+- ★ LIRE LA RUNNING-CONFIG AVANT D'ÉDITER : pg_proc pour un RPC, information_schema pour une
+  table, le dashboard pour une config. Le fichier du repo est l'intention, pas l'état.
 - ★ LIRE LE CODE QUI MARCHE avant de déboguer celui qui ne marche pas.
-- ★ MESURER AVANT DE PROPOSER. Une hypothèse non vérifiée coûte un aller-retour ; trois
-  hypothèses coûtent une session.
-- ★ LA RÈGLE ÉPICÈNE EST UNE MÉTHODE : si le libellé désigne une personne, réécrire en nom
-  abstrait, groupe nominal, adjectif invariable ou verbe. Ne pas chercher « le bon mot ».
+- ★ MESURER AVANT DE PROPOSER. Une hypothèse non vérifiée coûte un aller-retour.
+- ★ UNE BARRIÈRE NE SE PROUVE QUE PAR UN REFUS, et le refus se confirme dans la TABLE
+  (absence de la ligne), pas dans le retour de la fonction.
+- ★ CHANGER LA SIGNATURE D'UN RPC : drop + create + RE-GRANT dans la même transaction.
+  Nouveau paramètre EN DERNIER avec un défaut → rétro-compatible → déploiement en deux temps.
+- ★ LA RÈGLE ÉPICÈNE EST UNE MÉTHODE : nom abstrait, groupe nominal, adjectif invariable
+  ou verbe. Ne pas chercher « le bon mot ».
+- ★ VALIDER LA FORME, JAMAIS L'ÉNUMÉRATION, dès qu'un domaine peut s'élargir (locale, téléphone).
 - ★ LES DROITS SONT UN ÉTAT PAR USAGE. La barrière va dans le RPC, jamais dans le client.
-- ★ NAMING : « Atelier » (standalone) / « l’Atelier » (en phrase). CTA « Accéder à l’Atelier ».
-  « Atelier » = le produit fan-area. « Résonance » = la plateforme. Jamais l’un pour l’autre.
+- ★ NAMING : « Atelier » (standalone) / « l'Atelier » (en phrase). CTA « Accéder à l'Atelier ».
+  « Atelier » = le produit fan-area. « Résonance » = la plateforme. Jamais l'un pour l'autre.
 - ★ TYPOGRAPHIE : apostrophe courbe ’ dans tout texte affiché ; droite ou rien dans slugs,
   fichiers, URLs, valeurs DB, identifiants.
-- ★ RÉSONANCE NE DÉTIENT NI NE REDISTRIBUE L’ARGENT DES FANS. Stripe Connect direct charges.
-- ★ TITRES COMMUNAUTAIRES ≠ RÔLES D’AUTORISATION. Un badge n’accorde jamais une permission.
+- ★ RÉSONANCE NE DÉTIENT NI NE REDISTRIBUE L'ARGENT DES FANS. Stripe Connect direct charges.
+- ★ TITRES COMMUNAUTAIRES ≠ RÔLES D'AUTORISATION. Un badge n'accorde jamais une permission.
 - ★ UN SEUL PROJET SUPABASE, ARTISTES = LIGNES. Toute table porte artist_id dès la création.
 - ★ APRÈS TOUT `cp` DEPUIS ~/Downloads : vérifier le fichier REÇU (`head -3` / `wc -l`).
-  Un nom générique (page.tsx, route.ts) masque un fichier périmé, et `tsc` valide sans broncher.
-- ★ CHERCHER LE TEXTE, PAS LE NOM DE FICHIER : `grep -rn "chaîne" src/` avant de conclure
-  qu’un composant n’existe pas. Un élément global peut être écrit en dur dans une page.
-- ★ PRÉVENIR AVANT DE SIGNALER : afficher la contrainte avant l’erreur, puis l’erreur SOUS
-  le champ concerné (aria-invalid + aria-describedby + focus).
+- ★ CHERCHER LE TEXTE, PAS LE NOM DE FICHIER : `grep -rn "chaîne" src/`. Et le grep est
+  CASE-SENSITIVE : compter les zones, pas les résultats.
+- ★ PRÉVENIR AVANT DE SIGNALER : contrainte visible AVANT l'erreur, puis erreur SOUS le
+  champ (aria-invalid + aria-describedby + focus). Pour un champ FACULTATIF, la prévention
+  (« tu peux laisser vide ») est le message principal, donc toujours visible.
+- ★ UN LIBELLÉ « (facultatif) » VA DANS LE TEXTE, pas dans le style : un astérisque ou une
+  nuance de gris n'est pas lu par un lecteur d'écran.
 - ★ NOUVELLE PAGE = surcharger `alternates.canonical` (le layout en déclare un en dur).
-- Verify-don’t-assume : filesystem/git/DB/logs avant les notes. Un résumé de Claude Code est
+- Verify-don't-assume : filesystem/git/DB/logs avant les notes. Un résumé de Claude Code est
   une AFFIRMATION, pas une preuve — `cat` et `git --no-pager diff` soi-même.
+- ★ CLAUDE CODE vs MAIN : un brief scopé pour les changements COORDONNÉS sur un fichier
+  (6+ points liés) ; édition à la main pour 3-4 lignes isolées (Ctrl+F comme ancre).
+  Le SQL au dashboard n'est PAS du ressort de Claude Code — il ne voit que le filesystem.
+  Un brief qui NOMME LE PIÈGE obtient un travail qui l'évite : lister explicitement les
+  points à revérifier À L'ŒIL, ceux que `tsc` ne peut pas voir.
 - Toute table raw-SQL → grant à authenticated ; anon uniquement via RPC security definer.
-- Thème par tokens ; params d’URL Bandcamp = seule exception hex.
-- Chaque page : SEO + WCAG AA + JSON-LD. PAS d’autoplay/auto-advance/boucle/popups.
+- Thème par tokens ; params d'URL Bandcamp = seule exception hex.
+- Chaque page : SEO + WCAG AA + JSON-LD. PAS d'autoplay/auto-advance/boucle/popups.
 - user_id/owner depuis la session auth, jamais le body. Zod partout. Pas de param `next`.
-- Claude Code : briefs scopés, PAS de commit, revue du diff complet, composants partagés signalés.
 - Jamais Telegram (liens WhatsApp). Signaler les risques géographiques/institutionnels.
 - Rappeler : avocat avant /legal (et REFER vs OPERATE) ; CRESS IDF + Les Scop IDF.
 - Fin de session : demander si les instructions doivent évoluer ; proposer le CONTEXT_FOR_AI
-  à jour ; rappeler la sync (cp vers Main_HDD Specs D’ABORD, puis ~/sync_resonance.sh).
+  à jour ; rappeler la sync (cp vers Main_HDD Specs D'ABORD, puis ~/sync_resonance.sh).
 ```
 
 ---
@@ -585,17 +581,24 @@ Linux Mint · user simba · host ssd · Apple keyboard. Repo /home/simba/Project
 Sync : cp vers .../02_Produit_Tech/Specs/ PUIS ~/sync_resonance.sh, puis re-upload manuel
   du CONTEXT_FOR_AI dans les 4 Claude Projects (Dev / Strategy / Research / Qiwichee).
 Node v22 · Next.js 16.2.4 (⚠️ middleware→proxy) · TS · Tailwind 4 @theme · @supabase/ssr.
-★ DEV = http://localhost:3000. L’IP réseau bloque le hot-reload (voir learning 10).
+★ DEV = http://localhost:3000. L'IP réseau bloque le hot-reload (voir learning 10).
+★ VS CODE : l'extension Vim était ACTIVE (statut « -- NORMAL -- » en bas) et rendait toute
+  frappe imprévisible. DÉSACTIVÉE le 2026-08-23. Si « -- NORMAL -- » réapparaît en bas à
+  gauche, c'est ça. Le compteur d'erreurs est en bas à gauche : ⊗ erreurs · ⚠ warnings.
+  Coller du code : Ctrl+Shift+V (sans reformatage) si l'indentation part en escalier.
+  Prettier est installé mais format-on-save n'est PAS activé.
+★ ÉDITION À LA MAIN : Ctrl+F sur une chaîne UNIQUE comme ancre, Échap, puis Fin/Entrée.
+  ⚠️ Une ancre trop courante amène au mauvais endroit : `Email : ${email}` existe dans le
+    corps du mail ET ressemble aux clés `p_email:` du RPC. Prendre une ancre DISTINCTIVE.
 Presse-papier : xclip -selection clipboard < fichier   (le flag est obligatoire).
-Vignettes nommées : montage -label '%f' *.jpg -tile 4x2 -geometry 320x320+10+10 ...
 Fichiers longs : télécharger puis cp, JAMAIS de heredoc collé.
 `git diff` ne montre PAS les fichiers non suivis — utiliser `git status`.
 Grep depuis src/, pas src/app/. POSIX [[:alpha:]] au lieu de [A-Za-zÀ-ÿ].
 ```
 
 ---
-*Updated 2026-08-22 · Le site a enfin une porte pour les professionnels, et elle est conçue
-pour ne jamais perdre un message en silence. Trois pièges se sont refermés dans la même
-session — un vieux fichier que le compilateur a validé, un footer qu’on n’a pas cherché au
-bon endroit, un message d’erreur exact et inutilisable. Tous les trois portent la même
-morale : ce qui est vrai n’est pas forcément ce qui est utile, ni ce qui est servi.*
+*Updated 2026-08-23 · Une fonctionnalité modeste, une méthode qui ne l'est pas : lire la
+running-config avant d'éditer, remettre les grants que le drop emporte, placer le paramètre
+optionnel là où il rend la migration réversible, et ne croire une barrière que le jour où
+elle refuse quelque chose. La fenêtre où cette migration était gratuite s'est refermée
+derrière nous — c'est exactement pour ça qu'elle est passée devant des sujets plus urgents.*

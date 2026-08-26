@@ -97,7 +97,7 @@ type SearchParams = Promise<{ error?: string }>
 export default async function Home({ searchParams }: { searchParams: SearchParams }) {
   const { error } = await searchParams;
   return (
-    <div className="min-h-screen bg-bg text-text">
+    <div className="min-h-screen text-text">
       {/* Structured data — invisible to humans, read by crawlers/AI */}
       <script
         type="application/ld+json"
@@ -136,7 +136,7 @@ export default async function Home({ searchParams }: { searchParams: SearchParam
         </nav>
       </header>
 
-      <main className="mx-auto max-w-3xl px-6">
+                  <main className="mx-auto md:bg-bg max-w-3xl px-6">
         <section className="py-10" aria-labelledby="hero-heading">
           <h1
             id="hero-heading"

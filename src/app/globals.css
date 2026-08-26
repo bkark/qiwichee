@@ -14,6 +14,8 @@
   --accent-warm:          #DF9DB0; /* dusty rose — badges / status (DARK text) */
   --accent-warm-contrast: #1F0610; /* dark text ON --accent-warm */
   --accent-soft:          #FACFB7; /* peach — DECORATIVE / tertiary */
+  --pattern-ink-a:        #1215FD; /* her deep blue — pattern only, palette-independent */
+  --pattern-ink-b:        #14DFD0; /* her cyan — pattern only, palette-independent */
   --font-display:         var(--font-bricolage);
   --font-body:            var(--font-inter);
 }
@@ -143,8 +145,11 @@
   --accent: #9E1B32;
 }
 
-body {
+html {
   background: var(--bg);
+}
+
+body {
   color: var(--text);
   font-family: var(--font-body);
 }
@@ -160,3 +165,42 @@ body {
   white-space: nowrap;
   border-width: 0;
 }
+
+
+/* ── Doodle field — Qiwi Chee's hand-drawn pattern ──────────────────
+   The asset carries SHAPE ONLY (alpha channel); colour comes from
+   --pattern-ink-*, so the drawing keeps HER ink and is deliberately
+   palette-independent — it does NOT follow release accents.
+   Decorative by construction: negative z-index, behind all content.
+   Desktop: <main> carries md:bg-bg, so text sits on an opaque panel
+   and the ink can run strong in the gutters.
+   Mobile: no gutters exist, the panel is dropped, and opacity falls
+   to 0.22 because text then sits directly on the pattern.
+   MEASURED CEILING 0.25 — above it --text-muted drops below AA 4.5.
+   --pattern-tile / --pattern-opacity are layer GEOMETRY, not palette. */
+:root {
+  --pattern-tile:    600px;
+  --pattern-opacity: 0.45;
+}
+
+@media (max-width: 640px) {
+    :root { --pattern-tile: 400px; --pattern-opacity: 0.22; }
+}
+
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background: linear-gradient(135deg, var(--pattern-ink-a), var(--pattern-ink-b));
+  -webkit-mask-image: url("/patterns/qiwichee-doodles-mask.webp");
+          mask-image: url("/patterns/qiwichee-doodles-mask.webp");
+  -webkit-mask-size: var(--pattern-tile) var(--pattern-tile);
+          mask-size: var(--pattern-tile) var(--pattern-tile);
+  -webkit-mask-repeat: repeat;
+          mask-repeat: repeat;
+  opacity: var(--pattern-opacity);
+}
+
+@media print { body::before { display: none; } }

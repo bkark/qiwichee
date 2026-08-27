@@ -1,23 +1,23 @@
 # Résonance — AI Context File
 > Paste/upload this at the start of any new conversation to resume instantly.
 
-**Last updated:** 2026-08-23 — **CHAMP TÉLÉPHONE LIVRÉ. MIGRATION FAITE PENDANT QU'ELLE ÉTAIT ENCORE GRATUITE.**
-Rien de spectaculaire côté fonctionnalité — un champ facultatif de plus. Ce qui compte est
-la MÉTHODE, et elle est réutilisable telle quelle pour toute évolution de RPC :
-(1) **lire la running-config AVANT d'éditer** (`pg_proc`, pas le fichier `.sql` du repo) ;
-(2) **`drop function` EMPORTE LES GRANTS** — le vrai risque d'un changement de signature ;
-(3) **paramètre optionnel en dernier ⇒ RÉTRO-COMPATIBLE**, donc la base a migré 2 h avant
-la route, sans fenêtre cassée ; (4) **une barrière ne se prouve que par un REFUS** ;
-(5) le formulaire a été fait par Claude Code sur brief scopé, la route à la main —
-et c'était le bon partage.
+**Last updated:** 2026-08-26 — **MOTIF DESSINÉ EN FOND. L'ASSET PORTE LA FORME,
+LES TOKENS PORTENT LA COULEUR.**
+Qiwi Chee a fourni un motif dessiné à la main. Livré en PRODUCTION le même jour.
+Ce qui compte n'est pas le fond, c'est la SÉPARATION : le fichier ne contient AUCUNE
+couleur, seulement un canal alpha. La couleur vient de `:root`.
+⇒ 29,7 Ko (contre 168 Ko en PNG couleur), règle hex-clean respectée, et le changement
+d'encre prune → bleu a coûté DEUX TOKENS, pas un ré-export.
 **Status:** qiwichee.com LIVE ✅ · Atelier gate ✅ · Magic links ✅ · Keepalive CRON ✅ ·
-Release-switcher ✅ · Section BIO ✅ · CONTACT PRO LIVE ✅ · **CHAMP TÉL. ✅** ·
-SPF+DKIM+DMARC ✅ · Event-engine SQL ⛔ TOUJOURS UNRUN (et doit pointer vers `artists`)
-**Commits du jour :** `4361c08` (route) + formulaire (ContactForm), poussés et vérifiés en prod
-**Next session goal (in order):** (1) **MENTIONS LÉGALES + CONFIDENTIALITÉ** — désormais LE
-bloquant, et la rétention porte maintenant aussi un NUMÉRO DE TÉLÉPHONE. (2) **BILINGUE
-next-intl** (décisions prises) **AVEC la nav dans le layout**. (3) LADDER & SEASONS.
-(4) `fans` MULTI-TENANT. (5) SEND EMAIL HOOK.
+Release-switcher ✅ · Section BIO ✅ · CONTACT PRO ✅ · Champ tél. ✅ ·
+SPF+DKIM+DMARC ✅ · **MOTIF DESSINÉ ✅ (Android OK, iOS À TESTER)** ·
+Event-engine SQL ⛔ TOUJOURS UNRUN (et doit pointer vers `artists`)
+**Commit du jour :** `b3069a2` — poussé sur main, EN PRODUCTION.
+⚠️ POUSSÉ SANS PREVIEW : création de branche et merge lancés d'affilée, la preview a été
+   sautée. Vérifié après coup sur Android par Qiwi Chee (elle valide). **iOS NON TESTÉ.**
+**Next session goal (in order):** (1) **TEST iOS** du masque. (2) **MENTIONS LÉGALES +
+CONFIDENTIALITÉ**. (3) **BILINGUE next-intl AVEC la nav dans le layout**.
+(4) `releases.ts` → table. (5) LADDER & SEASONS. (6) `fans` MULTI-TENANT.
 
 ---
 
@@ -236,6 +236,66 @@ Trilingue possible (arabe) vu le parcours franco-algérien-américain.
 ```
 
 ---
+## 🖍️ MOTIF DESSINÉ — LIVRÉ 2026-08-26
+
+```
+CE QUE C'EST : le gribouillage de Qiwi Chee (cœurs, étoiles, éclairs, « QC ») en fond de
+  tout le site. Elle l'a dessiné en bleu sur blanc, déjà en tuile sans couture — VÉRIFIÉ :
+  continuité des bords 0,90 / 0,92, composite 2×2 propre.
+
+★★ L'ASSET PORTE LA FORME, LES TOKENS PORTENT LA COULEUR.
+  Livré comme MASQUE : le canal alpha seul, zéro couleur dans le fichier. CSS peint un
+  dégradé de tokens À TRAVERS le masque (`mask-image`).
+  ⇒ 29,7 Ko au lieu de 168 Ko · hex-clean respecté · palette libre.
+  ⇒ Le passage de prune à SON bleu a coûté deux tokens et une ligne.
+  ⛔ NE JAMAIS livrer un raster coloré : ça gèle la palette du jour dans un binaire, et ça
+     se découvre au premier changement de thème.
+
+★ « PILOTÉ PAR LES TOKENS » ≠ « DOIT RÉUTILISER LES TOKENS D'ACCENT ».
+  Première version branchée sur --accent/--accent-bright : le dessin est ressorti en prune.
+  La règle hex-clean dit que la couleur vit dans `:root`, elle ne dit RIEN sur QUEL token.
+  D'où `--pattern-ink-a/-b` : SON encre, dans `:root`, indépendante de la palette.
+  ★ `pattern_follows_release` = FALSE par défaut. Le motif est l'écriture de l'artiste,
+    pas un élément de thème. Le recolorer écrase un choix qu'elle a déjà fait.
+
+★★ LE PLAFOND D'OPACITÉ EST FIXÉ PAR `--text-muted`, PAS PAR `--text`.
+  Mesuré sur la palette Lullabies : plafond 0,25.
+    texte principal sur motif : 10,0:1 à o=0,25 — très large marge
+    texte muted               :  5,2:1 à o=0,25 ·  4,2:1 à o=0,35 ⇒ ÉCHEC AA
+  ★ Vérifier le mauvais token fait croire à trois fois plus de marge.
+  ⚠️ 0,25 N'EST PAS UNE CONSTANTE DU PRODUIT. Il se RECALCULE pour chaque palette.
+
+★ DEUX SITUATIONS, DEUX OPACITÉS — et c'est la LARGEUR qui décide.
+  Desktop : `<main>` porte `md:bg-bg`, le texte est sur un panneau opaque, il reste des
+    marges vides ⇒ encre franche (tuile 600px, opacité 0,45).
+  Mobile  : plus de marges (max-w-3xl ne contraint plus), panneau retiré, texte
+    DIRECTEMENT sur le motif ⇒ plafond AA (tuile 400px, opacité 0,22).
+  ★ Un fond fort exige de l'espace vide. Un téléphone n'en a pas. Aucun réglage ne donne
+    les deux à la même largeur — d'où la bascule au breakpoint.
+
+★ LE MASQUE DOIT PORTER SON ALPHA. `-webkit-mask-image` est alpha-only : une image en
+  niveaux de gris exigerait `mask-mode: luminance` et rendrait un RECTANGLE PLEIN sous
+  WebKit. Le bug ne plante pas — IL PEINT. ⇒ c'est ce que le test iOS doit valider.
+
+FICHIERS :
+  public/patterns/qiwichee-doodles-mask.webp  29 704 octets, alpha-porteur
+  src/app/globals.css                         --pattern-ink-a/-b dans :root ;
+                                              body::before + media query 640px
+  src/app/page.tsx                            `bg-bg` RETIRÉ du wrapper pleine largeur ;
+                                              `md:bg-bg` AJOUTÉ sur <main>
+
+PROCESSUS ARTISTE : docs/briefs/BRIEF_motif_dessine.md
+  ★ NE PAS demander une tuile répétable. Qiwi Chee est l'EXCEPTION (elle a composé la
+    sienne). On demande 8–15 gribouillis SÉPARÉS, noir sur blanc, photo à plat sans ombre,
+    envoi PAR LIEN. La composition de la tuile est NOTRE travail.
+  ★ Noir franc obligatoire : le masque se dérive du CONTRASTE. Un crayon pâle donne un
+    alpha faible qu'aucune opacité ne rattrape. La qualité se décide À LA PHOTO, pas au code.
+  ★ Barrière de droits DANS LE RPC (famille `rights_web_confirmed`) : un fond s'affiche sur
+    chaque page — ce bug-là ne planterait pas, IL PUBLIERAIT.
+```
+
+---
+
 ## 🖼️ MODULE BIO — LIVRÉ 2026-08-21
 
 ```
@@ -416,6 +476,36 @@ JETÉ : Prisma (perte de la RLS) · NextAuth · Next 14 · Cloudflare R2 · Open
    Le champ téléphone est passé devant les mentions légales — objectivement plus
    importantes — parce que c'était le seul item dont le COÛT AUGMENTAIT en attendant.
    Critère de priorisation à réutiliser : qu'est-ce qui coûte plus cher dans un mois ?
+
+★ 24. (2026-08-26) **UN CONTENEUR PLEINE LARGEUR À FOND OPAQUE MASQUE UNE COUCHE `fixed`.**
+   `<div className="min-h-screen bg-bg">` recouvrait `body::before` partout. Le motif ne
+   s'affichait pas mal — IL ÉTAIT ENTERRÉ.
+   ★ LE SYMPTÔME DÉSIGNAIT LA CAUSE : visible seulement en BAS de page et sur `/contact`
+     — exactement là où le conteneur s'arrête et là où il n'existe pas.
+   ⇒ Couche `fixed` partiellement visible ⇒ CHERCHER LE COUVERCLE avant de déboguer la couche.
+   ⚠️ Le panneau et la page portent la MÊME couleur : aucun bord ne le signale. Il ne se
+     voit QUE par l'absence de motif dessous. (Famille du learning 10 : le code était bon,
+     le rendu était intercepté.)
+
+★ 25. (2026-08-26) **UN ORNEMENT D'ARTISTE SE LIVRE EN MASQUE ALPHA, JAMAIS EN RASTER
+   COLORÉ.** La forme dans le fichier, la couleur dans `:root`. Mesuré : 168 Ko → 29,7 Ko,
+   hex-clean respecté, et un changement d'encre coûte deux tokens au lieu d'un ré-export.
+
+★ 26. (2026-08-26) **UN PLAFOND DE CONTRASTE EST FIXÉ PAR LE TOKEN LE PLUS FAIBLE, PAS PAR
+   LE TEXTE PRINCIPAL.** `--text` tenait jusqu'à o=0,5 ; `--text-muted` lâchait à 0,35.
+   ⇒ Toute vérif AA se fait sur le token le PLUS FAIBLE présent sur la surface, et le
+     chiffre obtenu ne vaut QUE pour cette palette — il se recalcule quand elle change.
+
+★ 27. (2026-08-26) **`file` NE SUFFIT PAS À IDENTIFIER UNE IMAGE SUR CE POSTE.** Il renvoie
+   « RIFF (little-endian) data, Web/P image » : ni dimensions, ni alpha, ni encodage.
+   L'identité d'un binaire, c'est `stat -c %s` comparé à la taille attendue.
+   (Extension du learning 15 : `head -3` marche pour du texte, pas pour du binaire.)
+
+★ 28. (2026-08-26) **`git checkout -b` PUIS `checkout main && merge && push` LANCÉS
+   D'AFFILÉE = PUSH DIRECT EN PRODUCTION.** La preview Vercel n'existe qu'ENTRE les deux,
+   au moment du `git push -u origin <branche>`. Enchaîner les deux moitiés saute l'étape
+   entièrement — et RIEN ne le signale.
+   ⇒ Ce sont deux MOMENTS séparés par un test, pas une séquence de commandes.
 ```
 
 ---
@@ -483,6 +573,10 @@ ORDRE DES SECTIONS : hero → AtelierGate → À propos (bio) → Musique.
 [x] ★★ CANAL DE CONTACT PRO — vérifié en prod (56cab9e). CLOSED.
 [x] ★★ BILINGUE : décisions de schéma + d'URL prises. CLOSED.
 [x] ★★ CHAMP TÉLÉPHONE — 4 couches, vérifié en prod depuis 2 réseaux (4361c08 + form). CLOSED.
+[x] ★★ MOTIF DESSINÉ — masque alpha + tokens d'encre, deux largeurs (b3069a2). CLOSED.
+
+[ ] ★★ TESTER LE MASQUE SUR iOS/WebKit. Android validé par Qiwi Chee. Si échec :
+    rectangle plein (règle alpha-only). EN PRODUCTION depuis le 2026-08-26 sans ce test.
 
 [ ] ★★ MENTIONS LÉGALES + POLITIQUE DE CONFIDENTIALITÉ (LCEN + RGPD, rétention 24 mois,
     COUVRANT LE TÉLÉPHONE). BLOQUANT avant toute mise en avant du formulaire.
@@ -507,6 +601,11 @@ ORDRE DES SECTIONS : hero → AtelierGate → À propos (bio) → Musique.
 [ ] ★ UNIFIER src/components/ et src/app/components/ — chantier propre, d'un coup.
 [ ] ★ npm audit : 7 vulns dont 4 = un seul correctif (next@16.3.2, on est en 16.2.4).
     ⛔ JAMAIS `npm audit fix --force`. `npm install next@16.3.2` puis `npm run build`.
+[ ] ★ COLONNES `artists` DU MOTIF (pattern_path, ink_a/b, tile, opacity, follows_release,
+    rights_confirmed) — nullables, barrière de droits DANS LE RPC. À faire AVEC la sortie
+    de `releases.ts` du code : même chantier, même fenêtre.
+[ ] ★ INDENTATION de `<main>` dans page.tsx (18 espaces au lieu de 6). Cosmétique.
+[ ] ★ DEMANDER À QIWI CHEE si le motif est assez marqué sur téléphone (0,22 vs 0,45).
 [ ] ★ 2FA sur Vercel ET GitHub — Vercel contrôle le DÉPLOIEMENT.
 [ ] ★ A11Y : aria-label="Primary" · <label>Website</label> · tab-order des slides hors écran.
 [ ] ★ LAWYER + CRESS IDF / Les Scop IDF : REFER vs OPERATE · licence d'entrepreneur.
@@ -568,6 +667,23 @@ ORDRE DES SECTIONS : hero → AtelierGate → À propos (bio) → Musique.
 - Rappeler : avocat avant /legal (et REFER vs OPERATE) ; CRESS IDF + Les Scop IDF.
 - Fin de session : demander si les instructions doivent évoluer ; proposer le CONTEXT_FOR_AI
   à jour ; rappeler la sync (cp vers Main_HDD Specs D'ABORD, puis ~/sync_resonance.sh).
+- ★ ORNEMENT D'ARTISTE = MASQUE ALPHA + tokens dans `:root`. Jamais un raster coloré : il
+  gèle la palette et casse le release-switcher.
+- ★ COUCHE `fixed` PARTIELLEMENT VISIBLE ⇒ chercher un conteneur pleine largeur à fond
+  opaque AVANT de déboguer la couche.
+- ★ VÉRIF AA SUR LE TOKEN LE PLUS FAIBLE de la surface (`--text-muted`, pas `--text`), et
+  le plafond obtenu ne vaut QUE pour cette palette.
+- ★ IDENTITÉ D'UN BINAIRE = `stat -c %s`, pas `file` ni `head`.
+- ★ PREVIEW VERCEL = `git push -u origin <branche>` PUIS test PUIS merge. Enchaîner
+  création de branche et merge saute la preview sans avertissement.
+- ★ VS CODE — DIRECTIONS DÉTAILLÉES DEMANDÉES (Bassim débute sur l'éditeur) :
+  `Ctrl+P` ouvrir un fichier · `Ctrl+G` aller à une ligne · clic sur le NUMÉRO de ligne
+  puis `Shift`+clic pour sélectionner un bloc · `Home` + `Shift+End` pour remplacer une
+  ligne · `Ctrl+Shift+V` coller sans reformatage · `Ctrl+End` fin de fichier.
+  ⚠️ CLIQUER D'ABORD DANS LE CODE : si le terminal a le focus, `Ctrl+G` part ailleurs et
+    rien ne bouge (arrivé deux fois). Le témoin est `Ln x, Col y` en bas à droite.
+  ⚠️ NE PAS double-cliquer un token contenant un tiret (`accent-bright`, `bg-bg`) :
+    `-` est un séparateur de mot, la sélection est partielle.
 ```
 
 ---
@@ -597,8 +713,8 @@ Grep depuis src/, pas src/app/. POSIX [[:alpha:]] au lieu de [A-Za-zÀ-ÿ].
 ```
 
 ---
-*Updated 2026-08-23 · Une fonctionnalité modeste, une méthode qui ne l'est pas : lire la
-running-config avant d'éditer, remettre les grants que le drop emporte, placer le paramètre
-optionnel là où il rend la migration réversible, et ne croire une barrière que le jour où
-elle refuse quelque chose. La fenêtre où cette migration était gratuite s'est refermée
-derrière nous — c'est exactement pour ça qu'elle est passée devant des sujets plus urgents.*
+*Updated 2026-08-26 · Le motif de Qiwi Chee tient en 29,7 Ko parce qu'il ne porte aucune
+couleur : la forme dans le fichier, l'encre dans `:root`. C'est ce qui a permis de passer
+de prune à son bleu en deux tokens, et c'est ce qui rendra l'artiste #2 possible sans
+ré-export. Le reste de la session s'est joué sur un couvercle invisible — un conteneur
+pleine largeur qui enterrait une couche qui fonctionnait déjà.*

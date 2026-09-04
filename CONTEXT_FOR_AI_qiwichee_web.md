@@ -1,23 +1,24 @@
 # Résonance — AI Context File
 > Paste/upload this at the start of any new conversation to resume instantly.
 
-**Last updated:** 2026-08-26 — **MOTIF DESSINÉ EN FOND. L'ASSET PORTE LA FORME,
-LES TOKENS PORTENT LA COULEUR.**
-Qiwi Chee a fourni un motif dessiné à la main. Livré en PRODUCTION le même jour.
-Ce qui compte n'est pas le fond, c'est la SÉPARATION : le fichier ne contient AUCUNE
-couleur, seulement un canal alpha. La couleur vient de `:root`.
-⇒ 29,7 Ko (contre 168 Ko en PNG couleur), règle hex-clean respectée, et le changement
-d'encre prune → bleu a coûté DEUX TOKENS, pas un ré-export.
-**Status:** qiwichee.com LIVE ✅ · Atelier gate ✅ · Magic links ✅ · Keepalive CRON ✅ ·
-Release-switcher ✅ · Section BIO ✅ · CONTACT PRO ✅ · Champ tél. ✅ ·
-SPF+DKIM+DMARC ✅ · **MOTIF DESSINÉ ✅ (Android OK, iOS À TESTER)** ·
-Event-engine SQL ⛔ TOUJOURS UNRUN (et doit pointer vers `artists`)
-**Commit du jour :** `b3069a2` — poussé sur main, EN PRODUCTION.
-⚠️ POUSSÉ SANS PREVIEW : création de branche et merge lancés d'affilée, la preview a été
-   sautée. Vérifié après coup sur Android par Qiwi Chee (elle valide). **iOS NON TESTÉ.**
-**Next session goal (in order):** (1) **TEST iOS** du masque. (2) **MENTIONS LÉGALES +
-CONFIDENTIALITÉ**. (3) **BILINGUE next-intl AVEC la nav dans le layout**.
-(4) `releases.ts` → table. (5) LADDER & SEASONS. (6) `fans` MULTI-TENANT.
+**Last updated:** 2026-09-04 — **LE MOTEUR DE COPIE EXISTE. LA NAV EST DANS LE LAYOUT.**
+Deux sessions : (1) l'inventaire des 159 chaînes du site + le schéma bilingue en base,
+(2) la nav sortie de `page.tsx` vers un route group `(public)`.
+Ce qui compte : LE LIEN COMPTE↔ARTISTE EXISTE ENFIN (`artist_accounts`), ce qui débloque
+event_engine, la RLS de `contact_messages` et le futur éditeur de l'artiste.
+**Status:** qiwichee.com LIVE ✅ · Atelier ✅ · Magic links ✅ · Keepalive CRON ✅ ·
+Release-switcher ✅ · BIO ✅ · CONTACT PRO ✅ · Champ tél. ✅ · SPF+DKIM+DMARC ✅ ·
+Motif dessiné ✅ (Android OK) · **NAV DANS LE LAYOUT ✅ (afd538d, preview TESTÉE)** ·
+**MOTEUR DE COPIE : schéma + RPC ✅ EN BASE — PAS ENCORE LU PAR LES PAGES** ·
+Event-engine SQL ⛔ TOUJOURS UNRUN (mais le conflit owners/artists est TRANCHÉ) ·
+**iOS/WebKit ⛔ TOUJOURS PAS TESTÉ — 9 jours en production**
+**Commits :** `afd538d` (nav) · SQL lancé au dashboard le 2026-09-03.
+✅ CETTE FOIS LA PREVIEW A ÉTÉ TESTÉE — et elle a trouvé un trou de configuration
+   vieux de trois mois (voir la section VERCEL). L'étape a payé son coût au premier usage.
+**Next session goal (in order):** (1) **3b — EXTRAIRE LES 117 CHAÎNES DE CHROME**
+(worklist : `docs/audits/copy_inventory.md`). (2) **MENTIONS LÉGALES + CONFIDENTIALITÉ**.
+(3) **TEST iOS**. (4) étape 4 : les pages lisent le RPC + `releases.ts` → table.
+(5) next-intl / segment `[locale]`. (6) LADDER & SEASONS. (7) `fans` MULTI-TENANT.
 
 ---
 
@@ -386,6 +387,199 @@ JETÉ : Prisma (perte de la RLS) · NextAuth · Next 14 · Cloudflare R2 · Open
 
 ---
 
+## 🌐 MOTEUR DE COPIE — LIVRÉ EN BASE 2026-09-03
+
+```
+★★ LE LIEN COMPTE↔ARTISTE EXISTE ENFIN : `artist_accounts`.
+  TABLE DE JOINTURE, PAS UNE COLONNE. La demande était « l'artiste OU SON AIDE » :
+  une colonne owner_user_id marchait aujourd'hui et imposait de réécrire toutes les
+  clauses RLS le jour où l'aide arrive. Le cas était DÉJÀ posé, pas hypothétique.
+  ⇒ CECI FERME `owners` vs `artists`. event_engine.sql crée encore sa propre table
+    `owners` : le CORRIGER pour pointer vers `artists` + `is_artist_member()` AVANT
+    de le lancer.
+  ⇒ ET : `auth.users` MÉLANGE FANS ET ARTISTES (4 comptes, dont 3 fans arrivés par
+    magic link, aucune colonne ne les distingue). Toute policy demande « existe-t-il
+    une ligne dans artist_accounts ? », JAMAIS « l'utilisateur est-il authentifié ? ».
+
+TROIS COUCHES DE TEXTE, TROIS PROPRIÉTAIRES — inventaire complet : 159 chaînes.
+  A · CHROME PLATEFORME   117 → fr.json/en.json, versionné git, JAMAIS éditable
+  B · COPIE D'ARTISTE       7 → table site_copy, éditable par l'artiste
+  C · CONTENU STRUCTURÉ    29 → bio_blocks, releases (tables + traductions)
+  PARQUÉ : les 4 libellés de palier (règle épicène non résolue — ne pas expédier une
+    violation dans une table éditable). À traiter avec le chantier LADDER.
+  ★★ C'EST LE MODÈLE DE COÛT QUI REND L'OPTION INTERNATIONALE VENDABLE :
+    A = 117 chaînes UNE FOIS par langue, pour toute la plateforme.
+    B = 7 lignes par artiste et par langue.
+    Si B avait fait 40, l'éditeur devenait un projet. À 7, c'est un formulaire.
+
+★★ AVANT DE CLASSER UNE CHAÎNE EN B, VÉRIFIER SI C'EST UNE A AVEC UN PARAMÈTRE.
+  QUATRE cas trouvés le même jour. Un pronom genré ou un nom d'artiste EN DUR ne fait
+  PAS d'une chaîne de la copie d'artiste — il signale UN TROU À PARAMÉTRER.
+    « Où viendrais-tu LA voir en concert ? » → `voir {artist}`      ⇒ reste A
+    « © {year} Qiwi Chee. Tous droits… »     → `© {year} {artist}`  ⇒ reste A
+  Sinon l'artiste #2 hérite du prénom de Qiwi Chee dans son propre pied de page.
+  ★ Même famille que la règle épicène : on RESTRUCTURE pour que le problème ne puisse
+    pas se poser, on ne cherche pas « le bon mot ».
+  ⇒ 9 chaînes sont passées de B à A par ce test. B est tombé de 22 à 7.
+
+★★ CLÉ PARTAGÉE = SENS PARTAGÉ, PAS ORTHOGRAPHE PARTAGÉE.
+  `Ton adresse email` existe dans ContactForm ET dans AtelierGate. MÊMES MOTS
+  aujourd'hui, DEUX CHAÎNES pour toujours (une demande de booking / la porte du fan).
+  Fusionner sur la valeur du jour = devoir SCINDER une clé déjà en production, avec
+  des lignes en base. Deux lignes au texte identique ne coûtent rien.
+  ⚠️ 8 SITES DE DUPLICATION trouvés par l'audit — dont les 4 libellés d'objet, écrits
+    DEUX FOIS (ContactForm et le corps du mail de notification). Modifier l'un laisse
+    l'autre en silence. L'extraction corrige ça gratuitement.
+
+★★ LANGUE D'ÉCRITURE ≠ LANGUE DE LA RACINE. DEUX COLONNES, PAS UNE.
+  is_source   = la langue dans laquelle l'artiste ÉCRIT → Qiwi Chee : 'en'
+  is_url_root = la langue servie sur `/`                → Qiwi Chee : 'fr'
+  Elles pointent EN SENS OPPOSÉS pour la PREMIÈRE artiste (anglophone native, site
+  français). Ce n'est pas de la généralisation spéculative — c'est le cas réel.
+
+★★★ LE PLANCHER DE REPLI EST LA LANGUE PUBLIÉE, PAS LA LANGUE D'ÉCRITURE.
+  PREMIÈRE VERSION DU RPC : demandé → source. Source = 'en', demande = 'en'
+  ⇒ la chaîne se réduit à en→en, aucune ligne EN n'existe ⇒ ZÉRO LIGNE.
+  En production : un `<h1>` VIDE, indiscernable d'un déploiement cassé.
+  ⇒ TROIS NIVEAUX : demandé → source → url_root.
+  ★ Le trou n'est PAS un cas limite : il existe pour CHAQUE artiste entre « j'ai
+    déclaré ma langue d'écriture » et « je l'ai écrite ». Donc à chaque onboarding.
+  ★ ATTRAPÉ PAR LE TEST, pas par la relecture. Test 4.8 (UNE seule clé traduite sur
+    sept) a prouvé le rang 0 : six 'en' + une 'fr'. Le repli marche CLÉ PAR CLÉ,
+    pas en tout-ou-rien.
+
+★ LA PÉREMPTION SE DÉRIVE, ELLE NE SE STOCKE PAS.
+  `source_hash` = hash de la valeur SOURCE contre laquelle la traduction a été relue.
+  Comparaison À LA LECTURE. ⛔ PAS de booléen `needs_translation` maintenu par trigger :
+  un drapeau de péremption qui périme lui-même est un bug particulièrement pénible.
+  (Même principe que les badges dérivés de visit_count.)
+  ★ source_hash NULLABLE = cas Belgique (deux langues d'auteur, aucune obsolescence à
+    calculer). L'accommodation coûte une colonne nullable aujourd'hui, une refonte plus tard.
+
+★ site_copy NE CONTIENT QUE DU PUBLIÉ. Brouillons et historique → copy_revisions,
+  table EN INSERTION SEULE. Un retour arrière est une ÉCRITURE EN AVANT : republier une
+  ancienne valeur insère une nouvelle révision, donc l'historique ne peut pas être
+  corrompu par un rollback.
+  ⇒ une traduction IA non validée NE PEUT PAS fuiter : le RPC public ne connaît que
+    site_copy. Impossibilité STRUCTURELLE, pas consigne. (Famille de la barrière de
+    droits dans get_bio_blocks.)
+
+★ LES TRADUCTIONS IA SONT UN ÉCHAFAUDAGE, PAS UNE SOURCE.
+  7 clés anglaises insérées en `origin='ai'`, `source_hash` NULL, et `artist_locales`
+  garde `is_published=false` pour 'en' : AUCUN visiteur ne reçoit cet anglais.
+  Qiwi Chee est ANGLOPHONE NATIVE — c'est ELLE qui écrira la vraie version, et le
+  français sera estampillé contre SON anglais.
+  ★ « Atelier » NE SE TRADUIT PAS : nom de produit, comme Résonance.
+  ⚠️ Les blocs bio 4/5/7 sont trop intimes pour un dossier presse — leur anglais sera
+    une RÉÉCRITURE, pas une traduction. Ne pas attendre du relire-et-valider.
+
+FICHIER : docs/briefs/copy_engine_stage1_2.sql — ✅ LANCÉ ET VÉRIFIÉ 2026-09-03
+  artist_accounts · artist_locales · site_copy · copy_revisions ·
+  get_site_copy(slug, locale) · is_artist_member(artist_id, min_role)
+  artist_id = 990b0d38-ffb8-4023-80ef-09c71ff5319a
+  RLS ACTIVE, AUCUNE POLICY, AUCUN GRANT — délibéré : la lecture publique passe par un
+  RPC security definer. Policies + grants arriveront AVEC l'éditeur, DANS LA MÊME
+  TRANSACTION (grant sans policy = rien ; policy sans grant = 42501 qui ressemble à une
+  panne d'auth — déjà perdu une soirée dessus sur `fans`).
+
+⚠️ RIEN N'EST DÉPLOYÉ CÔTÉ PAGES. Elles lisent toujours leurs constantes en dur.
+  ⚠️ ET : l'ancien page.tsx porte un const `artist` + 4 JSON-LD avec le nom, le genre et
+    la description EN DUR. Ces faits existent MAINTENANT EN DEUX EXEMPLAIRES (code et
+    site_copy), libres de diverger. À réconcilier dans la fenêtre `releases.ts` → table.
+
+★ UN GABARIT A PEUT INTERPOLER UNE VALEUR B : `{artist} — {genre}` lit `artists.name`
+  ET `site_copy`. La fonction de lecture côté app doit résoudre cette imbrication.
+  À prévoir DÈS l'étape 4, pas à rattraper après.
+
+ÉTAPES RESTANTES : 3b (extraire les 117) · 4 (les pages lisent le RPC) ·
+  5 (next-intl : `[locale]`, /en, hreflang) · 6a éditeur · 6b traduction IA ·
+  6c file d'attente + digest QUOTIDIEN (OVH SMTP, jamais Mailchimp : transactionnel).
+```
+
+---
+
+## 🧭 NAV DANS LE LAYOUT — LIVRÉ 2026-09-04 (`afd538d`)
+
+```
+★★ UN ROUTE GROUP `(public)` EST LA BONNE FRONTIÈRE. PAS UN LAYOUT DE SEGMENT.
+  Les layouts Next.js S'IMBRIQUENT, ils ne se REMPLACENT pas : un
+  `src/app/atelier/layout.tsx` NE PEUT PAS annuler ce que le layout RACINE rend
+  au-dessus de lui. (Erreur commise dans le brief, corrigée par Claude Code.)
+  ⇒ `src/app/(public)/` porte SiteNav ; `/atelier/*` reste DEHORS et n'hérite que du
+    layout racine. Les parenthèses n'apparaissent PAS dans l'URL.
+  ★ LE PIÈGE : le layout RACINE s'applique à TOUTES les routes. Y monter la nav
+    publique la ferait apparaître sur /atelier et /atelier/welcome — dont tout l'objet
+    est de garder la personne DANS un parcours. C'est une décision PRODUIT, pas un
+    détail de rendu.
+  ★ STRUCTURE > CONDITION : `usePathname()` aurait imposé `'use client'` ET serait une
+    règle qu'on oublie. Un route group est une impossibilité.
+  ✅ VÉRIFIÉ EN PRODUCTION : /atelier n'a aucun en-tête.
+
+★ ANCRE DEPUIS UNE AUTRE PAGE : `#music` depuis /contact cherche une ancre DANS
+  /contact. Le lien NE PLANTE PAS — IL NE FAIT RIEN. ⇒ `/#music`, absolu.
+  ★ `<a>` DÉLIBÉRÉ (pas `<Link>`) sur les ancres : `<Link>` ne garantit pas le
+    défilement lors d'un changement de route. VÉRIFIÉ EN PREVIEW : /contact →
+    « Musique » arrive bien SUR la section. Le lint `no-html-link-for-pages` est
+    supprimé sur ces deux lignes AVEC LE MOTIF ÉCRIT À CÔTÉ — sinon une session future
+    le « corrigera ».
+
+★ HEADER STICKY ⇒ `bg-bg` OBLIGATOIRE. Sans fond opaque, le contenu défile DESSOUS.
+  ★ `scroll-mt-*` s'est révélé INUTILE ici : les sections ont déjà assez de padding.
+    MESURÉ, pas supposé — on n'ajoute pas du CSS pour un problème qu'on n'a pas.
+
+★ CONTACT : le mailto est SORTI de la phrase d'intro (deux canaux dans une phrase = le
+  visiteur hésite) et redescendu SOUS le formulaire, en repli : « Si le formulaire ne
+  fonctionne pas : … ». L'adresse RESTE dans le HTML — un crawler ne remplit pas de
+  formulaire. Le cadrage supprime le CHOIX sans supprimer la DÉCOUVRABILITÉ.
+
+FICHIERS : src/app/components/SiteNav.tsx (serveur, pas de 'use client') ·
+  src/app/(public)/layout.tsx (fragment nu — AUCUN wrapper, donc rien n'enterre le motif) ·
+  src/app/(public)/page.tsx et (public)/contact/page.tsx (DÉPLACÉS : git confirme
+  « rename … 88% / 80% »).
+```
+
+---
+
+## ☁️ VERCEL — VARIABLES D'ENVIRONNEMENT (appris à la dure 2026-09-04)
+
+```
+★★★ VÉRIFIER LA PORTÉE **PREVIEW**, PAS SEULEMENT PRODUCTION.
+  `NEXT_PUBLIC_SUPABASE_URL` et `_ANON_KEY` étaient en **Production SEULE** depuis
+  juin. Toute preview crashait en `MIDDLEWARE_INVOCATION_FAILED` :
+  « Your project's URL and Key are required to create a Supabase client ».
+  ⇒ TOUTE branche aurait échoué de la même façon. Ce n'était PAS un bug de 3a.
+  ★★ ET ÇA N'AURAIT JAMAIS ÉTÉ TROUVÉ EN MERGEANT DIRECTEMENT : la production avait
+    ses variables. C'est L'ÉTAPE PREVIEW ELLE-MÊME — sautée en août — qui a révélé le
+    trou, à son premier usage réel.
+
+★ VERCEL REFUSE D'AJOUTER UN ENVIRONNEMENT À UNE VARIABLE EXISTANTE.
+  La case « Preview » reste grisée : conflit de nom avec l'entrée Production.
+  ⇒ SUPPRIMER puis RECRÉER avec les deux cases cochées. Il n'y a pas d'autre chemin, et
+    l'échec est SILENCIEUX (la ligne reste « Production », sans message d'erreur).
+
+★ TYPE **CONFIG**, PAS **SECRET**, POUR TOUT `NEXT_PUBLIC_`.
+  Secret = illisible après enregistrement ⇒ impossible de vérifier ce qui est stocké,
+  ce qui a transformé un diagnostic de deux minutes en une heure.
+  ★ La clé anon EST publique par conception (elle part dans chaque page). C'est la RLS
+    qui protège, pas le secret de la clé.
+  ⛔ Ne JAMAIS retirer le préfixe `NEXT_PUBLIC_` malgré l'avertissement Vercel : Next
+    n'inline QUE ce préfixe côté navigateur.
+  ⛔ `SUPABASE_SERVICE_ROLE_KEY` reste serveur-only et SANS préfixe : elle contourne la RLS.
+
+★ REDÉPLOYER EN DÉCOCHANT « Use existing Build Cache » : les `NEXT_PUBLIC_` sont
+  INLINÉES À LA COMPILATION. Un build en cache reporte l'ancienne configuration.
+
+★ OBSERVABILITY (offre gratuite) NE MONTRE PAS LES TRACES, seulement des compteurs.
+  Le message d'erreur réel est dans **Deployments → le déploiement → onglet Logs**,
+  scopé à ce déploiement, sans filtre à combattre.
+
+⚠️ LES PREVIEWS NE PEUVENT PAS TESTER L'AUTH : origine différente ⇒ pas de session, et
+  le Site URL Supabase pointe vers la production (config PAR PROJET, learning 9). Une
+  route protégée se vérifie APRÈS merge, en production, avec `git revert -m 1 HEAD` prêt.
+```
+
+---
+
 ## 🔑 HARD-WON LEARNINGS (standing)
 
 ```
@@ -506,6 +700,42 @@ JETÉ : Prisma (perte de la RLS) · NextAuth · Next 14 · Cloudflare R2 · Open
    au moment du `git push -u origin <branche>`. Enchaîner les deux moitiés saute l'étape
    entièrement — et RIEN ne le signale.
    ⇒ Ce sont deux MOMENTS séparés par un test, pas une séquence de commandes.
+   ★ APPLIQUÉ LE 2026-09-04, et l'étape a IMMÉDIATEMENT payé : voir learning 35.
+
+★ 29. (2026-09-03) **UN COMPTE DE RÉSULTATS N'EST PAS UN COMPTE D'OCCURRENCES.**
+   `grep -n CONTACT_EMAIL` a rendu 3 lignes pour 4 usages : deux tenaient sur la même
+   ligne. (Extension du learning 16, qui portait sur la casse.)
+
+★ 30. (2026-09-03) **LE SQL EDITOR SUPABASE N'AFFICHE QUE LA DERNIÈRE REQUÊTE.**
+   Deux `select` collés dans le même onglet ⇒ le résultat du premier est perdu SANS
+   AUCUN AVERTISSEMENT. Une requête de vérification = un onglet.
+
+★ 31. (2026-09-04) **`grep` LIT LE DISQUE, L'ÉDITEUR GARDE UN TAMPON.**
+   Un grep a montré l'ANCIEN état d'un fichier non enregistré et on a cru à une
+   incohérence entre l'éditeur et la base. `Ctrl+S` AVANT tout `grep` ou `git diff`.
+
+★ 32. (2026-09-04) **PAS DE HEREDOC COLLÉ POUR DU CONTENU LONG — LA RÈGLE EXISTAIT
+   DÉJÀ ET A ÉTÉ ENFREINTE.** Un `cat >> fichier << 'EOF'` de 40 lignes a été entrelacé
+   par le terminal : lignes dans le désordre, `EOF` jamais reçu, fichier corrompu.
+   `git checkout <fichier>` a tout restauré (il était committé).
+   ⇒ Télécharger puis `cp`, ou coller dans VS Code et enregistrer. JAMAIS le terminal.
+   ⇒ Et si un collage a l'air bizarre : `Ctrl+C` AVANT Entrée. Après Entrée, bash est
+     déjà en train de parser et le mal est fait.
+
+★ 33. (2026-09-04) **`git diff HEAD` NE MONTRE PAS LES FICHIERS NON SUIVIS.**
+   Après un déplacement de fichiers, le diff n'affichait QUE des suppressions — les
+   nouveaux étaient en `??`. Pour comparer un fichier déplacé à sa version committée :
+   `git show HEAD:ancien/chemin | diff -u - nouveau/chemin`.
+   ★ Et c'est le `git commit` qui a CONFIRMÉ le déplacement : « rename … (88%) ».
+
+★ 34. (2026-09-04) **LES LAYOUTS NEXT S'IMBRIQUENT, ILS NE SE REMPLACENT PAS.**
+   Un layout de segment ne peut PAS annuler ce que le layout racine rend au-dessus de
+   lui. Pour qu'une branche de routes N'HÉRITE PAS d'un habillage : ROUTE GROUP.
+
+★ 35. (2026-09-04) **UN TROU DE CONFIGURATION NE SE VOIT QU'EN PREVIEW.**
+   Les variables Supabase manquaient en Preview DEPUIS JUIN. La production marchait,
+   donc rien ne le signalait, et aucune relecture de code ne pouvait le trouver.
+   ⇒ Un environnement qui n'est jamais exercé n'est pas « qui marche », il est INCONNU.
 ```
 
 ---
@@ -574,6 +804,34 @@ ORDRE DES SECTIONS : hero → AtelierGate → À propos (bio) → Musique.
 [x] ★★ BILINGUE : décisions de schéma + d'URL prises. CLOSED.
 [x] ★★ CHAMP TÉLÉPHONE — 4 couches, vérifié en prod depuis 2 réseaux (4361c08 + form). CLOSED.
 [x] ★★ MOTIF DESSINÉ — masque alpha + tokens d'encre, deux largeurs (b3069a2). CLOSED.
+[x] ★★ INVENTAIRE DES 159 CHAÎNES (A=117 · B=7 · C=29 · 4 parquées). CLOSED.
+[x] ★★ MOTEUR DE COPIE EN BASE — artist_accounts · artist_locales · site_copy ·
+    copy_revisions · get_site_copy. Repli à 3 niveaux PROUVÉ par un cas réel. CLOSED.
+[x] ★★ `owners` vs `artists` — TRANCHÉ : `artist_accounts`, `artists` reste l'ancre.
+    ⚠️ event_engine.sql doit encore être CORRIGÉ avant d'être lancé. CLOSED (décision).
+[x] ★★ NAV DANS LE LAYOUT + `/#music` + Contact atteignable + sticky (afd538d). CLOSED.
+
+[ ] ★★ 3b — EXTRAIRE LES 117 CHAÎNES DE CHROME vers fr.json/en.json.
+    Worklist : `docs/audits/copy_inventory.md`. Inclut la DETTE A11Y
+    (`aria-label="Primary"`, `<label>Website</label>`) et les 8 duplications.
+[ ] ★★ ÉTAPE 4 — les pages lisent site_copy via le RPC (+ résoudre `{artist}`/`{genre}`
+    dans les gabarits A). MÊME FENÊTRE que `releases.ts` → table et les colonnes
+    `artists` du motif : les mêmes faits sont AUJOURD'HUI en double dans page.tsx.
+[ ] ★★ ÉTAPE 5 — next-intl. ⚠️ Next 16 : `middleware.ts` → `proxy.ts`, fonction exportée
+    nommée `proxy`, runtime Node (option `runtime` indisponible). next-intl NÉGOCIE
+    DÉJÀ (préfixe → cookie → accept-language) : ne PAS écrire de 307/Vary à la main.
+    ⚠️ EXIGE UN SEGMENT `[locale]` ⇒ toutes les pages descendent d'un niveau. Large.
+[ ] ★★ ÉTAPE 6a — éditeur `/atelier/artiste` : 7 clés, FR/EN CÔTE À CÔTE (pas un
+    sélecteur : la dérive se voit dans la comparaison), révisions, retour arrière,
+    indicateur de péremption. + policies RLS et grants DANS LA MÊME TRANSACTION.
+    ⚠️ La sauvegarde DOIT invalider le cache (`revalidatePath`) dans le MÊME commit,
+    sinon l'artiste voit l'ancien texte et conclut que l'éditeur est cassé.
+[ ] ★ 6b traduction IA (drafts `origin='ai'`, jamais publiés d'office) · 6c file
+    d'attente dérivée + digest QUOTIDIEN (jamais par édition) via OVH SMTP.
+[ ] ★ TEST 4.8 BIS : à la première ligne anglaise ÉCRITE PAR ELLE, re-vérifier que le
+    rang 0 gagne clé par clé.
+[ ] ★ QIWI CHEE : écrire l'anglais des 7 clés (elle est anglophone native — c'est de
+    l'ÉCRITURE, pas de la relecture). Puis estampiller le français contre son anglais.
 
 [ ] ★★ TESTER LE MASQUE SUR iOS/WebKit. Android validé par Qiwi Chee. Si échec :
     rectangle plein (règle alpha-only). EN PRODUCTION depuis le 2026-08-26 sans ce test.
@@ -676,6 +934,23 @@ ORDRE DES SECTIONS : hero → AtelierGate → À propos (bio) → Musique.
 - ★ IDENTITÉ D'UN BINAIRE = `stat -c %s`, pas `file` ni `head`.
 - ★ PREVIEW VERCEL = `git push -u origin <branche>` PUIS test PUIS merge. Enchaîner
   création de branche et merge saute la preview sans avertissement.
+- ★ AVANT DE CLASSER UNE CHAÎNE EN COPIE D'ARTISTE : est-ce une chaîne de CHROME AVEC
+  UN PARAMÈTRE ? Un pronom genré ou un nom en dur signale un TROU, pas une voix.
+- ★ CLÉ PARTAGÉE = SENS PARTAGÉ, PAS ORTHOGRAPHE PARTAGÉE. Deux chaînes identiques
+  aujourd'hui restent DEUX chaînes : scinder une clé en production coûte une migration.
+- ★ REPLI DE LANGUE : demandé → source → url_root. Le PLANCHER est la langue PUBLIÉE,
+  jamais la langue d'écriture (elle peut être vide pendant tout un onboarding).
+- ★ POUR QU'UNE BRANCHE DE ROUTES N'HÉRITE PAS D'UN HABILLAGE : route group `(nom)`,
+  jamais un test de chemin. Structure > condition.
+- ★ VERCEL : vérifier la portée PREVIEW des variables, pas seulement Production.
+  Impossible d'ajouter un environnement à une variable existante → SUPPRIMER/RECRÉER.
+  Type CONFIG pour tout `NEXT_PUBLIC_` (Secret = invérifiable après coup).
+  Redéploiement en DÉCOCHANT le build cache. Erreurs réelles : onglet Logs DU déploiement.
+- ★ JAMAIS DE HEREDOC COLLÉ dans le terminal. Télécharger puis `cp`, ou VS Code.
+  (Règle déjà écrite, enfreinte le 2026-09-04 : fichier corrompu, restauré par git.)
+- ★ `Ctrl+S` AVANT tout `grep` ou `git diff` : ils lisent le DISQUE, pas le tampon.
+- ★ UNE REQUÊTE DE VÉRIFICATION = UN ONGLET dans le SQL Editor (il n'affiche que la
+  dernière).
 - ★ VS CODE — DIRECTIONS DÉTAILLÉES DEMANDÉES (Bassim débute sur l'éditeur) :
   `Ctrl+P` ouvrir un fichier · `Ctrl+G` aller à une ligne · clic sur le NUMÉRO de ligne
   puis `Shift`+clic pour sélectionner un bloc · `Home` + `Shift+End` pour remplacer une
@@ -713,8 +988,12 @@ Grep depuis src/, pas src/app/. POSIX [[:alpha:]] au lieu de [A-Za-zÀ-ÿ].
 ```
 
 ---
-*Updated 2026-08-26 · Le motif de Qiwi Chee tient en 29,7 Ko parce qu'il ne porte aucune
-couleur : la forme dans le fichier, l'encre dans `:root`. C'est ce qui a permis de passer
-de prune à son bleu en deux tokens, et c'est ce qui rendra l'artiste #2 possible sans
-ré-export. Le reste de la session s'est joué sur un couvercle invisible — un conteneur
-pleine largeur qui enterrait une couche qui fonctionnait déjà.*
+*Updated 2026-09-04 · Deux sessions, deux découvertes qui ne venaient pas du code. La
+première : un repli de langue qui s'arrêtait à la langue d'écriture rendait ZÉRO ligne —
+attrapé par un test qui demandait une langue encore vide, c'est-à-dire l'état normal de
+tout artiste au premier jour. La seconde : les variables Supabase manquaient en Preview
+depuis juin, invisibles parce que la production, elle, marchait. L'étape preview — sautée
+en août — a payé son coût dès son premier usage réel. Et le vrai gain de ces deux jours
+n'est ni la nav ni le schéma : c'est `artist_accounts`, le lien compte↔artiste qui
+manquait, et qui débloque d'un coup event_engine, la RLS de contact_messages et
+l'éditeur que Qiwi Chee a demandé.*

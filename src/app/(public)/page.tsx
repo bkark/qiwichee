@@ -1,6 +1,6 @@
 import AtelierGate from "@/components/AtelierGate";
-import ReleaseSwitcher from "./components/ReleaseSwitcher";
-import BioSection from "./components/BioSection";
+import ReleaseSwitcher from "@/app/components/ReleaseSwitcher";
+import BioSection from "@/app/components/BioSection";
 import { releases } from "@/data/releases";
 
 // ─────────────────────────────────────────────────────────────
@@ -114,27 +114,6 @@ export default async function Home({ searchParams }: { searchParams: SearchParam
           dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }}
         />
       ))}
-
-      <header className="border-b border-border">
-        <nav
-          aria-label="Primary"
-          className="mx-auto flex max-w-3xl items-center justify-between px-6 py-5"
-        >
-          <span className="font-display text-lg font-semibold tracking-tight">Qiwi Chee</span>
-          <ul className="flex gap-6 text-sm">
-            <li>
-              <a className="hover:underline" href="#music">
-                Musique
-              </a>
-            </li>
-            <li>
-              <a className="hover:underline" href="#about">
-                À propos
-              </a>
-            </li>
-          </ul>
-        </nav>
-      </header>
 
                   <main className="mx-auto md:bg-bg max-w-3xl px-6">
         <section className="py-10" aria-labelledby="hero-heading">

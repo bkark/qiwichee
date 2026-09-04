@@ -1,5 +1,5 @@
 // =============================================================================
-// src/app/contact/page.tsx
+// src/app/(public)/contact/page.tsx
 //
 // ★ POURQUOI UNE ADRESSE VISIBLE EN PLUS DU FORMULAIRE.
 //   Un crawler ne remplit pas de formulaire. Un agent IA à qui on demande
@@ -54,24 +54,18 @@ export default function ContactPage() {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
 
-      <a href="/" className="text-sm text-muted underline">← Qiwi Chee</a>
-
       <h1 className="mt-6 text-3xl font-semibold">Contact</h1>
 
-      <p className="mt-4 text-muted">
-        Pour un concert, une demande presse ou une collaboration — écris ici, ou
-        directement à{' '}
-        {/* Un mailto n'est PAS un lien externe : il ne passe pas par
-            ExternalLink. Un target="_blank" sur un mailto laisserait un onglet
-            vide ouvert derrière le client mail. */}
-        <a href={`mailto:${CONTACT_EMAIL}`} className="underline">
-          {CONTACT_EMAIL}
-        </a>
-        .
-      </p>
+              <p className="mt-4 text-muted">
+          Pour un concert, une demande presse ou une collaboration — écris ici.
+        </p>
 
       <div className="mt-10">
         <ContactForm />
+              <p className="mt-8 text-sm text-muted">
+                  Si le formulaire ne fonctionne pas :{' '}
+          <a className="underline" href={`mailto:${CONTACT_EMAIL}`}>{CONTACT_EMAIL}</a>
+      </p>
       </div>
     </main>
   )

@@ -1,7 +1,7 @@
 # Résonance — AI Context File
 > Paste/upload this at the start of any new conversation to resume instantly.
 
-**Last updated:** 2026-09-04 — **LE MOTEUR DE COPIE EXISTE. LA NAV EST DANS LE LAYOUT.**
+**Last updated:** 2026-09-04 (soir) — **CATALOGUE CHANSON-D'ABORD EN BASE + CONTRAT D'ARCHITECTURE.**
 Deux sessions : (1) l'inventaire des 159 chaînes du site + le schéma bilingue en base,
 (2) la nav sortie de `page.tsx` vers un route group `(public)`.
 Ce qui compte : LE LIEN COMPTE↔ARTISTE EXISTE ENFIN (`artist_accounts`), ce qui débloque
@@ -580,6 +580,127 @@ FICHIERS : src/app/components/SiteNav.tsx (serveur, pas de 'use client') ·
 
 ---
 
+## 📜 CONTRAT D'ARCHITECTURE RÉSONANCE (2026-09-04 — S'APPLIQUE À TOUT CODE NOUVEAU)
+
+```
+⚠️ CE CONTRAT DÉCRIT LA CIBLE. LA MAJEURE PARTIE DU CODE ACTUEL LE VIOLE.
+   Il lie tout code écrit À PARTIR DE MAINTENANT. L'existant est traité par un
+   AUDIT DE REMÉDIATION (voir la liste des tâches), à faire APRÈS le carrousel —
+   inutile d'auditer du code qu'on est sur le point de remplacer.
+
+RÈGLES :
+  · JAMAIS de texte, donnée, constante ou chemin EN DUR.
+  · JAMAIS inventer une structure ou un champ.
+  · JAMAIS d'appel Supabase DEPUIS UN COMPOSANT.
+  · TOUJOURS passer par les clients d'API de module :
+      catalogueClient.getSongs()
+      bioClient.getBioBlocks()
+      copyClient.getCopy()
+      contactClient.submitMessage()
+      modulesClient.getEnabledModules()
+  · TOUJOURS vérifier l'activation du module via getEnabledModules(slug).
+  · TOUJOURS charger le texte via getCopy(slug, locale).
+  · Composants PURS, RÉUTILISABLES, MODULAIRES.
+  · « artiste » se traite comme une ENTITÉ GÉNÉRIQUE.
+    ★ C'est ce qui rendra possible un humoriste, un cirque, un conteur SANS
+      réécriture. Ça coûte une discipline de nommage aujourd'hui, une refonte plus tard.
+
+★ ÉTAT RÉEL AU 2026-09-04 — À NE PAS CONFONDRE AVEC LA RÈGLE :
+  ⛔ AUCUN des cinq clients n'existe. BioSection appelle le RPC Supabase
+     directement ; releases.ts est un const ; get_songs n'a AUCUN appelant.
+  ⛔ `modulesClient.getEnabledModules()` N'EXISTE NI EN CODE NI EN BASE. Il n'y a
+     pas de table de modules, pas d'état d'activation. La règle « toujours
+     vérifier l'activation » est donc ASPIRATIONNELLE tant que le mécanisme
+     n'est pas construit. Ne pas la lire comme une description de l'existant.
+  ⚠️ `artwork_path` porte encore `/hybrid-fruit-cover.jpg` : c'est de la DONNÉE
+     (conforme à l'esprit), mais les fichiers vivent toujours dans public/.
+     Conformité partielle, à finir le jour du passage à Storage.
+
+★ LE PREMIER CLIENT ÉCRIT FAIT RÉFÉRENCE. `catalogueClient` naît avec le
+  carrousel v2 ; les quatre autres suivent sa forme. Écrire le deuxième
+  différemment du premier, c'est avoir deux conventions pour toujours.
+```
+
+---
+
+## 🎵 CATALOGUE — CHANSON D'ABORD, LIVRÉ EN BASE 2026-09-04
+
+```
+POURQUOI : Hybrid Fruit était UNE diapo et les gens écoutaient la piste 1.
+  Six diapos = six occasions d'être découverte. Ce n'est pas un changement
+  d'affichage, c'est un AUTRE MODÈLE DE DONNÉES — d'où la table maintenant,
+  avant le carrousel, plutôt qu'un remodelage plus tard.
+
+★★ DEUX PARCOURS, ET UN SEUL EXISTAIT.
+  1. DÉCOUVERTE — une chanson à la fois, flèches, on ne sait pas ce qui vient.
+     Le carrousel fait déjà ça bien.
+  2. ACCÈS DIRECT — quelqu'un veut « Une dernière chose ». Faire défiler
+     jusqu'à elle n'est pas un accès, c'est un labyrinthe. RIEN ne le couvre.
+  ⇒ D'où la LISTE DE TITRES à côté du carrousel : accès direct, vue d'ensemble,
+    titres lisibles par un crawler, et remplace les 4 pastilles (qui ne passent
+    pas à 9). Et les ancres `/#slug` — le lien qu'on met dans le mail d'annonce.
+
+SCHÉMA (docs/briefs/catalogue_songs.sql — ✅ LANCÉ ET VÉRIFIÉ) :
+  releases              id · artist_id · slug · title · type ('album'|'ep'|'single') ·
+                        released_on · artwork_path · artwork_alt · buy_url · sort_order
+  songs                 id · artist_id · release_id · slug · title · track_no ·
+                        media_provider · media_asset_id · media_type ·
+                        audio_path · duration_s · artwork_path (NULL → repli release) ·
+                        rights_stream_confirmed · rights_note · is_published
+  release_translations / song_translations   (objet, locale) → descriptor · source_hash
+  get_songs(slug, locale)  security definer · repli 3 niveaux · execute → anon+authenticated
+
+★ TROIS CHEMINS MÉDIA, PAR ORDRE DE PRÉFÉRENCE : audio_path (NOTRE lecteur) →
+  media_provider (iframe tiers) → rien (pochette seule).
+  ⇒ MIGRATION CHANSON PAR CHANSON : tant qu'audio_path est null, comportement
+    inchangé. Pas de big-bang.
+
+★ `type` EST UN ÉNUMÉRÉ DE PLATEFORME, `descriptor` EST DE LA COPIE D'ARTISTE.
+  « Single — clip officiel » se scinde : « Single » traduit UNE FOIS dans fr.json
+  pour tous les artistes, « clip officiel » par release et par langue.
+  (Trouvé par l'audit des 159 chaînes — c'est le même test A-avec-paramètre.)
+
+★ LA POCHETTE DE CHANSON EST NULLABLE ET RETOMBE SUR CELLE DE LA RELEASE.
+  `coalesce` dans le RPC. ⇒ Qiwi Chee envoie une vidéo pour UN titre, on remplit
+  UNE ligne, cette diapo change. Sans déploiement. VÉRIFIÉ : les 6 pistes de
+  Hybrid Fruit rendent bien /hybrid-fruit-cover.jpg sans pochette propre.
+
+★ LA BARRIÈRE DE DROITS EST DANS LE RPC : audio_path n'est rendu que si
+  rights_stream_confirmed. Diffuser un fichier depuis NOTRE domaine n'est pas
+  intégrer le lecteur d'un tiers. Dilemma vient du catalogue LEILANI et peut
+  relever d'un autre accord. (Famille de rights_web_confirmed.)
+
+DONNÉES AMORCÉES : 4 releases · 9 chansons (Lullabies YouTube L0mHWXa2UyQ ·
+  6 pistes Hybrid Fruit en Bandcamp track= · Une dernière chose · Dilemma).
+  ⚠️ Dilemma est saisi en 'album' avec un `album=` : à CONFIRMER (une chanson ?).
+
+★★★ YOUTUBE « TOPIC » : EMBARQUEMENT IMPOSSIBLE — ERREUR 153.
+  Les 6 pistes de Hybrid Fruit sont sur « Qiwi Chee - Topic », chaîne
+  AUTO-GÉNÉRÉE par YouTube à partir de la livraison DistroKid. Qiwi Chee n'y a
+  AUCUN accès : pas de Studio, pas de réglages. Test direct de
+  youtube-nocookie.com/embed/<id> ⇒ « Erreur de configuration du lecteur ».
+  ★ DEUX MINUTES DE TEST ONT ÉVITÉ UNE SESSION CONSTRUITE SUR DU SABLE.
+  ⇒ ISSUE PRIVILÉGIÉE : elle whiteliste sa chaîne dans DistroKid (Official
+    Artist Channel) puis téléverse les 6 titres sur @qiwichee elle-même. Les
+    vues, commentaires et abonnés reviennent alors SUR SA CHAÎNE au lieu d'une
+    page Topic que personne ne visite.
+  ⇒ REPLI : MP3 auto-hébergés (Supabase Storage), notre lecteur, notre pause.
+
+★ LA PAUSE ILLISIBLE DE BANDCAMP N'EST PAS CORRIGEABLE PAR NOUS.
+  L'iframe est cross-origin : son état nous est invisible, ses contrôles
+  inaccessibles. Un bouton pause dessiné par nous ne saurait pas quoi afficher.
+  ⇒ La seule vraie issue est de cesser de dépendre de leur lecteur.
+  ⚠️ ET L'AFFORDANCE DE LECTURE ÉTAIT DÉJÀ BONNE : EmbedPlayer a un bouton
+    pleine surface, un disque d'accent de 64 px, un triangle, un focus ring.
+    ★ DIAGNOSTIC ERRONÉ DEUX FOIS AVANT DE LIRE LE CODE (affordance, puis
+      autoplay — déjà présent). LIRE AVANT DE PROPOSER.
+
+⚠️ RIEN N'EST DÉPLOYÉ : le site lit toujours src/data/releases.ts. La bascule se
+  fait AVEC le carrousel v2, en une fois, sur une branche, avec preview.
+```
+
+---
+
 ## 🔑 HARD-WON LEARNINGS (standing)
 
 ```
@@ -736,6 +857,23 @@ FICHIERS : src/app/components/SiteNav.tsx (serveur, pas de 'use client') ·
    Les variables Supabase manquaient en Preview DEPUIS JUIN. La production marchait,
    donc rien ne le signalait, et aucune relecture de code ne pouvait le trouver.
    ⇒ Un environnement qui n'est jamais exercé n'est pas « qui marche », il est INCONNU.
+
+★ 36. (2026-09-04) **UN INSERT AVEC JOIN QUI NE MATCHE RIEN N'EST PAS UNE ERREUR.**
+   Les 9 chansons ont renvoyé « Success. No rows returned » et écrit ZÉRO ligne : les
+   releases n'existaient pas encore, le join n'a rien trouvé, Postgres n'a rien signalé.
+   ⇒ Après tout insert : `select count(*)`. Le message dit ce qu'il PRÉTEND, la table
+     dit ce qui s'est passé. (Application directe du learning 22.)
+   ★ Et « Success. No rows returned » signifie DEUX choses indiscernables : un DDL qui
+     a réussi, ou un insert qui n'a rien écrit.
+
+★ 37. (2026-09-04) **UNE CHAÎNE « - Topic » N'APPARTIENT PAS À L'ARTISTE, ET SES VIDÉOS
+   NE S'EMBARQUENT PAS (erreur 153).** Elle est auto-générée par YouTube depuis la
+   livraison du distributeur (ici DistroKid) : ni Studio, ni réglages, ni accès.
+   ⇒ TESTER `youtube-nocookie.com/embed/<id>` DANS UN ONGLET AVANT de bâtir dessus.
+     Deux minutes ont évité une session entière construite sur du sable.
+   ★ Et avant de proposer un correctif d'interface : LIRE LE COMPOSANT. L'affordance
+     de lecture était déjà correcte, l'autoplay déjà présent — deux diagnostics faux
+     avant d'ouvrir le fichier.
 ```
 
 ---
@@ -804,6 +942,32 @@ ORDRE DES SECTIONS : hero → AtelierGate → À propos (bio) → Musique.
 [x] ★★ BILINGUE : décisions de schéma + d'URL prises. CLOSED.
 [x] ★★ CHAMP TÉLÉPHONE — 4 couches, vérifié en prod depuis 2 réseaux (4361c08 + form). CLOSED.
 [x] ★★ MOTIF DESSINÉ — masque alpha + tokens d'encre, deux largeurs (b3069a2). CLOSED.
+[x] ★★ CATALOGUE CHANSON-D'ABORD EN BASE — releases · songs · traductions ·
+    get_songs. 4 releases + 9 chansons amorcées, repli de pochette VÉRIFIÉ. CLOSED.
+
+[ ] ★★ CARROUSEL V2 — une diapo PAR CHANSON, liste de titres pour l'accès direct,
+    ancres `/#slug`, lecture via `catalogueClient.getSongs()`. C'est le PREMIER
+    client d'API : il fait référence pour les quatre autres. Bascule complète
+    depuis `src/data/releases.ts` dans le même commit.
+[ ] ★★ COUCHE DE CLIENTS D'API — catalogueClient d'abord, puis bio, copy, contact.
+    Aucun n'existe aujourd'hui ; les composants appellent Supabase directement.
+[ ] ★★ ACTIVATION DES MODULES — schéma + table + modulesClient + vérification dans
+    les pages. RIEN N'EXISTE : la règle « toujours vérifier l'activation » est
+    aspirationnelle tant que ce n'est pas construit.
+[ ] ★★ AUDIT DE REMÉDIATION DU CONTRAT — passe en LECTURE SEULE sur src/, une ligne
+    par violation, même méthode que copy_inventory.md. À faire APRÈS le carrousel :
+    celui-ci en résout déjà plusieurs (releases.ts, appels directs).
+    Déjà connus : `artist` const + 4 JSON-LD dans page.tsx · BioSection appelle le
+    RPC · AtelierGate/AtelierContent/ContactForm appellent Supabase · constants.ts ·
+    `insiderClip` MediaAsset en dur · les 117 chaînes (= 3b).
+[ ] ★★ QIWI CHEE — DistroKid : whitelister sa chaîne, puis téléverser les 6 titres
+    de Hybrid Fruit sur @qiwichee (les Topic ne s'embarquent pas, erreur 153).
+    + MP3 128-160 kbps sur Drive en repli, + confirmation ÉCRITE du droit de
+    diffuser depuis qiwichee.com. Dilemma à part (LEILANI).
+[ ] ★ DILEMMA : une chanson ou un album ? Saisi en 'album' avec `album=`. À confirmer.
+[ ] ★ NOUVELLE CHANSON (sortie dans ~5 semaines) : un insert dans `songs` + une ligne
+    de traduction. Prévoir l'AVANT-PREMIÈRE DANS L'ATELIER (combien de jours avant ?).
+
 [x] ★★ INVENTAIRE DES 159 CHAÎNES (A=117 · B=7 · C=29 · 4 parquées). CLOSED.
 [x] ★★ MOTEUR DE COPIE EN BASE — artist_accounts · artist_locales · site_copy ·
     copy_revisions · get_site_copy. Repli à 3 niveaux PROUVÉ par un cas réel. CLOSED.
@@ -951,6 +1115,18 @@ ORDRE DES SECTIONS : hero → AtelierGate → À propos (bio) → Musique.
 - ★ `Ctrl+S` AVANT tout `grep` ou `git diff` : ils lisent le DISQUE, pas le tampon.
 - ★ UNE REQUÊTE DE VÉRIFICATION = UN ONGLET dans le SQL Editor (il n'affiche que la
   dernière).
+- ★★ CONTRAT D'ARCHITECTURE : rien en dur (texte, donnée, constante, chemin) · ne rien
+  inventer comme structure ou champ · AUCUN appel Supabase depuis un composant ·
+  tout passe par les clients de module (catalogue/bio/copy/contact/modules) ·
+  activation vérifiée via getEnabledModules(slug) · texte via getCopy(slug, locale) ·
+  composants purs et réutilisables · « artiste » = ENTITÉ GÉNÉRIQUE.
+  ⚠️ Les cinq clients et la table de modules N'EXISTENT PAS ENCORE. Le contrat lie le
+    code NOUVEAU ; l'existant passe par l'audit de remédiation. Ne jamais lire le
+    contrat comme une description de l'existant.
+- ★ AVANT DE PROPOSER UN CORRECTIF D'INTERFACE : LIRE LE COMPOSANT. Deux diagnostics
+  faux (affordance, autoplay) avant d'ouvrir EmbedPlayer, où les deux étaient déjà bons.
+- ★ APRÈS TOUT INSERT : `select count(*)`. Un join qui ne matche rien renvoie
+  « Success » et n'écrit rien.
 - ★ VS CODE — DIRECTIONS DÉTAILLÉES DEMANDÉES (Bassim débute sur l'éditeur) :
   `Ctrl+P` ouvrir un fichier · `Ctrl+G` aller à une ligne · clic sur le NUMÉRO de ligne
   puis `Shift`+clic pour sélectionner un bloc · `Home` + `Shift+End` pour remplacer une

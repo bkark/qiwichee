@@ -3,18 +3,33 @@
 // =============================================================================
 // src/app/components/SongSwitcher.tsx
 //
-// ★★ POURQUOI UNE DIAPO PAR CHANSON.
-//   Hybrid Fruit était UNE diapo et les gens écoutaient la piste 1. Six diapos
-//   = six occasions d'être découverte. Ce n'est pas de l'habillage, c'est un
-//   autre modèle de données — d'où la table `songs`.
+// ★★ TROIS ZONES, TROIS RÔLES — et c'est ce qui tient à 200 chansons.
+//   1. LE CARROUSEL est purement VISUEL : pochette + lecteur, rien d'autre.
+//      Le texte en sortait de toute façon coupé sous l'en-tête collant.
+//   2. LE BLOC ÉPINGLÉ porte TOUT le texte de la chanson active : titre,
+//      sortie, année, crédits — et les paroles plus tard. Il ne bouge pas,
+//      il ne défile pas hors de vue, et il grandit sans casser la mise en page.
+//   3. LA LISTE ne sert qu'à NAVIGUER. Elle peut faire 9 ou 200 lignes.
 //
-// ★★ DEUX PARCOURS, ET UN SEUL EXISTAIT.
-//   1. DÉCOUVERTE — une chanson à la fois, flèches. Le carrousel le fait bien.
-//   2. ACCÈS DIRECT — quelqu'un veut « Une dernière chose ». Faire défiler
-//      jusqu'à elle n'est pas un accès, c'est un labyrinthe.
-//   ⇒ LA LISTE DE TITRES SOUS LE CARROUSEL couvre le second. Elle remplace les
-//     pastilles, qui ne passent pas à 9, et donne au passage des titres lisibles
-//     par un crawler + une vue d'ensemble du catalogue.
+//   ⇒ Le problème résolu : en dessous du carrousel, le surlignage descendait
+//     hors de l'écran dès la 6ᵉ chanson. Au-dessus, la liste repoussait le
+//     contenu trop bas. Le bloc épinglé rend la question caduque — la chanson
+//     active a sa place à elle, quelle que soit la longueur de la liste.
+//
+// ★ LA CHANSON ACTIVE RESTE DANS LA LISTE, fortement marquée.
+//   La retirer créerait un trou mouvant : les lignes se réordonnent à chaque
+//   changement et l'œil perd son repère. Une liste stable vaut mieux qu'une
+//   liste sans doublon.
+//
+// ★ SCROLL INTERNE EN DESKTOP UNIQUEMENT.
+//   Un cadre défilant dans une page défilante, sur mobile, c'est deux zones
+//   qui se disputent le doigt : on veut descendre dans la page, la liste bouge.
+//   À la souris le problème n'existe pas. ⇒ md:max-h + md:overflow-y-auto.
+//   (Même arbitrage que les largeurs de diapo : la largeur décide.)
+//
+// ★ AUCUN DÉFILEMENT AUTOMATIQUE. La page ne bouge jamais sous les pieds de
+//   quelqu'un qui explore le carrousel. Le repère visuel est le bloc épinglé,
+//   pas une liste qui se recale toute seule.
 //
 // ★ COMPOSANT PUR : tout arrive en props. Aucun appel Supabase, aucune
 //   constante d'artiste, aucun texte en dur hors `copy` (qui part en 3b).
@@ -26,17 +41,19 @@ import CarouselLayout, { type CarouselHandle, type CarouselItem } from './Carous
 import type { Song } from '@/lib/modules/catalogue/types'
 
 // ── Copie ────────────────────────────────────────────────────────────────────
-// ★ UN SEUL OBJET PLAT EN HAUT DU COMPOSANT, clés anglaises, valeurs françaises.
-//   Forme déjà appliquée dans ContactForm et SiteFooter : à l'étape 3b, ça se
-//   déplace dans fr.json par copier-coller.
+// ★ UN SEUL OBJET PLAT, clés anglaises, valeurs françaises. Forme déjà appliquée
+//   dans ContactForm et SiteFooter : à l'étape 3b, ça se déplace dans fr.json
+//   par copier-coller.
 // ★ `releaseType` traduit un ÉNUMÉRÉ DE PLATEFORME — une fois pour TOUS les
-//   artistes. C'est la moitié A de « Single — clip officiel ».
+//   artistes, jamais par artiste.
 const copy = {
   carouselLabel: 'Chansons',
   roleDescription: 'carrousel',
   prev: 'Chanson précédente',
   next: 'Chanson suivante',
   trackListLabel: 'Toutes les chansons',
+  nowShowing: 'Chanson affichée',
+  creditsLabel: 'Crédits',
   slideOf: (title: string, i: number, n: number) => `${title}, ${i} sur ${n}`,
   goTo: (title: string) => `Aller à ${title}`,
   releaseType: { album: 'Album', ep: 'EP', single: 'Single' } as const,
@@ -56,6 +73,8 @@ export default function SongSwitcher({ songs, featuredSlug }: SongSwitcherProps)
 
   const handleDeactivate = useCallback(() => setActiveEmbedSlug(null), [])
 
+  const activeSong = songs[activeIndex] ?? songs[0]
+
   /**
    * ★★ HIÉRARCHIE DE DÉMARRAGE : ancre > featured > aléatoire.
    *   Une règle, pas une condition à retenir : si quelqu'un arrive par
@@ -66,23 +85,19 @@ export default function SongSwitcher({ songs, featuredSlug }: SongSwitcherProps)
    *   pas au SSR et Math.random() casserait l'hydratation.
    */
   const resolveInitialIndex = useCallback((): number | null => {
-  const hash = window.location.hash.replace(/^#/, '')
+    const hash = window.location.hash.replace(/^#/, '')
     if (hash) {
       const i = songs.findIndex((s) => s.slug === hash)
       if (i !== -1) {
-        // ★ LE NAVIGATEUR A DÉJÀ RENONCÉ À DÉFILER.
-        //   Il cherche l'ancre au chargement initial, AVANT que React n'ait
-        //   monté les diapos : #flatline n'existait pas encore dans le DOM.
-        //   Le carrousel s'ouvre au bon endroit mais la page reste en haut.
+        // ★ LE NAVIGATEUR A DÉJÀ RENONCÉ À DÉFILER : il cherche l'ancre au
+        //   chargement initial, AVANT que React n'ait monté les diapos.
         //   ⇒ on refait le défilement nous-mêmes, une fois monté.
         requestAnimationFrame(() => {
-                    const el = document.getElementById(hash)
+          const el = document.getElementById(hash)
           if (!el) return
-          // ★ `block:'center'` ne connaît pas le header sticky : il centre la
-          //   diapo dans la fenêtre et son titre passe dessous. On aligne en
-          //   HAUT, moins la hauteur du header.
-          // ⚠️ COUPLÉ À `py-2` DANS SiteNav. Si la nav change de hauteur,
-          //    cette valeur ET les `scroll-mt-*` de page.tsx doivent suivre.
+          // ⚠️ COUPLÉ À `py-2` DANS SiteNav ET AUX `scroll-mt-*` DE page.tsx.
+          //    Trois valeurs, aucun lien dans le code. À unifier un jour via
+          //    une variable CSS `--header-height`.
           const HEADER_OFFSET = 56
           const top = el.getBoundingClientRect().top + window.scrollY - HEADER_OFFSET
           window.scrollTo({ top, behavior: 'instant' })
@@ -97,6 +112,9 @@ export default function SongSwitcher({ songs, featuredSlug }: SongSwitcherProps)
     return Math.floor(Math.random() * songs.length)
   }, [songs, featuredSlug])
 
+  // ── Diapos : VISUEL SEUL ───────────────────────────────────────────────────
+  // Le titre reste en aria-label : invisible à l'œil, présent pour les
+  // technologies d'assistance, qui n'ont pas le bloc épinglé sous les yeux.
   const items: CarouselItem[] = songs.map((song, idx) => ({
     key: song.slug,
     // ★ data-release = slug de la SORTIE. Les règles de recoloration sont
@@ -104,70 +122,86 @@ export default function SongSwitcher({ songs, featuredSlug }: SongSwitcherProps)
     //   recoloration EN SILENCE.
     slideAttrs: song.paletteKey ? { 'data-release': song.paletteKey } : undefined,
     label: copy.slideOf(song.title, idx + 1, songs.length),
-    content: (
-      <>
-        <div>
-          <h3 className="font-display text-xl font-semibold tracking-tight text-text">
-            {song.title}
-          </h3>
-          {/* ★ GABARIT DE CHROME, PAS UNE CHAÎNE D'ARTISTE :
-              « Hybrid Fruit · Album ». Traduit une fois, marche pour tout
-              artiste. Le descriptor d'artiste, s'il existe, passe devant. */}
-          {song.descriptor ? (
-            <p className="mt-1 text-sm text-muted">{song.descriptor}</p>
-          ) : song.release ? (
-            <p className="mt-1 text-sm text-muted">
-              {song.release.title} · {copy.releaseType[song.release.type]}
-            </p>
-          ) : (
-            <p className="mt-1 text-sm invisible" aria-hidden="true">{' '}</p>
-          )}
-        </div>
-
-        {song.media ? (
-          <EmbedPlayer
-            asset={song.media}
-            poster={song.artwork ?? undefined}
-            posterAlt={song.artworkAlt ?? song.title}
-            isActive={activeEmbedSlug === song.slug}
-            onActivate={() => setActiveEmbedSlug(song.slug)}
-            onDeactivate={handleDeactivate}
-          />
-        ) : null}
-
-        {song.credits.length > 0 && (
-          <ul className="text-xs text-muted">
-            {song.credits.map((credit) => (
-              <li key={`${credit.role}-${credit.name}`}>
-                {credit.role} : {credit.name}
-              </li>
-            ))}
-          </ul>
-        )}
-      </>
-    ),
+    content: song.media ? (
+      <EmbedPlayer
+        asset={song.media}
+        poster={song.artwork ?? undefined}
+        posterAlt={song.artworkAlt ?? song.title}
+        isActive={activeEmbedSlug === song.slug}
+        onActivate={() => setActiveEmbedSlug(song.slug)}
+        onDeactivate={handleDeactivate}
+      />
+    ) : null,
   }))
 
   return (
     <>
-      <CarouselLayout
-        items={items}
-        ariaLabel={copy.carouselLabel}
-        labels={{
-          roleDescription: copy.roleDescription,
-          prev: copy.prev,
-          next: copy.next,
-        }}
-        resolveInitialIndex={resolveInitialIndex}
-        onActiveChange={setActiveIndex}
-        controlsRef={carouselRef}
-      />
+      <div className="mt-6">
+        <CarouselLayout
+          items={items}
+          ariaLabel={copy.carouselLabel}
+          labels={{
+            roleDescription: copy.roleDescription,
+            prev: copy.prev,
+            next: copy.next,
+          }}
+          resolveInitialIndex={resolveInitialIndex}
+          onActiveChange={setActiveIndex}
+          controlsRef={carouselRef}
+        />
+      </div>
 
-      {/* ── LISTE DE TITRES — l'ACCÈS DIRECT ──────────────────────────────────
-          Sous le carrousel (mobile-first). Des <button>, pas des <a> : on
-          déplace le carrousel, on ne change pas de page. Les ancres /#slug
-          restent servies par l'id posé sur chaque diapo. */}
-      <nav aria-label={copy.trackListLabel} className="mt-6">
+      {/* ── BLOC ÉPINGLÉ — LA FICHE DE LA CHANSON AFFICHÉE ───────────────────
+          `aria-live="polite"` : quand le carrousel change, un lecteur d'écran
+          annonce la nouvelle chanson sans interrompre ce qui est en cours.
+          Sans ça, le changement serait totalement silencieux. */}
+      <section
+        aria-label={copy.nowShowing}
+        aria-live="polite"
+        className="mt-5 border-t border-border pt-5"
+      >
+        <h3 className="font-display text-xl font-semibold tracking-tight text-text">
+          {activeSong.title}
+        </h3>
+
+        {/* ★ GABARIT DE CHROME, PAS UNE CHAÎNE D'ARTISTE : « Hybrid Fruit ·
+            Album · 2024 ». Traduit une fois, marche pour tout artiste. Le
+            descriptor d'artiste, s'il existe, passe devant. */}
+        {activeSong.descriptor ? (
+          <p className="mt-1 text-sm text-muted">{activeSong.descriptor}</p>
+        ) : activeSong.release ? (
+          <p className="mt-1 text-sm text-muted">
+            {activeSong.release.title} · {copy.releaseType[activeSong.release.type]}
+            {activeSong.release.releasedOn && (
+              <> · {activeSong.release.releasedOn.slice(0, 4)}</>
+            )}
+          </p>
+        ) : null}
+
+        {/* Crédits — la table dédiée arrive ; en attendant, la colonne jsonb
+            `songs.credits` est lue telle quelle et reste vide sans dommage. */}
+        {activeSong.credits.length > 0 && (
+          <dl className="mt-4 flex flex-col gap-1 text-sm">
+            {activeSong.credits.map((credit) => (
+              <div key={`${credit.role}-${credit.name}`} className="flex gap-2">
+                <dt className="shrink-0 text-muted">{credit.role}</dt>
+                <dd className="text-text">{credit.name}</dd>
+              </div>
+            ))}
+          </dl>
+        )}
+      </section>
+
+      {/* ── LISTE DE TITRES — NAVIGATION SEULE ───────────────────────────────
+          Des <button>, pas des <a> : on déplace le carrousel, on ne change pas
+          de page. Les ancres /#slug restent servies par l'id posé sur chaque
+          diapo par CarouselLayout.
+          ★ md:max-h-80 + md:overflow-y-auto : cadre défilant à la souris,
+            flux normal au doigt. */}
+      <nav
+        aria-label={copy.trackListLabel}
+        className="mt-6 md:max-h-80 md:overflow-y-auto md:rounded-sm md:border md:border-border"
+      >
         <ul className="flex flex-col">
           {songs.map((song, idx) => (
             <li key={song.slug}>
@@ -176,16 +210,18 @@ export default function SongSwitcher({ songs, featuredSlug }: SongSwitcherProps)
                 onClick={() => carouselRef.current?.scrollToIndex(idx)}
                 aria-label={copy.goTo(song.title)}
                 aria-current={activeIndex === idx ? 'true' : undefined}
-                className={`flex w-full items-baseline gap-3 rounded-sm px-2 py-3 text-left transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-bg ${
-                  activeIndex === idx ? 'text-accent' : 'text-text hover:text-accent'
+                className={`flex w-full items-baseline gap-3 rounded-sm px-3 py-2 text-left transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-bg ${
+                  activeIndex === idx
+                    ? 'bg-surface font-semibold text-accent'
+                    : 'text-text hover:bg-surface/50'
                 }`}
               >
                 <span className="w-6 shrink-0 text-xs tabular-nums text-muted">
-                  {song.trackNo ?? ''}
+                  {song.trackNo ?? '·'}
                 </span>
-                <span className="font-medium">{song.title}</span>
+                <span>{song.title}</span>
                 {song.release && (
-                  <span className="ml-auto shrink-0 text-xs text-muted">
+                  <span className="ml-auto shrink-0 text-sm text-muted">
                     {song.release.title}
                   </span>
                 )}

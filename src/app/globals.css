@@ -70,17 +70,54 @@
 
 .release-slide {
   /* ★ DEUX SITUATIONS, DEUX LARGEURS — c'est l'ESPACE qui décide.
-     Mobile : la place est comptée, l'artwork doit rester lisible ⇒ peek minimal.
-     Desktop : il reste des marges ⇒ peek franc, qui SIGNALE qu'il y a une suite.
-     (Même arbitrage que le motif dessiné : aucun réglage ne sert les deux largeurs.) */
-  flex: 0 0 88%;
+     Mobile : la place est comptée, l'artwork doit rester lisible.
+     Desktop : il reste des marges ⇒ le voisin doit être franchement visible. */
+  flex: 0 0 78%;
   scroll-snap-align: center;
+
+  /* ★★ L'EFFET DE CARTE — ce qui manquait n'était PAS de la largeur.
+     Une bande pleine hauteur se lit comme une BORDURE ; la même bande avec un
+     coin arrondi et un bord haut/bas visible se lit comme une PHOTO.
+     ⇒ la diapo active reste à l'échelle 1, les voisines reculent légèrement.
+     C'est le bord HORIZONTAL qui donne l'information, pas la largeur. */
+   /* ★ L'ORIGINE COMPTE PLUS QUE L'ÉCHELLE.
+     `transform-origin: center` fait reculer le bord visible du voisin de la
+     MOITIÉ de la réduction : il sort du cadre au lieu d'y montrer un coin.
+     ⇒ chaque voisin se contracte vers l'EXTÉRIEUR du carrousel, son bord
+       tourné vers la diapo active reste en place. C'est ce bord qu'on voit. */
+  transform: scale(0.96) translateY(4px);
+  opacity: 0.65;
+}
+
+/* Voisins de gauche : origine à gauche → le bord DROIT reste visible. */
+.release-slide:has(~ .release-slide[data-active]) {
+  transform-origin: left center;
+}
+
+/* Voisins de droite : origine à droite → le bord GAUCHE reste visible. */
+.release-slide[data-active] ~ .release-slide {
+  transform-origin: right center;
+}
+
+.release-slide[data-active] {
+  transform: scale(1) translateY(0);
+  transform-origin: center;
+  opacity: 1;
+}
+
+/* Aucune animation si la personne a demandé à en être dispensée. */
+@media (prefers-reduced-motion: no-preference) {
+  .release-slide {
+    transition: transform 0.25s ease, opacity 0.25s ease;
+  }
 }
 
 @media (min-width: 768px) {
-  .release-slide { flex: 0 0 80%; }
+  /* ★ 72 % : à 80 % il restait ~64px de voisin de chaque côté au milieu du
+     carrousel — assez pour exister, pas assez pour être compris. À 72 % on
+     passe à ~93px, et l'œil reconnaît un morceau d'image. */
+  .release-slide { flex: 0 0 72%; }
 }
-
 /* Desktop prev/next arrows — hidden on touch (pointer:coarse), revealed on fine pointer.
    Absolutely positioned over carousel edges; full-height tap target (≥44px satisfied
    by stretching top:0 bottom:0). Do NOT add display:flex here — media query handles it. */

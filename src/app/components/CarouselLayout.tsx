@@ -156,13 +156,14 @@ export default function CarouselLayout({
         aria-roledescription={labels.roleDescription}
         aria-label={ariaLabel}
         tabIndex={0}
-        className="release-scroller flex overflow-x-auto gap-4 rounded-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-bg"
+        className="release-scroller flex overflow-x-auto rounded-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-bg"
       >
-                {items.map((item) => (
+        {items.map((item, idx) => (
           <div
             key={item.key}
             id={item.key}
             data-carousel-slide=""
+            data-active={activeIndex === idx ? '' : undefined}
             {...item.slideAttrs}
             role="group"
             aria-label={item.label}

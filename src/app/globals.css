@@ -69,8 +69,16 @@
 .release-scroller::-webkit-scrollbar { display: none; }
 
 .release-slide {
-  flex: 0 0 88%;       /* 88% width → ~12% peek of adjacent slide on each side */
+  /* ★ DEUX SITUATIONS, DEUX LARGEURS — c'est l'ESPACE qui décide.
+     Mobile : la place est comptée, l'artwork doit rester lisible ⇒ peek minimal.
+     Desktop : il reste des marges ⇒ peek franc, qui SIGNALE qu'il y a une suite.
+     (Même arbitrage que le motif dessiné : aucun réglage ne sert les deux largeurs.) */
+  flex: 0 0 88%;
   scroll-snap-align: center;
+}
+
+@media (min-width: 768px) {
+  .release-slide { flex: 0 0 80%; }
 }
 
 /* Desktop prev/next arrows — hidden on touch (pointer:coarse), revealed on fine pointer.

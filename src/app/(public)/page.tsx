@@ -1,7 +1,7 @@
 import AtelierGate from "@/components/AtelierGate";
-import ReleaseSwitcher from "@/app/components/ReleaseSwitcher";
+import MusicSection from "@/app/components/MusicSection";
 import BioSection from "@/app/components/BioSection";
-import { releases } from "@/data/releases";
+const LULLABIES_YOUTUBE_ID = 'L0mHWXa2UyQ'
 
 // ─────────────────────────────────────────────────────────────
 // ARTIST DATA — the ONLY block that changes per artist in the
@@ -22,13 +22,13 @@ const artist = {
     "https://msha.ke/qiwichee/",
   ],
   // Streaming/social links rendered in the Music section.
-  links: [
-    { name: "Spotify",     href: "https://open.spotify.com/artist/4Bu89sfVzy14qW0dK8Ugbs" },
-    { name: "Apple Music", href: "https://music.apple.com/fr/artist/qiwi-chee/1676154343" },
-    { name: "Deezer",      href: "https://www.deezer.com/fr/artist/204585817" },
-    { name: "YouTube",     href: "https://www.youtube.com/@qiwichee" },
-    { name: "Bandcamp",    href: "https://qiwichee.bandcamp.com/" },
-    { name: "Instagram",   href: "https://www.instagram.com/qiwichee/" },
+   links: [
+    { name: "Spotify",     icon: "spotify" as const,     href: "https://open.spotify.com/artist/4Bu89sfVzy14qW0dK8Ugbs" },
+    { name: "Apple Music", icon: "applemusic" as const,  href: "https://music.apple.com/fr/artist/qiwi-chee/1676154343" },
+    { name: "Deezer",      icon: "deezer" as const,      href: "https://www.deezer.com/fr/artist/204585817" },
+    { name: "YouTube",     icon: "youtube" as const,     href: "https://www.youtube.com/@qiwichee" },
+    { name: "Bandcamp",    icon: "bandcamp" as const,    href: "https://qiwichee.bandcamp.com/" },
+    { name: "Instagram",   icon: "instagram" as const,   href: "https://www.instagram.com/qiwichee/" },
   ],
 };
 
@@ -44,7 +44,9 @@ const musicGroupSchema = {
   sameAs: artist.sameAs,
 };
 
-const lullabiesEmbed = releases[0].embed // always Lullabies (canonical DOM order, fixed)
+// ⚠️ DETTE : cet ID existe AUSSI dans la table `songs`. Deux exemplaires du même
+//    fait, libres de diverger. À réconcilier quand le JSON-LD lira le catalogue.
+const lullabiesEmbed = { assetId: LULLABIES_YOUTUBE_ID, title: 'Qiwi Chee — Lullabies (clip officiel)' }
 const videoObjectSchema = {
   "@context": "https://schema.org",
   "@type": "VideoObject",
@@ -132,7 +134,7 @@ export default async function Home({ searchParams }: { searchParams: SearchParam
 
         <section
           id="about"
-          className="border-t border-border py-8"
+          className="scroll-mt-14 border-t border-border py-8"
           aria-labelledby="about-heading"
         >
           <h2 id="about-heading" className="font-display text-2xl font-semibold tracking-tight">
@@ -143,13 +145,13 @@ export default async function Home({ searchParams }: { searchParams: SearchParam
 
         <section
           id="music"
-          className="border-t border-border py-8"
+          className="scroll-mt-14 border-t border-border py-8"
           aria-labelledby="music-heading"
         >
           <h2 id="music-heading" className="font-display text-2xl font-semibold tracking-tight">
             Musique
           </h2>
-          <ReleaseSwitcher artistLinks={artist.links} />
+          <MusicSection artistSlug="qiwichee" locale="fr" artistLinks={artist.links} />
         </section>
       </main>
 

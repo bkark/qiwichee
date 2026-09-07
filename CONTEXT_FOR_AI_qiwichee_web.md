@@ -1,7 +1,7 @@
 # Résonance — AI Context File
 > Paste/upload this at the start of any new conversation to resume instantly.
 
-**Last updated:** 2026-09-04 (soir) — **CATALOGUE CHANSON-D'ABORD EN BASE + CONTRAT D'ARCHITECTURE.**
+**Last updated:** 2026-09-06 — **CARROUSEL V2 EN PRODUCTION. LE SITE LIT LA BASE.**
 Deux sessions : (1) l'inventaire des 159 chaînes du site + le schéma bilingue en base,
 (2) la nav sortie de `page.tsx` vers un route group `(public)`.
 Ce qui compte : LE LIEN COMPTE↔ARTISTE EXISTE ENFIN (`artist_accounts`), ce qui débloque
@@ -701,6 +701,66 @@ DONNÉES AMORCÉES : 4 releases · 9 chansons (Lullabies YouTube L0mHWXa2UyQ ·
 
 ---
 
+## 🎠 CARROUSEL V2 — LIVRÉ EN PRODUCTION 2026-09-06 (`71545d1`)
+
+```
+CHAÎNE COMPLÈTE : get_songs → catalogueClient → MusicSection (serveur) →
+  SongSwitcher (client) → CarouselLayout (mécanisme pur).
+  `src/data/releases.ts` et `ReleaseSwitcher.tsx` SUPPRIMÉS. Le site lit la base.
+
+★★ TROIS ZONES, TROIS RÔLES — c'est ce qui tient à 200 chansons.
+  1. LE CARROUSEL est purement VISUEL : pochette + lecteur, aucun texte.
+  2. LE BLOC ÉPINGLÉ porte TOUT le texte de la chanson affichée : titre,
+     sortie · type · année, crédits, et les paroles plus tard.
+  3. LA LISTE ne sert qu'à NAVIGUER.
+  ⇒ PROBLÈME RÉSOLU : liste SOUS le carrousel, le surlignage descendait hors
+    écran dès la 6ᵉ chanson. Liste AU-DESSUS, elle repoussait le contenu trop
+    bas. Le bloc épinglé rend la question caduque — la chanson active a sa
+    place à elle, quelle que soit la longueur de la liste.
+  ★ AUCUN DÉFILEMENT AUTOMATIQUE : la page ne bouge jamais sous les pieds de
+    quelqu'un qui explore. Le repère est le bloc, pas une liste qui se recale.
+  ★ LA CHANSON ACTIVE RESTE DANS LA LISTE. La retirer créerait un trou mouvant.
+
+★ SCROLL INTERNE EN DESKTOP UNIQUEMENT (`md:max-h-80 md:overflow-y-auto`).
+  Un cadre défilant dans une page défilante, sur mobile, c'est deux zones qui se
+  disputent le doigt. À la souris le problème n'existe pas.
+
+★★ L'EFFET DE CARTE — ET L'ARITHMÉTIQUE QUI LE GOUVERNE.
+  Le fragment de voisin se lisait comme une BORDURE, pas comme un contenu.
+  Ce n'était PAS un manque de largeur : le `scale` MANGEAIT la marge que la
+  largeur dégageait. MESURÉ en desktop : 720 de scroller, 518 d'actif ⇒ 202 de
+  marge, mais seulement 44 visibles de chaque côté. Les 114 manquants =
+  `gap-4` (32) + `scale(0.92)` (41 par voisin).
+  ⇒ CORRECTIFS CUMULÉS : scale 0,92 → 0,96 · `gap-4` SUPPRIMÉ (le scale crée
+    déjà la séparation, deux mécanismes pour un effet) · largeurs 88→78 % mobile,
+    80→72 % desktop.
+  ⇒ RÉSULTAT MESURÉ : desktop 44 → 80 px · mobile 8 → 28 px.
+  ★ SUR 352 px, CHAQUE PIXEL MONTRÉ AU VOISIN EST RETIRÉ À L'ARTWORK. Il n'y a
+    pas de réglage qui serve les deux : c'est un curseur, pas un problème.
+
+★ HIÉRARCHIE DE DÉMARRAGE : ancre > featured > aléatoire.
+  `is_featured` sur `songs`, index unique partiel (une seule par artiste).
+  ⚠️ AUJOURD'HUI AUCUNE N'EST À TRUE — sinon l'aléatoire ne sert JAMAIS.
+    Le drapeau est fait pour la fenêtre de sortie : la nouvelle chanson en
+    avant pendant deux semaines, puis on le retire.
+  ★ L'ANCRE NE DÉFILE PAS TOUTE SEULE : le navigateur cherche `#flatline` au
+    chargement initial, AVANT que React n'ait monté les diapos. Le carrousel
+    s'ouvrait au bon endroit et la page restait en haut. ⇒ défilement refait à
+    la main dans `requestAnimationFrame`, avec un décalage d'en-tête.
+
+⚠️⚠️ TROIS VALEURS COUPLÉES À LA HAUTEUR DU HEADER, ET RIEN NE LES RELIE :
+  `py-2` dans SiteNav · `scroll-mt-14` ×2 dans (public)/page.tsx ·
+  `HEADER_OFFSET = 56` dans SongSwitcher.
+  Changer l'une casse les deux autres EN SILENCE. À unifier via une variable
+  CSS `--header-height`. (Trois ajustements successifs ont déjà été nécessaires.)
+
+⚠️ `.bio-slide` est resté à 88 % SANS effet de carte ni media query.
+  Les deux carrousels sont censés rester jumeaux : BioSwitcher doit consommer
+  CarouselLayout (prévu dès le plan), sinon on maintient deux mécanismes.
+```
+
+---
+
 ## 🔑 HARD-WON LEARNINGS (standing)
 
 ```
@@ -874,6 +934,35 @@ DONNÉES AMORCÉES : 4 releases · 9 chansons (Lullabies YouTube L0mHWXa2UyQ ·
    ★ Et avant de proposer un correctif d'interface : LIRE LE COMPOSANT. L'affordance
      de lecture était déjà correcte, l'autoplay déjà présent — deux diagnostics faux
      avant d'ouvrir le fichier.
+
+★ 38. (2026-09-06) **UNE MODIFICATION DE `globals.css` PEUT NE PAS ÊTRE SERVIE.**
+   Tailwind 4 met le CSS compilé en cache. Les `.tsx` se rechargent par Fast
+   Refresh, les `.css` PAS TOUJOURS. Symptôme : le fichier dit 78 %, le
+   navigateur applique 88 %, et tous les réglages semblent sans effet.
+   ⇒ VÉRIFICATION QUI TRANCHE : `getComputedStyle(el).flexBasis` dans la console.
+     S'il diverge du fichier, c'est le SERVI qui est périmé, pas le calcul.
+   ⇒ REMÈDE : `rm -rf .next && npm run dev`.
+   ★ Variante du learning 10 — et elle a coûté plusieurs mesures contradictoires
+     avant d'être suspectée. La console mesure ; la relecture du fichier ne prouve rien.
+
+★ 39. (2026-09-06) **MESURER AVANT DE RÉGLER : `getBoundingClientRect` DIT CE QUI
+   EST À L'ÉCRAN.** Contrairement aux largeurs théoriques, il tient compte des
+   `transform`. C'est ce qui a révélé que `scale` et `gap` mangeaient 114 px des
+   202 de marge — invisible dans le CSS, évident à la mesure.
+   ⇒ Pour tout problème d'espacement : une ligne de console AVANT toute hypothèse.
+
+★ 40. (2026-09-06) **`transform-origin` COMPTE PLUS QUE L'ÉCHELLE.**
+   Un `scale` centré fait reculer le bord visible d'un voisin de la MOITIÉ de la
+   réduction : il sort du cadre au lieu d'y montrer un coin. L'origine doit être
+   le bord OPPOSÉ à ce qu'on veut garder visible.
+
+★ 41. (2026-09-06) **ÉTAT ACTIF ET ÉTAT SURVOLÉ DOIVENT DIFFÉRER EN NATURE.**
+   Deux entrées ont paru actives simultanément : l'une l'était, l'autre était
+   sous la souris — même couleur, même graisse. Trois correctifs d'observer ont
+   été envisagés pour un bug qui n'existait pas.
+   ⇒ L'actif change de FOND et de GRAISSE ; le survol ne change que le fond.
+   ★ Et avant de corriger un état « faux » : vérifier que ce n'est pas un état
+     VRAI mal signalé.
 ```
 
 ---
@@ -967,6 +1056,49 @@ ORDRE DES SECTIONS : hero → AtelierGate → À propos (bio) → Musique.
 [ ] ★ DILEMMA : une chanson ou un album ? Saisi en 'album' avec `album=`. À confirmer.
 [ ] ★ NOUVELLE CHANSON (sortie dans ~5 semaines) : un insert dans `songs` + une ligne
     de traduction. Prévoir l'AVANT-PREMIÈRE DANS L'ATELIER (combien de jours avant ?).
+
+[x] ★★ CARROUSEL V2 — chaîne complète get_songs → catalogueClient → MusicSection →
+    SongSwitcher → CarouselLayout. `releases.ts` et `ReleaseSwitcher` SUPPRIMÉS.
+    Bloc épinglé, liste de navigation, effet de carte, ancres. EN PRODUCTION
+    (`71545d1`, preview testée). CLOSED.
+
+[ ] ★★ `song_credits` — DÉCIDÉ, PAS ÉCRIT. Table dédiée, PAR CHANSON (même dans
+    un album : le mix peut différer d'une piste à l'autre).
+    Colonnes : song_id · role · person_name · sort_order (PAS `order`, mot réservé)
+    · role_custom nullable.
+    ★ `role` EST UN ÉNUMÉRÉ DE PLATEFORME ('writing','music','arrangement','mix',
+      'master','performance','production') traduit UNE FOIS dans fr.json.
+      ⛔ PAS de colonne `locale` : un nom de personne ne se traduit pas, et
+        « Mixage » est un mot de plateforme, pas de l'artiste.
+    ⚠️ La colonne `songs.credits` (jsonb) existe déjà et est lue par le RPC.
+      À SUPPRIMER en créant la table, sinon deux sources pour le même fait.
+    → Affichage : dans le BLOC ÉPINGLÉ, jamais dans les diapos.
+
+[ ] ★★ `song_lyrics` — DÉCIDÉ, PAS ÉCRIT. song_id · locale · content ·
+    rights_display_confirmed · rights_note.
+    ★★ BARRIÈRE DE DROITS DANS LE RPC dès la première ligne : publier des
+      paroles est un acte d'ÉDITION, distinct du droit d'écouter (SACEM).
+      Ce bug ne planterait pas, IL PUBLIERAIT — et une fois indexé, c'est fait.
+    ★★ UNE VERSION DANS UNE AUTRE LANGUE EST UNE AUTRE CHANSON, pas une
+      traduction : sa propre ligne dans `songs`, son slug, son lecteur.
+      ⇒ UNE SEULE ligne de paroles par chanson · AUCUNE chaîne de repli ·
+        PAS de source_hash. `locale` déclare seulement la langue du texte.
+    ⚠️ BLOQUÉ sur confirmation ÉCRITE de Qiwi Chee : seule autrice des textes,
+      accord de publication sur qiwichee.com, cas Dilemma (LEILANI).
+
+[ ] ★★ RYTHME VERTICAL DE LA PAGE — marges qui s'additionnent entre header,
+    hero, Atelier, À propos, Musique. À traiter d'un coup sur TOUTE la page,
+    pas section par section (sinon on déplace le déséquilibre).
+[ ] ★★ BIOSWITCHER DOIT CONSOMMER CarouselLayout — sinon deux mécanismes
+    identiques à maintenir, et `.bio-slide` n'aura jamais l'effet de carte.
+    Les deux carrousels doivent rester JUMEAUX.
+[ ] ★ VARIABLE CSS `--header-height` — unifier les trois valeurs couplées
+    (`py-2`, `scroll-mt-14` ×2, `HEADER_OFFSET`).
+
+[ ] ★★ TROIS MESSAGES RÉDIGÉS POUR QIWI CHEE, À ENVOYER SÉPARÉMENT :
+    (1) DistroKid/YouTube — BLOQUANT, elle seule peut le faire · + MP3 sur Drive
+    (2) droits des paroles + crédits par chanson — réponse ÉCRITE demandée
+    (3) l'anglais des 7 clés + libellé du palier 3 — après la sortie
 
 [x] ★★ INVENTAIRE DES 159 CHAÎNES (A=117 · B=7 · C=29 · 4 parquées). CLOSED.
 [x] ★★ MOTEUR DE COPIE EN BASE — artist_accounts · artist_locales · site_copy ·
@@ -1127,6 +1259,12 @@ ORDRE DES SECTIONS : hero → AtelierGate → À propos (bio) → Musique.
   faux (affordance, autoplay) avant d'ouvrir EmbedPlayer, où les deux étaient déjà bons.
 - ★ APRÈS TOUT INSERT : `select count(*)`. Un join qui ne matche rien renvoie
   « Success » et n'écrit rien.
+- ★ CSS QUI NE PREND PAS : `getComputedStyle(el)` dans la console AVANT de régler.
+  Tailwind 4 cache le CSS compilé ⇒ `rm -rf .next && npm run dev`.
+- ★ PROBLÈME D'ESPACEMENT : mesurer avec `getBoundingClientRect` (il tient compte
+  des `transform`) AVANT toute hypothèse. Le CSS ne dit pas ce qui est à l'écran.
+- ★ ÉTAT ACTIF ≠ ÉTAT SURVOLÉ : natures différentes (fond+graisse vs fond seul).
+  Avant de corriger un état « faux », vérifier que ce n'est pas un état VRAI mal signalé.
 - ★ VS CODE — DIRECTIONS DÉTAILLÉES DEMANDÉES (Bassim débute sur l'éditeur) :
   `Ctrl+P` ouvrir un fichier · `Ctrl+G` aller à une ligne · clic sur le NUMÉRO de ligne
   puis `Shift`+clic pour sélectionner un bloc · `Home` + `Shift+End` pour remplacer une

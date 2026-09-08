@@ -1,6 +1,6 @@
 # BRIEF — SHARE CARD DU CARROUSEL MUSICAL
 
-Statut : implémenté — commit ____
+Statut : implémenté — commit dc955b6
 Branche attendue : `feat/share-card`
 Auteur du brief : session Claude (Projet Qiwichee)
 

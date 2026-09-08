@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import AtelierGate from "@/components/AtelierGate";
 import MusicSection from "@/app/components/MusicSection";
 import BioSection from "@/app/components/BioSection";
@@ -151,7 +152,10 @@ export default async function Home({ searchParams }: { searchParams: SearchParam
           <h2 id="music-heading" className="font-display text-2xl font-semibold tracking-tight">
             Musique
           </h2>
-          <MusicSection artistSlug="qiwichee" locale="fr" artistLinks={artist.links} />
+          {/* Suspense requis : SongSwitcher utilise useSearchParams (deep link). */}
+          <Suspense fallback={null}>
+            <MusicSection artistSlug="qiwichee" locale="fr" artistLinks={artist.links} />
+          </Suspense>
         </section>
       </main>
 

@@ -20,6 +20,7 @@
 // =============================================================================
 
 import { getSongs } from '@/lib/modules/catalogue/client'
+import type { ShareDeepLinkConfig, ShareIdentity, ShareLabels } from '@/lib/modules/share/types'
 import SongSwitcher from './SongSwitcher'
 import ExternalLink from './ExternalLink'
 import BrandIcon, { type BrandName } from './BrandIcon'
@@ -39,6 +40,25 @@ export interface ArtistLink {
 
 const copy = {
   heading: 'Aussi sur →',
+    // TODO — colonne artists.domain, fenêtre de migration des colonnes d'artiste
+  // (avec pattern_path / palette). PAS 3b : un domaine ne se traduit pas.
+  shareDomain: 'qiwichee.com',
+}
+
+// Constante de PLATEFORME — pas une chaîne d'artiste, pas un TODO 3b.
+// Chaque carte partagée par n'importe quel artiste Résonance porte ce nom.
+const PLATFORM_WORDMARK = 'Résonance'
+
+// TODO 3b — déplacer dans messages/fr.json quand next-intl sera câblé
+const shareLabels: ShareLabels = {
+  action: 'Partager',
+  actionAriaTemplate: 'Partager « {title} »',
+  pending: 'Préparation…',
+  copied: 'Lien copié',
+  failed: 'Partage impossible',
+  shareTitleTemplate: '{title} — {name}',
+  shareTextTemplate: "J'écoute « {title} » de {name}.",
+  cardReleaseKicker: 'Extrait de',
 }
 
 interface MusicSectionProps {
@@ -68,9 +88,29 @@ export default async function MusicSection({
   const featuredSlug =
     catalogue.songs.find((song) => song.isFeatured)?.slug ?? null
 
+  const shareIdentity: ShareIdentity = {
+    name: catalogue.artistName,
+    domain: copy.shareDomain,
+    platformWordmark: PLATFORM_WORDMARK,
+  }
+
+  // ⚠️ NEXT_PUBLIC_SITE_ORIGIN doit être défini sur Vercel (type Config,
+  //    toutes branches). Sans elle, buildSongDeepLink lèvera à l'exécution.
+  const shareDeepLink: ShareDeepLinkConfig = {
+    origin: process.env.NEXT_PUBLIC_SITE_ORIGIN!,
+    path: '/',
+    hash: 'music',
+  }
+
   return (
     <>
-      <SongSwitcher songs={catalogue.songs} featuredSlug={featuredSlug} />
+      <SongSwitcher
+        songs={catalogue.songs}
+        featuredSlug={featuredSlug}
+        shareIdentity={shareIdentity}
+        shareLabels={shareLabels}
+        shareDeepLink={shareDeepLink}
+      />
 
       <div className="mt-8">
         <p className="mb-2 text-xs font-medium text-muted">{copy.heading}</p>

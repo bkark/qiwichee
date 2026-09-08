@@ -35,10 +35,36 @@
 //   constante d'artiste, aucun texte en dur hors `copy` (qui part en 3b).
 // =============================================================================
 
-import { useRef, useState, useCallback } from 'react'
+import { useRef, useState, useCallback, useMemo, useEffect } from 'react'
+import { useSearchParams } from 'next/navigation'
 import EmbedPlayer from './EmbedPlayer'
+import ShareButton from '@/lib/modules/share/ShareButton'
 import CarouselLayout, { type CarouselHandle, type CarouselItem } from './CarouselLayout'
 import type { Song } from '@/lib/modules/catalogue/types'
+import type {
+  ShareableSong,
+  ShareIdentity,
+  ShareLabels,
+  ShareDeepLinkConfig,
+} from '@/lib/modules/share/types'
+import { useShareSong } from '@/lib/modules/share/useShareSong'
+import { readSongDeepLink } from '@/lib/modules/share/deepLink'
+
+// ── Mapping catalogue → share ─────────────────────────────────────────────────
+// ⚠️ SEUL POINT DE COUPLAGE entre catalogue/types.ts et share/types.ts.
+//    Retourne null si song.artwork est absent (RÈGLE POCHETTE : une carte
+//    sans visuel ne doit pas circuler).
+function toShareableSong(song: Song): ShareableSong | null {
+  if (!song.artwork) return null
+  return {
+    slug: song.slug,
+    title: song.title,
+    releaseTitle: song.release?.title ?? null,   // null = chanson orpheline
+    releaseSlug: song.release?.slug ?? null,     // null = pas de paramètre release dans le lien
+    artworkUrl: song.artwork,
+    artworkAlt: song.artworkAlt,
+  }
+}
 
 // ── Copie ────────────────────────────────────────────────────────────────────
 // ★ UN SEUL OBJET PLAT, clés anglaises, valeurs françaises. Forme déjà appliquée
@@ -63,17 +89,64 @@ interface SongSwitcherProps {
   songs: Song[]
   /** Slug de la chanson mise en avant. Null = pas de choix éditorial. */
   featuredSlug: string | null
+  shareIdentity: ShareIdentity
+  shareLabels: ShareLabels
+  shareDeepLink: ShareDeepLinkConfig
 }
 
-export default function SongSwitcher({ songs, featuredSlug }: SongSwitcherProps) {
+export default function SongSwitcher({
+  songs,
+  featuredSlug,
+  shareIdentity,
+  shareLabels,
+  shareDeepLink,
+}: SongSwitcherProps) {
   const carouselRef = useRef<CarouselHandle>(null)
   const [activeIndex, setActiveIndex] = useState(0)
   // Un seul lecteur vivant à la fois : null = aucune iframe montée.
   const [activeEmbedSlug, setActiveEmbedSlug] = useState<string | null>(null)
+  const searchParams = useSearchParams()
 
   const handleDeactivate = useCallback(() => setActiveEmbedSlug(null), [])
 
   const activeSong = songs[activeIndex] ?? songs[0]
+
+  // Map slug → ShareableSong pour les chansons qui ont une pochette.
+  // Les chansons sans artwork ne sont pas dans la map (RÈGLE POCHETTE).
+  const shareableMap = useMemo<Map<string, ShareableSong>>(() => {
+    const map = new Map<string, ShareableSong>()
+    for (const song of songs) {
+      const s = toShareableSong(song)
+      if (s) map.set(song.slug, s)
+    }
+    return map
+  }, [songs])
+
+  const { activeSlug, status, prepare, share } = useShareSong({
+    identity: shareIdentity,
+    labels: shareLabels,
+    deepLink: shareDeepLink,
+  })
+
+  // Pré-chauffage de la SEULE diapo centrée. Le cache borné fait le reste.
+  useEffect(() => {
+    const song = songs[activeIndex]
+    if (!song) return
+    const s = shareableMap.get(song.slug)
+    if (s) prepare(s)
+  }, [activeIndex, prepare, shareableMap, songs])
+
+  // Navigation par deep link (?song=<slug>). Le #music amène la section ;
+  // ce useEffect centre la bonne diapo à l'intérieur. Deux mécanismes distincts.
+  useEffect(() => {
+    const target = readSongDeepLink(new URLSearchParams(searchParams.toString()))
+    if (!target) return
+    // Résolution dans l'ensemble des chansons (pas seulement celles avec artwork)
+    // pour que le lien fonctionne même si la pochette est absente.
+    const index = songs.findIndex((s) => s.slug === target.song)
+    if (index < 0) return
+    requestAnimationFrame(() => carouselRef.current?.scrollToIndex(index))
+  }, [searchParams, songs])
 
   /**
    * ★★ HIÉRARCHIE DE DÉMARRAGE : ancre > featured > aléatoire.
@@ -115,24 +188,41 @@ export default function SongSwitcher({ songs, featuredSlug }: SongSwitcherProps)
   // ── Diapos : VISUEL SEUL ───────────────────────────────────────────────────
   // Le titre reste en aria-label : invisible à l'œil, présent pour les
   // technologies d'assistance, qui n'ont pas le bloc épinglé sous les yeux.
-  const items: CarouselItem[] = songs.map((song, idx) => ({
-    key: song.slug,
-    // ★ data-release = slug de la SORTIE. Les règles de recoloration sont
-    //   écrites à ce niveau ; y mettre le slug de chanson ferait échouer la
-    //   recoloration EN SILENCE.
-    slideAttrs: song.paletteKey ? { 'data-release': song.paletteKey } : undefined,
-    label: copy.slideOf(song.title, idx + 1, songs.length),
-    content: song.media ? (
-      <EmbedPlayer
-        asset={song.media}
-        poster={song.artwork ?? undefined}
-        posterAlt={song.artworkAlt ?? song.title}
-        isActive={activeEmbedSlug === song.slug}
-        onActivate={() => setActiveEmbedSlug(song.slug)}
-        onDeactivate={handleDeactivate}
-      />
-    ) : null,
-  }))
+  const items: CarouselItem[] = songs.map((song, idx) => {
+    const shareableSong = song.media ? shareableMap.get(song.slug) : undefined
+    return {
+      key: song.slug,
+      // ★ data-release = slug de la SORTIE. Les règles de recoloration sont
+      //   écrites à ce niveau ; y mettre le slug de chanson ferait échouer la
+      //   recoloration EN SILENCE.
+      slideAttrs: song.paletteKey ? { 'data-release': song.paletteKey } : undefined,
+      label: copy.slideOf(song.title, idx + 1, songs.length),
+      content: song.media ? (
+        <div className="relative">
+          <EmbedPlayer
+            asset={song.media}
+            poster={song.artwork ?? undefined}
+            posterAlt={song.artworkAlt ?? song.title}
+            isActive={activeEmbedSlug === song.slug}
+            onActivate={() => setActiveEmbedSlug(song.slug)}
+            onDeactivate={handleDeactivate}
+          />
+          {shareableSong && (
+            <div className="absolute right-3 top-3 z-10">
+              <ShareButton
+                song={shareableSong}
+                labels={shareLabels}
+                status={activeSlug === song.slug ? status : 'idle'}
+                variant="icon"
+                onShare={share}
+                onPrepare={prepare}
+              />
+            </div>
+          )}
+        </div>
+      ) : null,
+    }
+  })
 
   return (
     <>

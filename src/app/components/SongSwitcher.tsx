@@ -149,15 +149,21 @@ export default function SongSwitcher({
   }, [searchParams, songs])
 
   /**
-   * ★★ HIÉRARCHIE DE DÉMARRAGE : ancre > featured > aléatoire.
+   * ★★ HIÉRARCHIE DE DÉMARRAGE : ancre > ?song= > featured > aléatoire.
    *   Une règle, pas une condition à retenir : si quelqu'un arrive par
-   *   /#flatline, il veut Flatline — l'aléatoire serait une trahison.
-   *   Sinon le choix éditorial de l'artiste. Sinon la découverte.
+   *   /#flatline ou ?song=flatline, il veut Flatline — l'aléatoire serait
+   *   une trahison. Sinon le choix éditorial de l'artiste. Sinon la découverte.
    *
    *   Appelé APRÈS le montage par CarouselLayout : `location.hash` n'existe
    *   pas au SSR et Math.random() casserait l'hydratation.
+   *
+   *   ★ ?song= est traité ici comme une ancre (même priorité que #hash) pour
+   *   rendre le conflit impossible : un seul mécanisme décide du point de
+   *   départ. Le useEffect([searchParams, songs]) reste pour la navigation
+   *   post-montage (changement de searchParams après le premier rendu).
    */
   const resolveInitialIndex = useCallback((): number | null => {
+    // Priorité 1 : #hash (ancre slug direct)
     const hash = window.location.hash.replace(/^#/, '')
     if (hash) {
       const i = songs.findIndex((s) => s.slug === hash)
@@ -178,12 +184,20 @@ export default function SongSwitcher({
         return i
       }
     }
+    // Priorité 2 : ?song= (deep link — IS une ancre, même règle que #hash)
+    const target = readSongDeepLink(new URLSearchParams(searchParams.toString()))
+    if (target) {
+      const i = songs.findIndex((s) => s.slug === target.song)
+      if (i !== -1) return i
+    }
+    // Priorité 3 : featured
     if (featuredSlug) {
       const i = songs.findIndex((s) => s.slug === featuredSlug)
       if (i !== -1) return i
     }
+    // Priorité 4 : aléatoire
     return Math.floor(Math.random() * songs.length)
-  }, [songs, featuredSlug])
+  }, [songs, featuredSlug, searchParams])
 
   // ── Diapos : VISUEL SEUL ───────────────────────────────────────────────────
   // Le titre reste en aria-label : invisible à l'œil, présent pour les
@@ -208,7 +222,7 @@ export default function SongSwitcher({
             onDeactivate={handleDeactivate}
           />
           {shareableSong && (
-            <div className="absolute right-3 top-3 z-10">
+            <div className="absolute bottom-3 left-3 z-10 rounded-full bg-bg/80 shadow-sm">
               <ShareButton
                 song={shareableSong}
                 labels={shareLabels}

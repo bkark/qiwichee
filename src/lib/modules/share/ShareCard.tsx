@@ -8,11 +8,15 @@ export const CARD_WIDTH = 1080
 export const CARD_HEIGHT = 1350
 
 const PAD = 84
-const ART_SIZE = CARD_WIDTH - PAD * 2
+const ART_SIZE = 840
 const ART_RADIUS = 28
 const WAVE_BARS = 56
-const WAVE_HEIGHT = 92
+// 60 px = hauteur garantie dans les deux cas (1 ou 2 lignes de titre).
+// Le min() dans renderShareCard garde ce rôle de garde-fou.
+const WAVE_HEIGHT = 60
 const WAVE_GAP = 6
+// Pochette centrée : elle n'occupe plus toute la largeur utile.
+const artX = (CARD_WIDTH - ART_SIZE) / 2
 
 /* ══════════════════════════════════════════════════════════════════════
    DÉCISION 3 — LE MOTIF EST DÉCORATIF, PAS UNE ANALYSE AUDIO.
@@ -157,7 +161,7 @@ export async function renderShareCard(
   // Pochette, recadrée en carré depuis le centre.
   const side = Math.min(artwork.naturalWidth, artwork.naturalHeight)
   ctx.save()
-  roundedRectPath(ctx, PAD, PAD, ART_SIZE, ART_SIZE, ART_RADIUS)
+  roundedRectPath(ctx, artX, PAD, ART_SIZE, ART_SIZE, ART_RADIUS)
   ctx.clip()
   ctx.drawImage(
     artwork,
@@ -165,7 +169,7 @@ export async function renderShareCard(
     (artwork.naturalHeight - side) / 2,
     side,
     side,
-    PAD,
+    artX,
     PAD,
     ART_SIZE,
     ART_SIZE,
@@ -179,7 +183,7 @@ export async function renderShareCard(
   ctx.textAlign = 'left'
   ctx.font = `700 62px ${theme.displayFamily}`
   for (const line of wrapText(ctx, song.title, ART_SIZE, 2)) {
-    ctx.fillText(line, PAD, cursorY)
+    ctx.fillText(line, artX, cursorY)
     cursorY += 74
   }
 
@@ -191,33 +195,42 @@ export async function renderShareCard(
   const context = song.releaseTitle
     ? `${labels.cardReleaseKicker} ${song.releaseTitle} · ${identity.name}`
     : identity.name
-  ctx.fillText(wrapText(ctx, context, ART_SIZE, 1)[0] ?? '', PAD, cursorY)
+  ctx.fillText(wrapText(ctx, context, ART_SIZE, 1)[0] ?? '', artX, cursorY)
 
-  // Motif décoratif — graine = slug (voir bloc de décision ci-dessus).
-  const waveTop = CARD_HEIGHT - PAD - 96 - WAVE_HEIGHT
-  const barWidth = (ART_SIZE - WAVE_GAP * (WAVE_BARS - 1)) / WAVE_BARS
-  ctx.fillStyle = theme.accent
-  decorativePattern(song.slug, WAVE_BARS).forEach((value, i) => {
-    const h = Math.max(4, value * WAVE_HEIGHT)
-    roundedRectPath(
-      ctx,
-      PAD + i * (barWidth + WAVE_GAP),
-      waveTop + (WAVE_HEIGHT - h) / 2,
-      barWidth,
-      h,
-      barWidth / 2,
-    )
-    ctx.fill()
-  })
+  // Motif décoratif — ancré sous cursorY, pas sous CARD_HEIGHT.
+  // Texte et motif partagent le même système de coordonnées ; le
+  // chevauchement est structurellement impossible quelle que soit la
+  // longueur du titre.
+  const footerY = CARD_HEIGHT - PAD
+  // 24 = descente typique du corps 30 px (~8 px) + marge visuelle (16 px).
+  // 28 = espace minimum entre le bas du motif et le baseline du pied.
+  const waveTop = cursorY + 24
+  const actualWaveHeight = Math.max(0, Math.min(WAVE_HEIGHT, footerY - 28 - waveTop))
+
+  if (actualWaveHeight >= 16) {
+    const barWidth = (ART_SIZE - WAVE_GAP * (WAVE_BARS - 1)) / WAVE_BARS
+    ctx.fillStyle = theme.accent
+    decorativePattern(song.slug, WAVE_BARS).forEach((value, i) => {
+      const h = Math.max(actualWaveHeight * 0.05, value * actualWaveHeight)
+      roundedRectPath(
+        ctx,
+        artX + i * (barWidth + WAVE_GAP),
+        waveTop + (actualWaveHeight - h) / 2,
+        barWidth,
+        h,
+        barWidth / 2,
+      )
+      ctx.fill()
+    })
+  }
 
   // Pied : domaine à gauche, signature plateforme à droite.
-  const footerY = CARD_HEIGHT - PAD
   ctx.font = `500 28px ${theme.bodyFamily}`
   ctx.fillStyle = theme.text
-  ctx.fillText(identity.domain, PAD, footerY)
+  ctx.fillText(identity.domain, artX, footerY)
   ctx.fillStyle = theme.textMuted
   ctx.textAlign = 'right'
-  ctx.fillText(identity.platformWordmark, CARD_WIDTH - PAD, footerY)
+  ctx.fillText(identity.platformWordmark, CARD_WIDTH - artX, footerY)
   ctx.textAlign = 'left'
 
   return new Promise<Blob>((resolve, reject) => {
